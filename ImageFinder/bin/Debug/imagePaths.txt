@@ -1,0 +1,4 @@
+var imgPaths = [
+"Patrick.jpg",
+"New folder/Patrick1.jpg",
+]

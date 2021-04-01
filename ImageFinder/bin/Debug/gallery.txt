@@ -1,0 +1,79 @@
+Gallery Website
+
+
+
+implementation:
+Console runner:
+- issue with images that are much longer than they are wide
+	need to crop at a specific ratio: 200%
+
+
+
+
+
+
+
+
+
+
+Requirements
+
+must:
+Image view:
+- easy to close single image (popup on list view) by clicking on background
+- when viewing image can navigate left or right to see next (navigateable with arrow keys or mouse click on arrow icon)
+- fav image (shortcut for a tag)
+List view:
+- sort and filter according to: date, tags
+- allow to combine tags with and/or logic
+- auto load when scrolling down
+
+
+nice to have:
+- allow user to add tag images in addition to predefined tags
+- categories (= grouping of tags?)
+- two modes: small and medium preview image list view
+
+
+
+ideas:
+- generate previewes?
+ should be server side because (initial) loading would be extremly slow if sending over original and caching icon locally
+- use browser cache for storing custom tags
+
+
+
+resources:
+https://colorlib.com/wp/template/shutter/
+
+uses Licence: CC BY 3.0
+https://creativecommons.org/licenses/by/3.0/
+so just need to credit
+claims it is free but can only buy it...
+
+
+lazy loading images:
+https://developer.mozilla.org/en-US/docs/Web/Performance/Lazy_loading#images_and_iframes
+-> lazy is the default
+
+
+templating:
+https://www.codereadability.com/constructing-html-with-templates/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

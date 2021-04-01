@@ -1,0 +1,7 @@
+C:\Users\Elko\source\repos\ImageFinder\ImageFinder\bin\Debug\ImageFinder.exe.config
+C:\Users\Elko\source\repos\ImageFinder\ImageFinder\bin\Debug\ImageFinder.exe
+C:\Users\Elko\source\repos\ImageFinder\ImageFinder\bin\Debug\ImageFinder.pdb
+C:\Users\Elko\source\repos\ImageFinder\ImageFinder\obj\Debug\ImageFinder.csprojAssemblyReference.cache
+C:\Users\Elko\source\repos\ImageFinder\ImageFinder\obj\Debug\ImageFinder.csproj.CoreCompileInputs.cache
+C:\Users\Elko\source\repos\ImageFinder\ImageFinder\obj\Debug\ImageFinder.exe
+C:\Users\Elko\source\repos\ImageFinder\ImageFinder\obj\Debug\ImageFinder.pdb
