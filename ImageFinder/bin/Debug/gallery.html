@@ -76,23 +76,29 @@ body {font-family: Arial, Helvetica, sans-serif;}
   to {transform:scale(1)}
 }
 
-/* The Close Button */
-.close {
-  position: absolute;
-  top: 15px;
-  right: 35px;
+/* Navigate to previous or next image */
+.next, .previous {
+  position: fixed;
+  top: 50%;
+  left: 85%;
   color: #f1f1f1;
   font-size: 40px;
   font-weight: bold;
   transition: 0.3s;
 }
 
-.close:hover,
-.close:focus {
+.previous {
+	left: 15%;
+}
+
+.next, .previous:hover,
+.next, .previous:focus {
   color: #bbb;
   text-decoration: none;
   cursor: pointer;
 }
+
+
 
 /* 100% Image Width on Smaller Screens */
 @media only screen and (max-width: 700px){
@@ -107,46 +113,105 @@ body {font-family: Arial, Helvetica, sans-serif;}
 
 var imgPaths = [
 "Patrick.jpg",
+"Rose.jpg",
+"flowers.jpeg",
 "New folder/Patrick1.jpg",
 ]
 
 
 
-$(document).ready(function(){
-
-imgPaths.forEach(addListImg);
-
-function addListImg(imagePath, index) {
-	var extension = imagePath.substr(imagePath.lastIndexOf("."));
-	var previewImgPath = imagePath.substr(0, imagePath.lastIndexOf(".")) + 'Preview230px' + extension;
-	var imageHtml = '<img name="listImg" src="' + previewImgPath + '" alt="' + imagePath + '" loading="lazy" width="250" height="250">';
-	$("body").append(imageHtml);
-}
-
-
-// Get the modal
-var modal = document.getElementById("myModal");
+var currentImageIndex = 0;
+var modal;
 
 // Get the image and insert it inside the modal - use its "alt" text as a caption
-var listImgs = document.getElementsByName("listImg");
-var modalImg = document.getElementById("modalImg");
-var captionText = document.getElementById("caption");
+var listImgs;
+var modalImg;
+var next;
+var previous;
+var captionText;
 
-listImgs.forEach(addDetailsViewPopup)
 
-function addDetailsViewPopup(item, index) {
-  item.onclick = function(){
-		modal.style.display = "block";
-		modalImg.src = this.alt;
-		captionText.innerHTML = this.alt;
+function navigateToPrevious(event) {
+	if (event) event.stopPropagation();
+	
+	if (currentImageIndex > 0) {
+		currentImageIndex -= 1;
+		modalImg.src = imgPaths[currentImageIndex];
+		captionText.innerHTML = imgPaths[currentImageIndex];
 	}
-} 
-
-// When the user clicks on <span> (x), close the modal
-modal.onclick = function() { 
-  modal.style.display = "none";
 }
+
+window.addEventListener("keydown", event => {
+    if (event.key == "ArrowLeft") {
+      navigateToPrevious(null);
+    }
+  });
+
+
+function navigateToNext(event) {
+	if (event) event.stopPropagation();
+	
+	if (currentImageIndex < imgPaths.length - 1) {
+		currentImageIndex += 1;
+		modalImg.src = imgPaths[currentImageIndex];
+		captionText.innerHTML = imgPaths[currentImageIndex];
+	}
+}
+
+window.addEventListener("keydown", event => {
+    if (event.key == "ArrowRight") {
+      navigateToNext(null);
+    }
+  });
+
+
+
+
+
+$(document).ready(function(){
+		
+	document.body.style.background = "grey";
+
+	imgPaths.forEach(addListImg);
+	
+	function addListImg(imagePath, index) {
+		var extension = imagePath.substr(imagePath.lastIndexOf("."));
+		var previewImgPath = imagePath.substr(0, imagePath.lastIndexOf(".")) + 'Preview230px' + extension;
+		var imageHtml = '<img name="listImg" src="' + previewImgPath + '" alt="' + imagePath + '" loading="lazy" width="250" height="250">';
+		$("body").append(imageHtml);
+	}
+	
+	
+	// Get the modal
+	modal = document.getElementById("myModal");
+	
+	// Get the image and insert it inside the modal - use its "alt" text as a caption
+	listImgs = document.getElementsByName("listImg");
+	modalImg = document.getElementById("modalImg");
+	next = document.getElementsByClassName("next")[0];
+	previous = document.getElementsByClassName("previous")[0];
+	captionText = document.getElementById("caption");
+	
+	
+	listImgs.forEach(addDetailsViewPopup)
+	
+	function addDetailsViewPopup(item, index) {
+	  item.onclick = function(){
+			modal.style.display = "block";
+			modalImg.src = this.alt;
+			captionText.innerHTML = this.alt;
+			currentImageIndex = index;
+		}
+	}
+	
+	// When the user clicks anywhere then close the modal
+	modal.onclick = function() { 
+	  modal.style.display = "none";
+	}
+
 });
+
+
 </script>
 </head>
 
@@ -155,6 +220,8 @@ modal.onclick = function() {
 
 <!-- The Modal Popup for the Image Detail View -->
 <div id="myModal" class="modal">
+  <span class="next" onclick="navigateToNext(event)">&rarr;</span>
+  <span class="previous" onclick="navigateToPrevious(event)">&larr;</span>
   <img class="modal-content" id="modalImg">
   <div id="caption"></div>
 </div>
