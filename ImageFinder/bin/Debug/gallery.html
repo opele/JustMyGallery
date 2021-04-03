@@ -166,6 +166,17 @@ window.addEventListener("keydown", event => {
 
 
 
+function closeModal() {
+	modal.style.display = "none";
+}
+
+window.addEventListener("keydown", event => {
+    if (event.key == "Escape") {
+      closeModal();
+    }
+  });
+
+
 
 
 $(document).ready(function(){
@@ -203,11 +214,6 @@ $(document).ready(function(){
 			currentImageIndex = index;
 		}
 	}
-	
-	// When the user clicks anywhere then close the modal
-	modal.onclick = function() { 
-	  modal.style.display = "none";
-	}
 
 });
 
@@ -219,7 +225,7 @@ $(document).ready(function(){
 
 
 <!-- The Modal Popup for the Image Detail View -->
-<div id="myModal" class="modal">
+<div id="myModal" class="modal" onclick="closeModal()">
   <span class="next" onclick="navigateToNext(event)">&rarr;</span>
   <span class="previous" onclick="navigateToPrevious(event)">&larr;</span>
   <img class="modal-content" id="modalImg">
