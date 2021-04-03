@@ -6,6 +6,7 @@ implementation:
 Console runner:
 - issue with images that are much longer than they are wide
 	need to crop at a specific ratio: 200%
+alternatively use an image grid that handles variable image height
 
 
 
@@ -61,11 +62,14 @@ templating:
 https://www.codereadability.com/constructing-html-with-templates/
 
 
+image grid with different sizes
+same width on all images but optimised height allows for no gaps / whitespace:
+https://www.w3schools.com/howto/howto_js_image_grid.asp
+need support for allowing different heights for preview images
 
 
-
-
-
+border around images:
+https://www.w3schools.com/howto/howto_css_border_image.asp
 
 
 
