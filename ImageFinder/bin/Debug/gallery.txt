@@ -9,8 +9,9 @@ Console runner:
 alternatively use an image grid that handles variable image height
 
 
-
-
+TODO:
+when scrolling modal, check that main page in the background is not scrolling
+bug: previous image navigation arrow brigther than next arrow in modal image view
 
 
 
