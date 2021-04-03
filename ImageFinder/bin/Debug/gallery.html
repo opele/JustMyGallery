@@ -177,6 +177,17 @@ window.addEventListener("keydown", event => {
   });
 
 
+window.addEventListener("keydown", event => {
+    if (event.key == "ArrowDown") {
+    	modal.scrollTop += 20;
+    }
+  });
+
+window.addEventListener("keydown", event => {
+    if (event.key == "ArrowUp") {
+    	modal.scrollTop -= 20;
+    }
+  });
 
 
 $(document).ready(function(){
