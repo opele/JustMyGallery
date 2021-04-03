@@ -10,7 +10,7 @@ alternatively use an image grid that handles variable image height
 
 
 TODO:
-when scrolling modal, check that main page in the background is not scrolling
+bug: when scrolling modal, main page in the background is also scrolling
 bug: previous image navigation arrow brigther than next arrow in modal image view
 
 
@@ -67,6 +67,7 @@ image grid with different sizes
 same width on all images but optimised height allows for no gaps / whitespace:
 https://www.w3schools.com/howto/howto_js_image_grid.asp
 need support for allowing different heights for preview images
+-> cant be used because requires fixed amount of images
 
 
 border around images:
