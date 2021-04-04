@@ -1,248 +1,192 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-body {font-family: Arial, Helvetica, sans-serif;}
-
-[name=listImg] {
-  border-radius: 5px;
-  cursor: pointer;
-  transition: 0.3s;
-  max-width:230px;
-  max-height:230px;
-  width: auto;
-  height: auto;
-  padding-top: 10px;
-  padding-right: 10px;
-  padding-bottom: 10px;
-  padding-left: 10px;
-}
-
-[name=listImg]:hover {opacity: 0.7;}
-
-/* The Modal (background) */
-.modal {
-  display: none; /* Hidden by default */
-  position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
-  padding-top: 100px; /* Location of the box */
-  left: 0;
-  top: 0;
-  width: 100%; /* Full width */
-  height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgb(0,0,0); /* Fallback color */
-  background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
-}
-
-/* Modal Content (image) */
-.modal-content {
-  margin: auto;
-  display: block;
-  width: 80%;
-  max-width: 700px;
-}
-
-/* Caption of Modal Image */
-#caption {
-  margin: auto;
-  display: block;
-  width: 80%;
-  max-width: 700px;
-  text-align: center;
-  color: #ccc;
-  padding: 10px 0;
-  height: 150px;
-}
-
-/* Add Animation */
-.modal-content, #caption {  
-  -webkit-animation-name: zoom;
-  -webkit-animation-duration: 0.6s;
-  animation-name: zoom;
-  animation-duration: 0.6s;
-}
-
-@-webkit-keyframes zoom {
-  from {-webkit-transform:scale(0)} 
-  to {-webkit-transform:scale(1)}
-}
-
-@keyframes zoom {
-  from {transform:scale(0)} 
-  to {transform:scale(1)}
-}
-
-/* Navigate to previous or next image */
-.next, .previous {
-  position: fixed;
-  top: 50%;
-  left: 85%;
-  color: #f1f1f1;
-  font-size: 40px;
-  font-weight: bold;
-  transition: 0.3s;
-}
-
-.previous {
-	left: 15%;
-}
-
-.next, .previous:hover,
-.next, .previous:focus {
-  color: #bbb;
-  text-decoration: none;
-  cursor: pointer;
-}
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"></script>
+	<script src="lib/galleria.js"></script>
 
 
-
-/* 100% Image Width on Smaller Screens */
-@media only screen and (max-width: 700px){
-  .modal-content {
-    width: 100%;
-  }
-}
-</style>
-
-
-<script>
-
-var imgPaths = [
-"Patrick.jpg",
-"Rose.jpg",
-"flowers.jpeg",
-"New folder/Patrick1.jpg",
-]
-
-
-
-var currentImageIndex = 0;
-var modal;
-
-// Get the image and insert it inside the modal - use its "alt" text as a caption
-var listImgs;
-var modalImg;
-var next;
-var previous;
-var captionText;
-
-
-function navigateToPrevious(event) {
-	if (event) event.stopPropagation();
-	
-	if (currentImageIndex > 0) {
-		currentImageIndex -= 1;
-		modalImg.src = imgPaths[currentImageIndex];
-		captionText.innerHTML = imgPaths[currentImageIndex];
-	}
-}
-
-window.addEventListener("keydown", event => {
-    if (event.key == "ArrowLeft") {
-      navigateToPrevious(null);
-    }
-  });
-
-
-function navigateToNext(event) {
-	if (event) event.stopPropagation();
-	
-	if (currentImageIndex < imgPaths.length - 1) {
-		currentImageIndex += 1;
-		modalImg.src = imgPaths[currentImageIndex];
-		captionText.innerHTML = imgPaths[currentImageIndex];
-	}
-}
-
-window.addEventListener("keydown", event => {
-    if (event.key == "ArrowRight") {
-      navigateToNext(null);
-    }
-  });
-
-
-
-function closeModal() {
-	modal.style.display = "none";
-}
-
-window.addEventListener("keydown", event => {
-    if (event.key == "Escape") {
-      closeModal();
-    }
-  });
-
-
-window.addEventListener("keydown", event => {
-    if (event.key == "ArrowDown") {
-    	modal.scrollTop += 20;
-    }
-  });
-
-window.addEventListener("keydown", event => {
-    if (event.key == "ArrowUp") {
-    	modal.scrollTop -= 20;
-    }
-  });
-
-
-$(document).ready(function(){
+	<style>
+		.galleria{ width: auto; min-height: 4000px; background: grey }
 		
-	document.body.style.background = "grey";
-
-	imgPaths.forEach(addListImg);
-	
-	function addListImg(imagePath, index) {
-		var extension = imagePath.substr(imagePath.lastIndexOf("."));
-		var previewImgPath = imagePath.substr(0, imagePath.lastIndexOf(".")) + 'Preview230px' + extension;
-		var imageHtml = '<img name="listImg" src="' + previewImgPath + '" alt="' + imagePath + '" loading="lazy" width="250" height="250">';
-		$("body").append(imageHtml);
-	}
-	
-	
-	// Get the modal
-	modal = document.getElementById("myModal");
-	
-	// Get the image and insert it inside the modal - use its "alt" text as a caption
-	listImgs = document.getElementsByName("listImg");
-	modalImg = document.getElementById("modalImg");
-	next = document.getElementsByClassName("next")[0];
-	previous = document.getElementsByClassName("previous")[0];
-	captionText = document.getElementById("caption");
-	
-	
-	listImgs.forEach(addDetailsViewPopup)
-	
-	function addDetailsViewPopup(item, index) {
-	  item.onclick = function(){
-			modal.style.display = "block";
-			modalImg.src = this.alt;
-			captionText.innerHTML = this.alt;
-			currentImageIndex = index;
+		
+		body .galleria-thumbnails .galleria-image { 
+			width:230px, /* the width is hardcoded in the theme css */
 		}
-	}
-
-});
+	</style>
 
 
-</script>
+	<script>
+
+
+		var imgData = [
+			{
+				image: "images/1 mk1-6aYaf_Bes1E3Imhc0A.jpeg",
+				big: "images/1 mk1-6aYaf_Bes1E3Imhc0A.jpeg",
+				description: "images/1 mk1-6aYaf_Bes1E3Imhc0A.jpeg"
+			},
+			{
+				image: "images/60576840e7d265198541a372_bavassano_homepage_gp.jpg",
+			},
+			{
+				image: "images/bing-images-5ec81ff1a09f2.png",
+			},
+			{
+				image: "images/crop.jpg",
+			},
+			{
+				image: "images/GeFvQkBbSLaMdpKXF1Zv_bigstock-Aerial-View-Of-Blue-Lakes-And--227291596.jpg",
+			},
+			{
+				image: "images/grapefruit-slice-332-332.jpg",
+			},
+			{
+				image: "images/image-5.jpg",
+			},
+			{
+				image: "images/offset_comp_772626-opt.jpg",
+			},
+			{
+				image: 'images/Patrick.jpg'
+			},
+			{
+				image: "images/photo-1587410131477-f01b22c59e1c.jpg",
+			},
+			{
+				image: "images/pia22692.jpg",
+			},
+			{
+				image: "images/px-beach-daylight-fun-1430675-image.jpg",
+			},
+			{
+				image: 'images/Patrick.jpg'
+			},
+			{
+				image: "images/scotia_plaza_tall_stitched.jpg",
+				big: "images/scotia_plaza_tall_stitched.jpg",
+			},
+			{
+				image: 'images/Patrick.jpg'
+			},
+			{
+				image: "images/Tampa_FL_Sulphur_Springs_Tower_tall_pano01.jpg",
+			},
+			{
+				image: 'images/Patrick.jpg'
+			},
+			{
+				image: "images/wpy-winning-image-full-width-preview.jpg"
+			},
+			{
+				image: 'images/Patrick.jpg'
+			},
+			{
+				image: 'images/Patrick.jpg'
+			},
+			{
+				image: 'images/Patrick.jpg'
+			},
+			{
+				image: 'images/Patrick.jpg'
+			},
+			{
+				image: 'images/Patrick.jpg'
+			},
+			{
+				image: 'images/Patrick.jpg'
+			},
+			{
+				image: 'images/Patrick.jpg'
+			},
+			{
+				image: 'images/Patrick.jpg'
+			},
+			{
+				image: 'images/Patrick.jpg'
+			},
+			{
+				image: 'images/Patrick.jpg'
+			},
+			{
+				image: 'images/Patrick.jpg'
+			},
+			{
+				image: 'images/Patrick.jpg'
+			},
+			{
+				image: 'images/Patrick.jpg'
+			},
+			{
+				image: 'images/Patrick.jpg'
+			},
+			{
+				image: 'images/Patrick.jpg'
+			},
+			{
+				image: 'images/Patrick.jpg'
+			},
+		];
+
+
+	</script>
 </head>
 
 <body>
 
+	<div class="galleria">
+	</div>
 
-<!-- The Modal Popup for the Image Detail View -->
-<div id="myModal" class="modal" onclick="closeModal()">
-  <span class="next" onclick="navigateToNext(event)">&rarr;</span>
-  <span class="previous" onclick="navigateToPrevious(event)">&larr;</span>
-  <img class="modal-content" id="modalImg">
-  <div id="caption"></div>
-</div>
-
+	<script>
+		(function() {
+		
+			Galleria.loadTheme('lib/folio/galleria.folio.min.js');
+			Galleria.run('.galleria', {
+			dataSource: imgData,
+			thumbnails: 'lazy',
+			transition: 'pulse',
+			thumbCrop: 'width',
+			imageCrop: false,
+			carousel: false,
+			show: false,
+			maxScaleRatio: 1,
+			max: 1,
+			easing: 'galleriaOut',
+			fullscreenDoubleTap: false,
+			// Shows navigation as cursor for webkit
+			_webkitCursor: true,
+			// Animates the thumbnails
+			_animate: true,
+			// Centers the thumbnails inside it’s container
+			_center: true
+			});
+		}());
+		
+		Galleria.ready(function(options) {
+				this.lazyLoadChunks( 10 );
+			});
+			
+		
+		// for testing
+		Galleria.on('image', function(e) {
+			Galleria.log(this); // the gallery scope
+			Galleria.log(e.imageTarget); // the currently active IMG element
+			Galleria.log(e.imageTarget.height);
+			Galleria.log(e.imageTarget.width);
+			e.imageTarget.width = "500px";
+			e.imageTarget.height = "500px";
+			Galleria.log(e.imageTarget.height);
+			Galleria.log(e.imageTarget.width);
+			// does not apply the new size, shows old sizes
+		});
+		
+		/*
+		Galleria.on('lightbox_image', function(e) {
+			Galleria.log(this); // the gallery scope
+			Galleria.log(e.imageTarget); // the currently active IMG element
+			e.imageTarget.height = 'auto';
+			e.imageTarget.width = 'auto';
+		});*/
+		
+    </script>
 
 </body>
 </html>

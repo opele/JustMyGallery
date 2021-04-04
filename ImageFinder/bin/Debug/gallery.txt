@@ -69,6 +69,16 @@ https://www.w3schools.com/howto/howto_js_image_grid.asp
 need support for allowing different heights for preview images
 -> cant be used because requires fixed amount of images
 
+alternative JS library:
+https://github.com/galleriajs/galleria
+demos:
+https://galleria.foliofusion.com/
+https://theshopkeepers.com/shopkeeper/galleria/themes/folio/demo.html
+
+image grid js lib:
+https://github.com/schlosser/pig.js
+but horizontal flex with fixed height
+
 
 border around images:
 https://www.w3schools.com/howto/howto_css_border_image.asp
