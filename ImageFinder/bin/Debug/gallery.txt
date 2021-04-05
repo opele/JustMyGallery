@@ -10,9 +10,6 @@ alternatively use an image grid that handles variable image height
 
 
 TODO:
-bug: when scrolling modal, main page in the background is also scrolling
-bug: previous image navigation arrow brigther than next arrow in modal image view
-
 
 
 

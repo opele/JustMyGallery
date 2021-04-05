@@ -136,55 +136,132 @@
 	</div>
 
 	<script>
+		
 		(function() {
 		
 			Galleria.loadTheme('lib/folio/galleria.folio.min.js');
 			Galleria.run('.galleria', {
-			dataSource: imgData,
-			thumbnails: 'lazy',
-			transition: 'pulse',
-			thumbCrop: 'width',
-			imageCrop: false,
-			carousel: false,
-			show: false,
-			maxScaleRatio: 1,
-			max: 1,
-			easing: 'galleriaOut',
-			fullscreenDoubleTap: false,
-			// Shows navigation as cursor for webkit
-			_webkitCursor: true,
-			// Animates the thumbnails
-			_animate: true,
-			// Centers the thumbnails inside it’s container
-			_center: true
+				dataSource: imgData,
+				thumbnails: 'lazy',
+				transition: 'pulse',
+				thumbCrop: 'width',
+				imageCrop: false,
+				carousel: false,
+				show: false,
+				easing: 'galleriaOut',
+				fullscreenDoubleTap: false,
+				// Shows navigation as cursor for webkit
+				_webkitCursor: true,
+				// Animates the thumbnails
+				_animate: true,
+				// Centers the thumbnails inside it’s container
+				_center: true
 			});
 		}());
 		
 		Galleria.ready(function(options) {
 				this.lazyLoadChunks( 10 );
 			});
-			
 		
-		// for testing
-		Galleria.on('image', function(e) {
-			Galleria.log(this); // the gallery scope
-			Galleria.log(e.imageTarget); // the currently active IMG element
-			Galleria.log(e.imageTarget.height);
-			Galleria.log(e.imageTarget.width);
-			e.imageTarget.width = "500px";
-			e.imageTarget.height = "500px";
-			Galleria.log(e.imageTarget.height);
-			Galleria.log(e.imageTarget.width);
-			// does not apply the new size, shows old sizes
+		
+		/* SHOW IMAGE IN ORIGINAL SIZE */
+		
+		// allow scrolling with mousewheel
+		var $window = $(window);
+		var scrollTime = .5;
+		var scrollDistance = 170;
+
+		$window.on("mousewheel DOMMouseScroll", function(event){
+			if ($("#fullSizeImage").length && $("#fullSizeImage").get(0).style.display != "none") {
+				var target = $(".galleria-images").get(0);
+
+				event.preventDefault();  
+
+				var delta = event.originalEvent.wheelDelta/120 || -event.originalEvent.detail/3;
+				target.scrollTop -= parseInt(delta*scrollDistance);
+			}
 		});
 		
-		/*
-		Galleria.on('lightbox_image', function(e) {
-			Galleria.log(this); // the gallery scope
-			Galleria.log(e.imageTarget); // the currently active IMG element
-			e.imageTarget.height = 'auto';
-			e.imageTarget.width = 'auto';
-		});*/
+		
+		// galleria event callback when an preview image has been selected and is displayed in the lightbox 
+		Galleria.on('image', function(e) {
+		
+			var galleriaRef = this;
+		
+			// when selecting next or prev image, need to reset the full size image view as it does not display properly (scroll pane is still as large as previous image)
+			if ($("#fullSizeImage").length) {
+				resetFullSizeView(e, galleriaRef)
+			}
+		
+			// show original image size when clicking on the image
+			// e.imageTarget = the currently active IMG HTML element
+			e.imageTarget.onclick = function() {
+			
+				if (!$("#fullSizeImage").length) {
+					Galleria.log("Setting image to original size");
+					
+					e.imageTarget.id = "fullSizeImage";
+					
+					$("#fullSizeImage").get(0).parentElement.parentElement.style.overflow = 'auto';
+					$("#fullSizeImage").get(0).parentElement.style.overflow = ''; // if we set auto here, it will crop the vertical scrollbar for some reason
+					$("#fullSizeImage").get(0).parentElement.style.height = 'auto';
+					$("#fullSizeImage").get(0).parentElement.style.width = 'auto';
+					$("#fullSizeImage").get(0).parentElement.style.position = '';
+					
+					$("#fullSizeImage").get(0).style.height = 'auto';
+					$("#fullSizeImage").get(0).style.width = 'auto';
+					$("#fullSizeImage").get(0).height = 'auto';
+					$("#fullSizeImage").get(0).width = 'auto';
+					$("#fullSizeImage").get(0).style.margin = 'auto';
+					// clear the absolute positioning because for some reason does not show otherwise
+					$("#fullSizeImage").get(0).style.position = '';
+					$("#fullSizeImage").get(0).style.overflow = 'auto';
+					
+					// issue: this hides the left/right navigation completely
+					//$(".galleria-image-nav").css("z-index", "-1");
+					// the nav spans from right to left with 100% width and would blocks click event on the image or the scrollbar
+					// it starts to block because the position is cleared from the image, which means the z-index property stops working and it slides into the background
+					// so set to ignore click events but allow click events specifically on the left and right navigation which are only small bars on the sides of the screen
+					$(".galleria-image-nav").css("pointer-events", "none");
+					$(".galleria-image-nav-right").css("pointer-events", "auto");
+					$(".galleria-image-nav-left").css("pointer-events", "auto");
+					// need to leave a bit of space to not obstruct the scrollbar by the right nav element control which overlays the image
+					$(".galleria-image-nav").css("width", "99%");
+					
+				} else {
+					resetFullSizeView(e, galleriaRef);
+				}
+			}
+		});
+		
+		function resetFullSizeView(e, galleriaRef) {
+			Galleria.log("Fitting image to screen size");
+			
+			$("#fullSizeImage").get(0).parentElement.parentElement.style.overflow = 'hidden';
+			$("#fullSizeImage").get(0).parentElement.style.overflow = 'hidden';
+			$("#fullSizeImage").get(0).parentElement.style.height = '100%';
+			$("#fullSizeImage").get(0).parentElement.style.width = '100%';
+			$("#fullSizeImage").get(0).parentElement.style.position = 'absolute';
+			
+			$("#fullSizeImage").get(0).style.height = '100%';
+			$("#fullSizeImage").get(0).style.width = '100%';
+			$("#fullSizeImage").get(0).height = '';
+			$("#fullSizeImage").get(0).width = '';
+			$("#fullSizeImage").get(0).style.margin = '';
+			$("#fullSizeImage").get(0).style.position = 'absolute';
+			$("#fullSizeImage").get(0).style.overflow = 'hidden';
+			
+			// bug: do not unset these; for some reason they are sometimes not set again so the image can not be clicked...
+			//$(".galleria-image-nav").css("width", "100%");
+			//$(".galleria-image-nav").css("pointer-events", "");
+			//$(".galleria-image-nav-right").css("pointer-events", "");
+			//$(".galleria-image-nav-left").css("pointer-events", "");
+			
+			$("#fullSizeImage").get(0).id = null;
+			
+			// TODO: if the window is resized while viewing full image, the image is rescaled to fit the screen, above code to reset the style should be triggered on the rescale callback
+			galleriaRef.resize({width:'100%', height:'100%'});
+		}
 		
     </script>
 
