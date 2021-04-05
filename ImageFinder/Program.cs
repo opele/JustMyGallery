@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,16 +15,18 @@ namespace ImageFinder {
      */
     class Program {
 
-        private const string OUTPUT_FILE_NAME = "imagePaths.txt";
+        private const string OUTPUT_FILE_NAME = "imageData.txt";
         private const int MAX_DEPTH = 4;
-        private const int PREVIEW_WIDTH_PX = 230;
-        private const int PREVIEW_HEIGHT_PX = 230;
+        public const int PREVIEW_WIDTH_PX = 230; // can not be changes because currently hardcoded in gallery html
+        private const int PREVIEW_IMG_QUALITY = 75;
 
         enum Option {
             ListAndPrev,
             List,
             RegenPrev,
-            DelPrev
+            DelPrev,
+            SetQuality,
+            SetMaxDepth
         }
 
         static StreamWriter output;
@@ -32,6 +35,8 @@ namespace ImageFinder {
         static int imgPrevDelCount;
         static string rootDirPath;
         static Option? option;
+        static int previewImgQuality = -1;
+        static int maxDepth = -1;
 
         static void Main(string[] args) {
 
@@ -41,20 +46,66 @@ namespace ImageFinder {
             imgPrevDelCount = 0;
             rootDirPath = null;
             output = null;
+            previewImgQuality = PREVIEW_IMG_QUALITY;
+            maxDepth = MAX_DEPTH;
+
+            Console.WriteLine("This program generates data about images for a gallery website. It can generate preview images and a text file containing the list of images." +
+                " The contents of this text file are to be copy pasted into the javascript part of the html file.");
 
             while (option == null) {
-
+                Console.WriteLine();
                 Console.WriteLine("Pick an action by typing the number: ");
-                Console.WriteLine("1. Generate Image List and missing Preview Images");
-                Console.WriteLine("2. Generate the Image List only");
-                Console.WriteLine("3. Regenerate all Preview Images");
-                Console.WriteLine("4. Delete all Preview Images");
+                Console.WriteLine("1. Generate image data and missing preview images");
+                Console.WriteLine("2. Generate image data only");
+                Console.WriteLine("3. Regenerate all preview images");
+                Console.WriteLine("4. Delete all preview images");
+                Console.WriteLine("5. Set the quality of preview images (current value is " + previewImgQuality + ")");
+                Console.WriteLine("6. Set the number of sub-directories to search for image data (current value is " + maxDepth + ")");
 
                 switch (Console.ReadKey().Key) {
                     case ConsoleKey.D1: { option = Option.ListAndPrev; } break;
                     case ConsoleKey.D2: { option = Option.List; } break;
                     case ConsoleKey.D3: { option = Option.RegenPrev; } break;
                     case ConsoleKey.D4: { option = Option.DelPrev; } break;
+                    case ConsoleKey.D5: { option = Option.SetQuality; }; break;
+                    case ConsoleKey.D6: { option = Option.SetMaxDepth; }; break;
+                }
+                Console.WriteLine();
+
+                if (option == Option.SetQuality) {
+                    Console.WriteLine("Type the number for the preview image quality (between 0 and 100) and confirm with return: ");
+                    String input = Console.ReadLine();
+
+                    int inputQuality = -1;
+                    bool success = int.TryParse(input, out inputQuality);
+
+                    if (!success || inputQuality < 0 || inputQuality > 100) {
+                        Console.WriteLine();
+                        Console.WriteLine("The input '" + input + "' is not valid");
+                    } else {
+                        previewImgQuality = inputQuality;
+                        Console.WriteLine("Updated quality to new value: " + inputQuality);
+                    }
+
+                    option = null;
+                }
+
+                if (option == Option.SetMaxDepth) {
+                    Console.WriteLine("Type the number of the maximum depth of image directories to search and confirm with return: ");
+                    String input = Console.ReadLine();
+
+                    int inputMaxDepth = -1;
+                    bool success = int.TryParse(input, out inputMaxDepth);
+
+                    if (!success || inputMaxDepth < 0 || inputMaxDepth > 100) {
+                        Console.WriteLine();
+                        Console.WriteLine("The input '" + input + "' is not valid");
+                    } else {
+                        maxDepth = inputMaxDepth;
+                        Console.WriteLine("Updated parsing depth to new value: " + inputMaxDepth);
+                    }
+
+                    option = null;
                 }
             }
 
@@ -62,9 +113,10 @@ namespace ImageFinder {
                 processFiles();
             } catch (Exception ex) {
                 Console.WriteLine("Error occurred: " + ex.Message);
+                Console.WriteLine("Details: " + ex.StackTrace);
             }
 
-            Console.WriteLine("Process completed.");
+            Console.WriteLine("Process completed. Preview image quality used: " + previewImgQuality);
             Console.Read();
         }
 
@@ -75,13 +127,13 @@ namespace ImageFinder {
 
             if (option == Option.List || option == Option.ListAndPrev) {
                 output = File.CreateText(rootDirPath + "/" + OUTPUT_FILE_NAME);
-                output.WriteLine("var imgPaths = [");
+                output.WriteLine("var imgData = [");
             }
             
             processDirs(rootDirPath, 0);
 
             if (option == Option.List || option == Option.ListAndPrev) {
-                output.WriteLine("]");
+                output.WriteLine("];");
                 output.Flush();
                 output.Dispose();
             }
@@ -93,13 +145,13 @@ namespace ImageFinder {
 
         static void processDirs(string dirPath, int depth) {
 
-            if (depth > MAX_DEPTH) {
+            if (depth > maxDepth) {
                 Console.WriteLine("WARNING: skipping sub-directory due to search depth limit: " + dirPath);
                 return;
             }
 
             foreach (string filePath in Directory.GetFiles(dirPath)) {
-                processFile(filePath, output);
+                processFile(filePath);
             }
 
             foreach (string childDirPath in Directory.GetDirectories(dirPath)) {
@@ -107,7 +159,7 @@ namespace ImageFinder {
             }
         }
 
-        static void processFile(string filePath, StreamWriter output) {
+        static void processFile(string filePath) {
 
             switch (option) {
                 case Option.ListAndPrev: { addToList(filePath); generatePreview(filePath, false); } break;
@@ -118,14 +170,14 @@ namespace ImageFinder {
         }
 
         static void addToList(string filePath) {
-            if (isOriginalImg(filePath)) {
+            if (ImageUtil.isOriginalImg(filePath)) {
                 output.WriteLine(formatLine(filePath));
                 imgListCount++;
             }
         }
 
         static void deletePreview(string filePath) {
-            if (isPreviewImg(filePath)) {
+            if (ImageUtil.isPreviewImg(filePath)) {
                 File.Delete(filePath);
                 imgPrevDelCount++;
             }
@@ -133,54 +185,40 @@ namespace ImageFinder {
 
         private static void generatePreview(string filePath, bool overwrite) {
 
-            if (!isOriginalImg(filePath)) return;
+            if (!ImageUtil.isOriginalImg(filePath)) return;
 
-            string previewFilePath = getPreviewPath(filePath);
+            string previewFilePath = ImageUtil.getPreviewPath(filePath);
 
             if (overwrite || !File.Exists(previewFilePath)) {
 
                 Console.WriteLine("Generating preview image: " + previewFilePath);
 
-                Bitmap resizedImg = ImageUtil.ResizeImage(filePath, PREVIEW_WIDTH_PX, PREVIEW_HEIGHT_PX);
+                Bitmap resizedImg = ImageUtil.ResizeImage(filePath, PREVIEW_WIDTH_PX);
 
-                resizedImg.Save(previewFilePath);
+                var encoderParameters = new EncoderParameters(1);
+                var encoderParameter = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, previewImgQuality);
+                encoderParameters.Param[0] = encoderParameter;
+                resizedImg.Save(previewFilePath, ImageUtil.GetEncoderInfo("image/jpeg"), encoderParameters);
                 resizedImg.Dispose();
+
                 imgPrevGenCount++;
             }
         }
 
-        static string getPreviewPath(string originalPath) {
-            string extension = originalPath.Substring(originalPath.LastIndexOf("."));
-            string prevImgPath = originalPath.Remove(originalPath.LastIndexOf(".")) + getPrieviewImageSuffix() + extension;
-            return prevImgPath;
-        }
-
-        static bool isOriginalImg(string filePath) {
-            return (filePath.EndsWith(".png") || filePath.EndsWith(".jpg") || filePath.EndsWith(".jpeg")) 
-                && !isPreviewImg(filePath);
-        }
-
-        static bool isPreviewImg(string filePath) {
-            string removedExtension = filePath.Remove(filePath.LastIndexOf("."));
-            return removedExtension.EndsWith(getPrieviewImageSuffix());
-        }
-
-        static string getPrieviewImageSuffix() {
-            return "Preview" + PREVIEW_WIDTH_PX + "px";
-        }
-
         static string formatLine(string imgPath) {
-            
+
             // make relative to root path by removing it
-            string outputLine = imgPath.Remove(0, rootDirPath.Count() + 1);
+            string outputPath = imgPath.Remove(0, rootDirPath.Count() + 1);
 
             // replace all \ with /
-            outputLine = outputLine.Replace("\\", "/");
+            outputPath = outputPath.Replace("\\", "/");
 
-            // json array format
-            outputLine = "\"" + outputLine + "\",";
-
-            return outputLine;
+            return $@"
+                    {{
+                        thumb: '{ImageUtil.getPreviewPath(outputPath)}',
+                        image: '{outputPath}',
+                        title: '{Path.GetFileName(outputPath)}'
+                    }},";
         }
     }
 }

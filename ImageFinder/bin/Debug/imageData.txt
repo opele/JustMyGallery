@@ -1,0 +1,86 @@
+var imgData = [
+
+                    {
+                        thumb: 'images/1 mk1-6aYaf_Bes1E3Imhc0APreview230px.jpeg',
+                        image: 'images/1 mk1-6aYaf_Bes1E3Imhc0A.jpeg',
+                        title: '1 mk1-6aYaf_Bes1E3Imhc0A.jpeg'
+                    },
+
+                    {
+                        thumb: 'images/60576840e7d265198541a372_bavassano_homepage_gpPreview230px.jpg',
+                        image: 'images/60576840e7d265198541a372_bavassano_homepage_gp.jpg',
+                        title: '60576840e7d265198541a372_bavassano_homepage_gp.jpg'
+                    },
+
+                    {
+                        thumb: 'images/bing-images-5ec81ff1a09f2Preview230px.png',
+                        image: 'images/bing-images-5ec81ff1a09f2.png',
+                        title: 'bing-images-5ec81ff1a09f2.png'
+                    },
+
+                    {
+                        thumb: 'images/cropPreview230px.jpg',
+                        image: 'images/crop.jpg',
+                        title: 'crop.jpg'
+                    },
+
+                    {
+                        thumb: 'images/GeFvQkBbSLaMdpKXF1Zv_bigstock-Aerial-View-Of-Blue-Lakes-And--227291596Preview230px.jpg',
+                        image: 'images/GeFvQkBbSLaMdpKXF1Zv_bigstock-Aerial-View-Of-Blue-Lakes-And--227291596.jpg',
+                        title: 'GeFvQkBbSLaMdpKXF1Zv_bigstock-Aerial-View-Of-Blue-Lakes-And--227291596.jpg'
+                    },
+
+                    {
+                        thumb: 'images/grapefruitPreview230px.jpg',
+                        image: 'images/grapefruit.jpg',
+                        title: 'grapefruit.jpg'
+                    },
+
+                    {
+                        thumb: 'images/image-5Preview230px.jpg',
+                        image: 'images/image-5.jpg',
+                        title: 'image-5.jpg'
+                    },
+
+                    {
+                        thumb: 'images/offset_comp_772626-optPreview230px.jpg',
+                        image: 'images/offset_comp_772626-opt.jpg',
+                        title: 'offset_comp_772626-opt.jpg'
+                    },
+
+                    {
+                        thumb: 'images/photo-1587410131477-f01b22c59e1cPreview230px.jpg',
+                        image: 'images/photo-1587410131477-f01b22c59e1c.jpg',
+                        title: 'photo-1587410131477-f01b22c59e1c.jpg'
+                    },
+
+                    {
+                        thumb: 'images/pia22692Preview230px.jpg',
+                        image: 'images/pia22692.jpg',
+                        title: 'pia22692.jpg'
+                    },
+
+                    {
+                        thumb: 'images/px-beach-daylight-fun-1430675-imagePreview230px.jpg',
+                        image: 'images/px-beach-daylight-fun-1430675-image.jpg',
+                        title: 'px-beach-daylight-fun-1430675-image.jpg'
+                    },
+
+                    {
+                        thumb: 'images/scotia_plaza_tall_stitchedPreview230px.jpg',
+                        image: 'images/scotia_plaza_tall_stitched.jpg',
+                        title: 'scotia_plaza_tall_stitched.jpg'
+                    },
+
+                    {
+                        thumb: 'images/Tampa_FL_Sulphur_Springs_Tower_tall_pano01Preview230px.jpg',
+                        image: 'images/Tampa_FL_Sulphur_Springs_Tower_tall_pano01.jpg',
+                        title: 'Tampa_FL_Sulphur_Springs_Tower_tall_pano01.jpg'
+                    },
+
+                    {
+                        thumb: 'images/wpy-winning-image-full-width-previewPreview230px.jpg',
+                        image: 'images/wpy-winning-image-full-width-preview.jpg',
+                        title: 'wpy-winning-image-full-width-preview.jpg'
+                    },
+];

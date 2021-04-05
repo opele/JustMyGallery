@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,11 +11,38 @@ using System.Threading.Tasks;
 namespace ImageFinder {
     class ImageUtil {
 
-        public static Bitmap ResizeImage(string imagePath, int width, int height) {
-            Image img = Image.FromFile(imagePath);
-            Bitmap resized = ResizeImage(img, width, height);
-            img.Dispose();
-            return resized;
+        public static string getPreviewPath(string originalPath) {
+            string extension = originalPath.Substring(originalPath.LastIndexOf("."));
+            string prevImgPath = originalPath.Remove(originalPath.LastIndexOf(".")) + getPrieviewImageSuffix() + extension;
+            return prevImgPath;
+        }
+
+        public static bool isOriginalImg(string filePath) {
+            return (filePath.EndsWith(".png") || filePath.EndsWith(".jpg") || filePath.EndsWith(".jpeg"))
+                && !isPreviewImg(filePath);
+        }
+
+        public static bool isPreviewImg(string filePath) {
+            string removedExtension = filePath.Remove(filePath.LastIndexOf("."));
+            return removedExtension.EndsWith(getPrieviewImageSuffix());
+        }
+
+        public static string getPrieviewImageSuffix() {
+            return "Preview" + Program.PREVIEW_WIDTH_PX + "px";
+        }
+
+        /**
+         * Returns resized image with specified width scaling the height accordingly.
+         */
+        public static Bitmap ResizeImage(string imagePath, int newWidth) {
+
+            using (Image img = Image.FromFile(imagePath)) {
+
+                float ratio = img.Height / (float)img.Width;
+                int newHeight = (int) (newWidth * ratio);
+
+                return ResizeImage(img, newWidth, newHeight);
+            }
         }
 
         /// <summary>
@@ -27,7 +56,7 @@ namespace ImageFinder {
         /// <returns>The resized image.</returns>
         public static Bitmap ResizeImage(Image image, int width, int height) {
             var destRect = new Rectangle(0, 0, width, height);
-             var destImage = new Bitmap(width, height);
+            var destImage = new Bitmap(width, height);
 
             destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
 
@@ -45,6 +74,18 @@ namespace ImageFinder {
             }
 
             return destImage;
+        }
+
+
+        public static ImageCodecInfo GetEncoderInfo(String mimeType) {
+            int j;
+            ImageCodecInfo[] encoders;
+            encoders = ImageCodecInfo.GetImageEncoders();
+            for (j = 0; j < encoders.Length; ++j) {
+                if (encoders[j].MimeType == mimeType)
+                    return encoders[j];
+            }
+            return null;
         }
 
     }
