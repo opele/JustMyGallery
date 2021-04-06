@@ -3,15 +3,11 @@ Gallery Website
 
 
 implementation:
-Console runner:
-- issue with images that are much longer than they are wide
-	need to crop at a specific ratio: 200%
-alternatively use an image grid that handles variable image height
+
 
 
 TODO:
-
-
+- verify preview images are lazy loaded
 
 
 

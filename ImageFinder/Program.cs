@@ -49,8 +49,9 @@ namespace ImageFinder {
             previewImgQuality = PREVIEW_IMG_QUALITY;
             maxDepth = MAX_DEPTH;
 
-            Console.WriteLine("This program generates data about images for a gallery website. It can generate preview images and a text file containing the list of images." +
-                " The contents of this text file are to be copy pasted into the javascript part of the html file.");
+            Console.WriteLine("This program generates data about images for a gallery website. " +
+                "It can generate preview images and a text file containing the list of images relative to the directory the app is started from. " +
+                "The contents of this text file are to be copy pasted into the javascript part of the html file.");
 
             while (option == null) {
                 Console.WriteLine();
@@ -123,6 +124,10 @@ namespace ImageFinder {
         static void processFiles() {
 
             rootDirPath = Directory.GetCurrentDirectory();
+            if ("Debug".Equals(Path.GetFileName(rootDirPath))) {
+                // traverse back to the root project directory out of the debug directory from where VS runs the exe
+                rootDirPath = Directory.GetParent(rootDirPath).Parent.Parent.FullName;
+            }
             Console.WriteLine("Searching in directory: " + rootDirPath);
 
             if (option == Option.List || option == Option.ListAndPrev) {
