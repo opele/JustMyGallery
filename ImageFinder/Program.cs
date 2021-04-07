@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.IO.Pipes;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -218,11 +219,37 @@ namespace ImageFinder {
             // replace all \ with /
             outputPath = outputPath.Replace("\\", "/");
 
-            return $@"
+            DateTime? createdAt = null;
+
+            try {
+                createdAt = ImageUtil.GetDateTakenFromImage(imgPath);
+            } catch (ArgumentException argE) {
+                Console.Error.WriteLine("Image has no Date Taken date: " + imgPath);
+            } catch (Exception e) {
+                Console.Error.Write("Error reading image date taken from path " + imgPath + " : ");
+                Console.Error.Write(e);
+            }
+
+            if (!createdAt.HasValue) {
+                try {
+                    createdAt = File.GetCreationTime(imgPath);
+                } catch (Exception e) {
+                    Console.Error.Write("Error reading image creation date from path " + imgPath + " : ");
+                    Console.Error.Write(e);
+                }
+            }
+
+            if (!createdAt.HasValue) {
+                createdAt = DateTime.UtcNow;
+            }
+
+           return $@"
                     {{
                         thumb: '{ImageUtil.getPreviewPath(outputPath)}',
                         image: '{outputPath}',
-                        title: '{Path.GetFileName(outputPath)}'
+                        title: '{Path.GetFileName(outputPath)}',
+                        timestamp: '{ (int) createdAt.Value.Subtract(new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds}',
+                        creationDate: '{createdAt:G}'
                     }},";
         }
     }

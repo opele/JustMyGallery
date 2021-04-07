@@ -8,7 +8,7 @@ implementation:
 
 TODO:
 - verify preview images are lazy loaded
-
+- create github page: https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site
 
 
 Requirements
