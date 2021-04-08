@@ -570,13 +570,19 @@ var imgData = [
 <h2>Example Gallery</h2>
 <p>Placeholder images from https://unsplash.com/. Please visit the unsplash website if you are interested in the images. This is merely a tech demonstration. </p>
 <p>Made with Galleria.</p>
- <button type="button" onclick="sortDateAsc()" >Date sort asc</button> 
- <button type="button" onclick="sortDateDesc()">Date sort desc</button> 
+ <button type="button" onclick="sortByDateAsc()" >Date sort asc</button> 
+ <button type="button" onclick="sortByDateDesc()">Date sort desc</button> 
+ <button type="button" onclick="sortByName()">Sort by Name</button> 
+ <label for="inputNameFilter">Name Filter: </label>
+ <input type="text" id="inputNameFilter">
+ <button type="button" onclick="filterByName()">Filter by Name</button> 
+ 
 
 	<div class="galleria">
 	</div>
 
 	<script>
+		var filterFunction;
 		
 		(function() {
 		
@@ -587,12 +593,19 @@ var imgData = [
 			//	Galleria.run('.galleria', {
 			//	dataSource: data});
 			
-				loadImages();
+			loadImages();
 		}());
 		
 		function loadImages() {
+		
+			var imagesToLoad = imgData;
+			if (typeof filterFunction === 'function') {
+				imagesToLoad = filterFunction(imagesToLoad);
+				Galleria.log("filtered images: " + imagesToLoad.length);
+			}
+		
 			Galleria.run('.galleria', {
-				dataSource: imgData,
+				dataSource: imagesToLoad,
 				thumbnails: 'lazy',
 				transition: 'pulse',
 				thumbCrop: 'width',
@@ -614,24 +627,57 @@ var imgData = [
 				this.lazyLoadChunks( 10 );
 			});
 			
-		function sortDateAsc() {
+		function sortByDateAsc() {
 			Galleria.configure({
 				dataSort: function(a, b) {
 						if(a.timestamp && b.timestamp) return a.timestamp - b.timestamp;
-						return -1;
+						return 0;
 					}
 			});
 			loadImages();
 		}
 		
-		function sortDateDesc() {
+		function sortByDateDesc() {
 			Galleria.configure({
 				dataSort: function(a, b) {
 						if(a.timestamp && b.timestamp) return b.timestamp - a.timestamp;
-						return -1;
+						return 0;
 					}
 			});
 			loadImages();
+		}
+		
+		function sortByName() {
+			Galleria.configure({
+				dataSort: function(a, b) {
+						if(a.title && b.title) {
+							var x = a.title.toLowerCase();
+							var y = b.title.toLowerCase();
+							if (x < y) return -1;
+							if (x > y) return 1;
+						}
+						return 0;
+					}
+			});
+			loadImages();
+		}
+		
+		// filters
+		function filterByName() {
+			filterFunction = function(arr) {
+			
+				var filter = $("#inputNameFilter").val();
+				if (isBlank(filter)) return arr;
+				
+				return arr.filter(function(currentValue) {
+						return currentValue.title && currentValue.title.toLowerCase().includes(filter.toLowerCase());
+					});
+			};
+			loadImages();
+		}
+		
+		function isBlank(str) {
+			return (!str || /^\s*$/.test(str));
 		}
 		
 		
