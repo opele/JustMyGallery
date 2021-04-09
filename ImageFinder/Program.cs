@@ -248,7 +248,7 @@ namespace ImageFinder {
                         thumb: '{ImageUtil.getPreviewPath(outputPath)}',
                         image: '{outputPath}',
                         title: '{Path.GetFileName(outputPath)}',
-                        timestamp: '{ (int) createdAt.Value.Subtract(new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds}',
+                        timestamp: '{ (long) createdAt.Value.Subtract(new DateTime(1970, 1, 1, 0, 0, 0)).TotalMilliseconds}',
                         creationDate: '{createdAt:G}'
                     }},";
         }
