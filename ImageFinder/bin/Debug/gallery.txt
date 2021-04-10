@@ -1,13 +1,14 @@
-Gallery Website
+Gallery Website Dev Notes
 
-
-
-implementation:
 
 
 
 TODO:
 - verify preview images are lazy loaded
+- save filter/sort settings in local storage
+- use minified js
+- readme
+- add MIT license
 - create github page: https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site
 
 
@@ -35,6 +36,30 @@ ideas:
 - generate previewes?
  should be server side because (initial) loading would be extremly slow if sending over original and caching icon locally
 - use browser cache for storing custom tags
+
+tags
+	png does not support tags like jpeg
+		parse tags.txt file format:   
+			imageName1:tag1,tag2
+			imageName2:tag1,tag2,tag3
+		must be placed in same directory as image
+	alternative: categories can be derived from the folder structure the image is placed in
+		easy to use, just need to move files into folders
+		then only makes sense to filter for single category
+		an image can have multiple categories if placed e.g. in nature > trees dir
+		so u could filter for nature (broader category) or specifically for trees
+		but falls short when also have category animals under nature and pic shows e.g. apes on a tree, should be in both categories: animals and trees
+		solution is to combine tags with categories: instead of just an AND filter also allow for OR filter, so image appears when it is tagged with 'tree' or when category is animal for instance
+			this way tags can be used for fine tuning categories, when an image belongs to multiple leaf categories
+		by default, parent categories are turned off and only the dir is used as a category the image is directly placed in
+		category suffix: allows to only create categories when the directory name ends with a specific suffix
+			by default no suffix set, so if the image is placed in a subdirectory, its name is used as a category
+			the suffix only marks the category and will not be part of the category name displayed for selection
+
+
+
+
+
 
 
 
@@ -79,6 +104,16 @@ https://www.w3schools.com/howto/howto_css_border_image.asp
 
 
 
+---
+backup:
+avoid main page header flashing when navigating between images:
+Galleria.on('lightbox_open', function(e) {
+			$("#galleryHeader").get(0).style.display = 'none';
+		});
+		
+		Galleria.on('lightbox_close', function(e) {
+			$("#galleryHeader").get(0).style.display = 'block';
+		});
 
 
 
