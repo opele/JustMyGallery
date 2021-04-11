@@ -8,6 +8,13 @@ TODO:
 - save filter/sort settings in local storage
 - use minified js
 - readme
+	resources used: 
+	Galleria: https://galleriajs.github.io/
+	Bootstrap: https://getbootstrap.com/
+	jQuery: https://jquery.com/
+	images: https://unsplash.com/
+	star rating: https://github.com/mukulkant/Star-rating-using-pure-css
+	local storage consent banner: https://github.com/Wruczek/Bootstrap-Cookie-Alert
 - add MIT license
 - create github page: https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site
 
@@ -23,6 +30,8 @@ List view:
 - sort and filter according to: date, tags
 - allow to combine tags with and/or logic
 - auto load when scrolling down
+
+
 
 
 nice to have:

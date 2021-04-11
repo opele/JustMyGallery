@@ -3,8 +3,12 @@
 <head>
 	<meta charset="utf-8">
 	
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link rel="stylesheet" href="lib/cookiealert.css">
+	
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"></script>
 	<script src="lib/galleria.js"></script>
+	
 
 
 	<style>
@@ -632,7 +636,17 @@ var imgData = [
 
 	<div class="galleria">
 	</div>
-
+	
+	<!-- START Bootstrap-Cookie-Alert -->
+	<div class="alert text-center cookiealert" role="alert">
+		This website uses your local browser storage to remember your filter / sort settings and when you rate images.
+		<button type="button" class="btn btn-primary btn-sm acceptcookies">
+			I consent
+		</button>
+	</div>
+	<!-- END Bootstrap-Cookie-Alert -->
+	<script src="lib/cookiealert.js"></script>
+	
 	<script>
 	
 		var filterFunction;
@@ -799,6 +813,12 @@ var imgData = [
 		}
 		
 		function rateImage(rating) {
+		
+			if (!isLocalStorageAllowed()) {
+				alert("Unable to remember new rating without permission to use local browser storage.");
+				return;
+			}
+		
 			var galleriaRef = Galleria.get(0);
 			var currentImgData = galleriaRef.getData(galleriaRef.getIndex());
 			if (currentImgData) {
@@ -819,12 +839,44 @@ var imgData = [
 			+ '<label for="star1" title="text">1 star</label>'
 		 + '</div>';
 		 
+		 
+		 
 		
 		
 		// utils
 		function isBlank(str) {
 			return (!str || /^\s*$/.test(str));
 		}
+		
+		
+		
+		// local storage constent
+		 window.addEventListener("cookieAlertAccept", function() {
+			console.log("local storage accepted, acceptCookies cookie added");
+		});
+		
+		function isLocalStorageAllowed() {
+			return getCookie('acceptCookies') != null;
+		}
+		
+		function getCookie(name) {
+			var dc = document.cookie;
+			var prefix = name + "=";
+			var begin = dc.indexOf("; " + prefix);
+			
+			if (begin == -1) {
+				begin = dc.indexOf(prefix);
+				if (begin != 0) return null;
+			} else {
+				begin += 2;
+				var end = document.cookie.indexOf(";", begin);
+				if (end == -1) {
+					end = dc.length;
+				}
+			}
+			
+			return decodeURI(dc.substring(begin + prefix.length, end));
+		} 
 		
 		
 		/* SHOW IMAGE IN ORIGINAL SIZE */

@@ -127,7 +127,7 @@ namespace ImageFinder {
             rootDirPath = Directory.GetCurrentDirectory();
             if ("Debug".Equals(Path.GetFileName(rootDirPath))) {
                 // traverse back to the root project directory out of the debug directory from where VS runs the exe
-                rootDirPath = Directory.GetParent(rootDirPath).Parent.Parent.FullName;
+                rootDirPath = Directory.GetParent(rootDirPath).Parent.Parent.FullName + "/images";
             }
             Console.WriteLine("Searching in directory: " + rootDirPath);
 
