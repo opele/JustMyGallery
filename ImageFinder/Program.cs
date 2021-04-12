@@ -27,7 +27,8 @@ namespace ImageFinder {
             RegenPrev,
             DelPrev,
             SetQuality,
-            SetMaxDepth
+            SetMaxDepth,
+            SetRootImgDirName
         }
 
         static StreamWriter output;
@@ -38,6 +39,7 @@ namespace ImageFinder {
         static Option? option;
         static int previewImgQuality = -1;
         static int maxDepth = -1;
+        static string rootImgDirName;
 
         static void Main(string[] args) {
 
@@ -46,12 +48,14 @@ namespace ImageFinder {
             imgPrevGenCount = 0;
             imgPrevDelCount = 0;
             rootDirPath = null;
+            rootImgDirName = null;
             output = null;
             previewImgQuality = PREVIEW_IMG_QUALITY;
             maxDepth = MAX_DEPTH;
 
             Console.WriteLine("This program generates data about images for a gallery website. " +
                 "It can generate preview images and a text file containing the list of images relative to the directory the app is started from. " +
+                "Place it into the root directory representing your server file hierachy. " +
                 "The contents of this text file are to be copy pasted into the javascript part of the html file.");
 
             while (option == null) {
@@ -63,6 +67,7 @@ namespace ImageFinder {
                 Console.WriteLine("4. Delete all preview images");
                 Console.WriteLine("5. Set the quality of preview images (current value is " + previewImgQuality + ")");
                 Console.WriteLine("6. Set the number of sub-directories to search for image data (current value is " + maxDepth + ")");
+                Console.WriteLine("7. Set the optional directory name to search for image data ignoring all other directories placed on the same level as the executable (current value is " + rootImgDirName + ")");
 
                 switch (Console.ReadKey().Key) {
                     case ConsoleKey.D1: { option = Option.ListAndPrev; } break;
@@ -71,6 +76,7 @@ namespace ImageFinder {
                     case ConsoleKey.D4: { option = Option.DelPrev; } break;
                     case ConsoleKey.D5: { option = Option.SetQuality; }; break;
                     case ConsoleKey.D6: { option = Option.SetMaxDepth; }; break;
+                    case ConsoleKey.D7: { option = Option.SetRootImgDirName; }; break;
                 }
                 Console.WriteLine();
 
@@ -109,6 +115,13 @@ namespace ImageFinder {
 
                     option = null;
                 }
+
+                if (option == Option.SetRootImgDirName) {
+                    Console.WriteLine("Type the name of the directory containing the images and confirm with return: ");
+                    rootImgDirName = Console.ReadLine().Trim();
+
+                    option = null;
+                }
             }
 
             try {
@@ -127,7 +140,8 @@ namespace ImageFinder {
             rootDirPath = Directory.GetCurrentDirectory();
             if ("Debug".Equals(Path.GetFileName(rootDirPath))) {
                 // traverse back to the root project directory out of the debug directory from where VS runs the exe
-                rootDirPath = Directory.GetParent(rootDirPath).Parent.Parent.FullName + "/images";
+                rootDirPath = Directory.GetParent(rootDirPath).Parent.Parent.FullName;
+                rootImgDirName = "images";
             }
             Console.WriteLine("Searching in directory: " + rootDirPath);
 
@@ -156,12 +170,15 @@ namespace ImageFinder {
                 return;
             }
 
+            bool requiresImgDirCheck = depth == 0 && rootImgDirName != null && rootImgDirName.Length > 0;
+
             foreach (string filePath in Directory.GetFiles(dirPath)) {
-                processFile(filePath);
+                if (!requiresImgDirCheck) processFile(filePath);
             }
 
             foreach (string childDirPath in Directory.GetDirectories(dirPath)) {
-                processDirs(childDirPath, depth + 1);
+                if (requiresImgDirCheck && childDirPath.EndsWith(rootImgDirName))
+                    processDirs(childDirPath, depth + 1);
             }
         }
 
@@ -219,13 +236,34 @@ namespace ImageFinder {
             // replace all \ with /
             outputPath = outputPath.Replace("\\", "/");
 
+            DateTime createdAt = getCreationDate(imgPath);
+
+            string tags = "";
+            try {
+                tags = ImageUtil.GetTagsFromImage(imgPath);
+            } catch (Exception e) { };
+
+            return $@"
+                    {{
+                        thumb: '{ImageUtil.getPreviewPath(outputPath)}',
+                        image: '{outputPath}',
+                        title: '{Path.GetFileName(outputPath)}',
+                        timestamp: '{ (long) createdAt.Subtract(new DateTime(1970, 1, 1, 0, 0, 0)).TotalMilliseconds}',
+                        creationDate: '{createdAt:G}',
+                        tags: '{tags ?? ""}'
+                    }},";
+        }
+
+        static DateTime getCreationDate(string imgPath) {
             DateTime? createdAt = null;
 
             try {
                 createdAt = ImageUtil.GetDateTakenFromImage(imgPath);
-            } catch (ArgumentException argE) {
+            }
+            catch (ArgumentException argE) {
                 Console.Error.WriteLine("Image has no Date Taken date: " + imgPath);
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 Console.Error.Write("Error reading image date taken from path " + imgPath + " : ");
                 Console.Error.Write(e);
             }
@@ -233,7 +271,8 @@ namespace ImageFinder {
             if (!createdAt.HasValue) {
                 try {
                     createdAt = File.GetCreationTime(imgPath);
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     Console.Error.Write("Error reading image creation date from path " + imgPath + " : ");
                     Console.Error.Write(e);
                 }
@@ -243,14 +282,7 @@ namespace ImageFinder {
                 createdAt = DateTime.UtcNow;
             }
 
-           return $@"
-                    {{
-                        thumb: '{ImageUtil.getPreviewPath(outputPath)}',
-                        image: '{outputPath}',
-                        title: '{Path.GetFileName(outputPath)}',
-                        timestamp: '{ (long) createdAt.Value.Subtract(new DateTime(1970, 1, 1, 0, 0, 0)).TotalMilliseconds}',
-                        creationDate: '{createdAt:G}'
-                    }},";
+            return createdAt.Value;
         }
     }
 }

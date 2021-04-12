@@ -4,6 +4,8 @@ Gallery Website Dev Notes
 
 
 TODO:
+- support tags for png
+- capture number button events for setting rating
 - verify preview images are lazy loaded
 - save filter/sort settings in local storage
 - use minified js
@@ -14,6 +16,7 @@ TODO:
 	jQuery: https://jquery.com/
 	images: https://unsplash.com/
 	star rating: https://github.com/mukulkant/Star-rating-using-pure-css
+	multiselect: https://developer.snapappointments.com/bootstrap-select/
 	local storage consent banner: https://github.com/Wruczek/Bootstrap-Cookie-Alert
 - add MIT license
 - create github page: https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site

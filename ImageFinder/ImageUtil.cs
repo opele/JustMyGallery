@@ -105,5 +105,17 @@ namespace ImageFinder {
             }
         }
 
+        public static string GetTagsFromImage(string path) {
+
+            // png does not support this tag
+            if (!path.EndsWith(".jpg") && !path.EndsWith(".jpeg")) return null;
+
+            using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+            using (Image myImage = Image.FromStream(fs, false, false)) {
+                PropertyItem propItem = myImage.GetPropertyItem(40094);
+                return Encoding.Unicode.GetString(propItem.Value).Replace("\0", string.Empty).Replace(":", ",").Replace(";", ",").ToLower();
+            }
+        }
+
     }
 }
