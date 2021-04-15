@@ -895,7 +895,7 @@ var imgData = [
 			rateEl.on("keydown keyup keyleft keyright", "input", function(event) { 
 					event.preventDefault();
 			});
-		
+			
 			var item = JSON.parse(localStorage.getItem(imageTarget.getAttribute("src")));
 			
 			rateEl.children('input[name="rate"]').each(function(index) { // iterates in reverse order: from 5 to 1 star
@@ -931,6 +931,31 @@ var imgData = [
 		 + '</div>';
 		 
 		 
+		 (function() {
+		 		 // enable rating with number keys
+				$(window).keydown(function( event ) {
+						
+						if (!isViewingImage()) {
+							return;
+						}
+						
+						var rateEl = $('.galleria-info').find('div.rate');
+						
+						// key codes are from 49 (1) to 53 (5)
+						if (event.which == 49) {
+							rateEl.children('input[name="rate"]').get(4).click();
+						} else if (event.which == 50) {
+							rateEl.children('input[name="rate"]').get(3).click();
+						} else if (event.which == 51) {
+							rateEl.children('input[name="rate"]').get(2).click();
+						} else if (event.which == 52) {
+							rateEl.children('input[name="rate"]').get(1).click();
+						} else if (event.which == 53) {
+							rateEl.children('input[name="rate"]').get(0).click();
+						}
+				});
+		 }());
+		 
 		 
 		 
 		 // tags
@@ -963,6 +988,10 @@ var imgData = [
 			return arr1.filter(function(n) {
 				  return arr2.indexOf(n) > -1;
 				});
+		}
+		
+		function isViewingImage() {
+			return Galleria.get(0).getActiveImage() != null && $(Galleria.get(0).getActiveImage()).is(':visible');
 		}
 		
 		
