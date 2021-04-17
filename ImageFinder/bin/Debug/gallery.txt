@@ -14,7 +14,7 @@ TODO:
 	Galleria: https://galleriajs.github.io/
 	Bootstrap: https://getbootstrap.com/
 	jQuery: https://jquery.com/
-	images: https://unsplash.com/
+	images: https://unsplash.com/ and https://nasa.gov
 	star rating: https://github.com/mukulkant/Star-rating-using-pure-css
 	multiselect: https://developer.snapappointments.com/bootstrap-select/
 	local storage consent banner: https://github.com/Wruczek/Bootstrap-Cookie-Alert
