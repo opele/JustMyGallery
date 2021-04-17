@@ -1097,7 +1097,7 @@ var imgData = [
 		
 			// show original image size when clicking on the image
 			// e.imageTarget = the currently active IMG HTML element
-			e.imageTarget.onclick = function() {
+			e.imageTarget.parentElement.onclick = function() {
 			
 				if (!$("#fullSizeImage").length) {
 					
