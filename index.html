@@ -635,7 +635,8 @@ var imgData = [
                         title: 'will-turner-7MClrxZ8F6w-unsplash.jpg',
                         timestamp: '1617709922287',
                         creationDate: '06/04/2021 11:52:02',
-                        tags: ''
+                        tags: '',
+                        categories: 'nature,cliff'
                     },
 
                     {
@@ -644,7 +645,8 @@ var imgData = [
                         title: 'willian-justen-de-vasconcellos-kAvS5cwZSUc-unsplash.jpg',
                         timestamp: '1617313108000',
                         creationDate: '01/04/2021 21:38:28',
-                        tags: ''
+                        tags: '',
+                        categories: 'nature,water'
                     },
 
                     {
@@ -653,7 +655,8 @@ var imgData = [
                         title: 'xps-1gLdTsX3_70-unsplash.jpg',
                         timestamp: '1617709922307',
                         creationDate: '06/04/2021 11:52:02',
-                        tags: ''
+                        tags: '',
+                        categories: 'technology,laptop'
                     },
 
                     {
@@ -662,7 +665,8 @@ var imgData = [
                         title: 'xps-bXfQLglc81U-unsplash.jpg',
                         timestamp: '1617709922317',
                         creationDate: '06/04/2021 11:52:02',
-                        tags: ''
+                        tags: '',
+                        categories: 'technology,laptop'
                     },
 ];
 
@@ -692,9 +696,10 @@ var imgData = [
 		 <input type="text" id="inputNameFilter">
 		 <button type="button" onclick="filterByName()">Filter by Name</button> 
 		 
-		 <select class="selectpicker" multiple>
-		 </select>
+		 <select id="tagsFilter" class="selectpicker" multiple title="Nothing selected"></select>
 		 <button type="button" onclick="filterByTags()">Filter by Tags</button> 
+		 
+		 <select id="categoryFilter" class="selectpicker" title="Nothing selected" data-allow-clear="true" onchange="filterByCategory()"></select>
 		 
 		 <label for="inputDateFromFilter">From: </label>
 		 <input type="date" id="inputDateFromFilter">
@@ -727,7 +732,8 @@ var imgData = [
 	<script>
 	
 		var filterFunction;
-		refreshTags();
+		refreshSelectableTags();
+		refreshSelectableCategories();
 		
 		(function() {
 		
@@ -872,7 +878,7 @@ var imgData = [
 		function filterByTags() {
 			filterFunction = function(arr) {
 			
-				var filterTags = $('.selectpicker').val();
+				var filterTags = $('#tagsFilter').val();
 				if (!filterTags || filterTags.length == 0) return arr;
 				
 				return arr.filter(function(currentValue) {
@@ -881,6 +887,29 @@ var imgData = [
 			};
 			loadImages();
 		}
+		
+		function filterByCategory() {
+			filterFunction = function(arr) {
+			
+				var filterCategory = $('#categoryFilter').val();
+				if (!filterCategory) return arr;
+				
+				return arr.filter(function(currentValue) {
+						return currentValue.categories && currentValue.categories.split(",").includes(filterCategory);
+					});
+			};
+			loadImages();
+		}
+		
+		(function() {
+				// TODO: this will not work with multiple clearable dropdowns
+				console.log("setup click event on: " + $('.bs-select-clear-selected'));
+				$('.bs-select-clear-selected').click(function() {
+				  filterFunction = null;
+				  loadImages();
+				});
+		}());
+		
 		
 		
 		
@@ -959,7 +988,7 @@ var imgData = [
 		 
 		 
 		 // tags
-		 function refreshTags() {
+		 function refreshSelectableTags() {
 			var allTagsSet = new Set();
 			imgData.forEach(function(imgDataItem) {
 				if (imgDataItem.tags) {
@@ -967,14 +996,31 @@ var imgData = [
 				}
 			});
 			
-			$('.selectpicker').empty();
+			$('#tagsFilter').empty();
 			allTagsSet.forEach(function(tag) {
-				$('.selectpicker').append('<option value="' + tag + '">' + tag + '</option>');
+				$('#tagsFilter').append('<option value="' + tag + '">' + tag + '</option>');
 			});
 			
-			$('.selectpicker').selectpicker('refresh');
+			$('#tagsFilter').selectpicker('refresh');
 		 }
 		 
+		 
+		 // categories
+		 function refreshSelectableCategories() {
+			var allCategoriesSet = new Set();
+			imgData.forEach(function(imgDataItem) {
+				if (imgDataItem.categories) {
+					imgDataItem.categories.split(',').forEach(t => allCategoriesSet.add(t));
+				}
+			});
+			
+			$('#categoryFilter').empty();
+			allCategoriesSet.forEach(function(category) {
+				$('#categoryFilter').append('<option value="' + category + '">' + capitalise(category) + '</option>');
+			});
+			
+			$('#categoryFilter').selectpicker('refresh');
+		 }
 		 
 		 
 		
@@ -982,6 +1028,10 @@ var imgData = [
 		// utils
 		function isBlank(str) {
 			return (!str || /^\s*$/.test(str));
+		}
+		
+		function capitalise(str) {
+			return str.charAt(0).toUpperCase() + str.slice(1);
 		}
 		
 		function findIntersection(arr1, arr2) {
@@ -993,6 +1043,11 @@ var imgData = [
 		function isViewingImage() {
 			return Galleria.get(0).getActiveImage() != null && $(Galleria.get(0).getActiveImage()).is(':visible');
 		}
+		
+		
+		
+		
+		
 		
 		/* SHOW IMAGE IN ORIGINAL SIZE */
 		
