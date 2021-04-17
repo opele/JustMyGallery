@@ -905,7 +905,7 @@ var imgData = [
 		
 		function rateImage(rating) {
 		
-			if (!isLocalStorageAllowed()) {
+			if (!isLocalStorageAccepted()) {
 				alert("Unable to remember new rating without permission to use local browser storage.");
 				return;
 			}
@@ -993,37 +993,6 @@ var imgData = [
 		function isViewingImage() {
 			return Galleria.get(0).getActiveImage() != null && $(Galleria.get(0).getActiveImage()).is(':visible');
 		}
-		
-		
-		
-		// local storage constent
-		 window.addEventListener("cookieAlertAccept", function() {
-			console.log("local storage accepted, acceptCookies cookie added");
-		});
-		
-		function isLocalStorageAllowed() {
-			return getCookie('acceptCookies') != null;
-		}
-		
-		function getCookie(name) {
-			var dc = document.cookie;
-			var prefix = name + "=";
-			var begin = dc.indexOf("; " + prefix);
-			
-			if (begin == -1) {
-				begin = dc.indexOf(prefix);
-				if (begin != 0) return null;
-			} else {
-				begin += 2;
-				var end = document.cookie.indexOf(";", begin);
-				if (end == -1) {
-					end = dc.length;
-				}
-			}
-			
-			return decodeURI(dc.substring(begin + prefix.length, end));
-		} 
-		
 		
 		/* SHOW IMAGE IN ORIGINAL SIZE */
 		
