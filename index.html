@@ -79,6 +79,15 @@ var imgData = [
                         creationDate: '06/04/2021 11:52:01',
                         tags: ''
                     },
+                    
+                    {
+                        thumb: 'images/205946main_eaglefairy_hst_big.jpeg',
+                        image: 'images/205946main_eaglefairy_hst_big.jpeg',
+                        title: '205946main_eaglefairy_hst_big.jpeg',
+                        timestamp: '1617709921597',
+                        creationDate: '06/04/2021 11:52:01',
+                        tags: 'space'
+                    },
 
                     {
                         thumb: 'images/artem-nedzelskiy-5yxo67MrD3c-unsplashPreview230px.jpg',
@@ -903,7 +912,6 @@ var imgData = [
 		
 		(function() {
 				// TODO: this will not work with multiple clearable dropdowns
-				console.log("setup click event on: " + $('.bs-select-clear-selected'));
 				$('.bs-select-clear-selected').click(function() {
 				  filterFunction = null;
 				  loadImages();
@@ -1071,6 +1079,10 @@ var imgData = [
 		
 		// galleria event callback when an preview image has been selected and is displayed in the lightbox 
 		Galleria.on('image', function(e) {
+				
+			// move the info box to the left from center
+			// actually moves presumably because the folio theme sets the style -webkit-transition: all 100ms;
+			$('.galleria-info').css("left", "0px");
 		
 			// TODO: remove, can be retireved statically
 			var galleriaRef = this;
