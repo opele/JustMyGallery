@@ -5,6 +5,8 @@ Gallery Website Dev Notes
 
 TODO:
 - support tags for png
+- apply filter when pressing enter and input field is selected
+- rating stars broken again on Win, on Mac too?
 - capture number button events for setting rating
 - verify preview images are lazy loaded
 - save filter/sort settings in local storage
