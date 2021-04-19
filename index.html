@@ -4,6 +4,7 @@
 	<meta charset="utf-8">
 	
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	<link rel="stylesheet" href="lib/cookiealert.css">
 	<link rel="stylesheet" href="lib/bootstrap-select.min.css">
 
@@ -17,43 +18,25 @@
 		}
 		
 		
-		/* Modified from: https://github.com/mukulkant/Star-rating-using-pure-css */
-
-		.rate {
+		.rating {
 			float: left;
-			line-height: 22px;
+			height: 22px;
 			padding: 0 10px;
 		}
-		.rate:not(:checked) > input {
-			position:absolute;
-			top:-9999px;
-		}
-		.rate:not(:checked) > label {
-			float:right;
-			width:1em;
-			overflow:hidden;
-			white-space:nowrap;
-			cursor:pointer;
-			font-size:30px;
-			color:#ccc;
-		}
-		.rate:not(:checked) > label:before {
-			content: '⭑  ';
-		}
-		.rate > input:checked ~ label {
-			color: #ffc700;    
-		}
-		.rate:not(:checked) > label:hover,
-		.rate:not(:checked) > label:hover ~ label {
-			color: #deb217;  
-		}
-		.rate > input:checked + label:hover,
-		.rate > input:checked + label:hover ~ label,
-		.rate > input:checked ~ label:hover,
-		.rate > input:checked ~ label:hover ~ label,
-		.rate > label:hover ~ input:checked ~ label {
-			color: #c59b08;
-		}
+		
+		.checked {
+            color : #ffc700;
+            font-size : 20px;
+        }
+        .unchecked {
+			color : #ccc;
+            font-size : 20px;
+        }
+		
+		.checked:hover,
+		.unchecked:hover {
+            font-size : 25px;
+        }
 	</style>
 
 
@@ -939,10 +922,10 @@ var imgData = [
 		// rating
 		function displayRating(imageTarget) {
 		
-			var rateEl = $('.galleria-info').find('div.rate');
+			var rateEl = $('.galleria-info').find('#rating');
 			if (rateEl.length === 0)
-				rateEl = $('.galleria-info').append(ratingHtml).find('div.rate');
-				
+				rateEl = $('.galleria-info').append(ratingHtml).find('#rating');
+			
 			// disable arrowkey navigation to the next input which changes the selection of the next image when the rating input box is focused
 			rateEl.on("keydown keyup keyleft keyright", "input", function(event) { 
 					event.preventDefault();
@@ -950,12 +933,10 @@ var imgData = [
 			
 			var item = JSON.parse(localStorage.getItem(imageTarget.getAttribute("src")));
 			
-			rateEl.children('input[name="rate"]').each(function(index) { // iterates in reverse order: from 5 to 1 star
-				$(this).get(0).checked = item && item.rating && (5 - index) == item.rating; // only check the highest input
-			});
+			refreshRating(rateEl, item == null ? null : item.rating);
 		}
 		
-		function rateImage(rating) {
+		function rateImage(event, rating) {
 		
 			if (!isLocalStorageAccepted()) {
 				alert("Unable to remember new rating without permission to use local browser storage.");
@@ -967,20 +948,25 @@ var imgData = [
 			if (currentImgData) {
 				localStorage.setItem(currentImgData.image, '{"rating":' + rating + "}");
 			}
+			
+			refreshRating($(event.target.parentElement), rating);
 		}
 		
-		var ratingHtml = '<div class="rate">' 
-			+ '<input type="radio" id="star5" name="rate" value="5" onclick=\'rateImage(5)\' />'
-			+ '<label for="star5" title="text">5 stars</label>'
-			+ '<input type="radio" id="star4" name="rate" value="4" onclick=\'rateImage(4)\' />'
-			+ '<label for="star4" title="text">4 stars</label>'
-			+ '<input type="radio" id="star3" name="rate" value="3" onclick=\'rateImage(3)\' />'
-			+ '<label for="star3" title="text">3 stars</label>'
-			+ '<input type="radio" id="star2" name="rate" value="2" onclick=\'rateImage(2)\' />'
-			+ '<label for="star2" title="text">2 stars</label>'
-			+ '<input type="radio" id="star1" name="rate" value="1" onclick=\'rateImage(1)\' />'
-			+ '<label for="star1" title="text">1 star</label>'
-		 + '</div>';
+		function refreshRating(rateEl, rating) {
+			rateEl.children('span').each(function(index) {
+				var isChecked = rating && index < rating;
+				$(this).get(0).className = isChecked ? 'fa fa-star checked' : 'fa fa-star unchecked';
+			});
+		}
+		
+		var ratingHtml = 
+			'<div id="rating" class="rate">'
+				+ '<span class = "fa fa-star unchecked" onclick=\'rateImage(event, 1)\'></span>'
+				+ '<span class = "fa fa-star unchecked" onclick=\'rateImage(event, 2)\'></span>'
+				+ '<span class = "fa fa-star unchecked" onclick=\'rateImage(event, 3)\'></span>'
+				+ '<span class = "fa fa-star unchecked" onclick=\'rateImage(event, 4)\'></span>'
+				+ '<span class = "fa fa-star unchecked" onclick=\'rateImage(event, 5)\'></span>'
+			+ '</div>';
 		 
 		 
 		 (function() {
@@ -991,19 +977,19 @@ var imgData = [
 							return;
 						}
 						
-						var rateEl = $('.galleria-info').find('div.rate');
+						var rateEl = $('.galleria-info').find('#rating');
 						
 						// key codes are from 49 (1) to 53 (5)
 						if (event.which == 49) {
-							rateEl.children('input[name="rate"]').get(4).click();
+							rateEl.children('span').get(0).click();
 						} else if (event.which == 50) {
-							rateEl.children('input[name="rate"]').get(3).click();
+							rateEl.children('span').get(1).click();
 						} else if (event.which == 51) {
-							rateEl.children('input[name="rate"]').get(2).click();
+							rateEl.children('span').get(2).click();
 						} else if (event.which == 52) {
-							rateEl.children('input[name="rate"]').get(1).click();
+							rateEl.children('span').get(3).click();
 						} else if (event.which == 53) {
-							rateEl.children('input[name="rate"]').get(0).click();
+							rateEl.children('span').get(4).click();
 						}
 				});
 		 }());
