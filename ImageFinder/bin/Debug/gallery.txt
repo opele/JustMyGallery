@@ -10,6 +10,7 @@ TODO:
 - verify preview images are lazy loaded
 - save filter/sort settings in local storage
 - use minified js
+- read img data from json file
 - readme
 	resources used: 
 	Galleria: https://galleriajs.github.io/

@@ -17,6 +17,7 @@ namespace ImageFinder {
     class Program {
 
         private const string OUTPUT_FILE_NAME = "imageData.txt";
+        private static string[] CATEGORY_NAMES_TO_IGNORE = { "images", "img", "pics", "pictures" };
         private const int MAX_DEPTH = 4;
         public const int PREVIEW_WIDTH_PX = 230; // can not be changes because currently hardcoded in gallery html
         private const int PREVIEW_IMG_QUALITY = 75;
@@ -28,7 +29,9 @@ namespace ImageFinder {
             DelPrev,
             SetQuality,
             SetMaxDepth,
-            SetRootImgDirName
+            SetRootImgDirName,
+            SetDirectoryNameCategoryIdentifierSuffix,
+            SetConsiderParentDirectoriesForCategories
         }
 
         static StreamWriter output;
@@ -40,6 +43,8 @@ namespace ImageFinder {
         static int previewImgQuality = -1;
         static int maxDepth = -1;
         static string rootImgDirName;
+        static string directoryNameCategoryIdentifierSuffix;
+        static bool considerParentDirectoriesForCategories;
 
         static void Main(string[] args) {
 
@@ -50,6 +55,8 @@ namespace ImageFinder {
             rootDirPath = null;
             rootImgDirName = null;
             output = null;
+            directoryNameCategoryIdentifierSuffix = null;
+            considerParentDirectoriesForCategories = false;
             previewImgQuality = PREVIEW_IMG_QUALITY;
             maxDepth = MAX_DEPTH;
 
@@ -68,6 +75,8 @@ namespace ImageFinder {
                 Console.WriteLine("5. Set the quality of preview images (current value is " + previewImgQuality + ")");
                 Console.WriteLine("6. Set the number of sub-directories to search for image data (current value is " + maxDepth + ")");
                 Console.WriteLine("7. Set the optional directory name to search for image data ignoring all other directories placed on the same level as the executable (current value is " + rootImgDirName + ")");
+                Console.WriteLine("8. Set a directory suffix to identify which identifies the directory name as a category for all images it contains (current value is " + directoryNameCategoryIdentifierSuffix + ")");
+                Console.WriteLine("9. Set if all parent directories (up to app root) should be considered for categories (current value is " + considerParentDirectoriesForCategories + ")");
 
                 switch (Console.ReadKey().Key) {
                     case ConsoleKey.D1: { option = Option.ListAndPrev; } break;
@@ -77,6 +86,8 @@ namespace ImageFinder {
                     case ConsoleKey.D5: { option = Option.SetQuality; }; break;
                     case ConsoleKey.D6: { option = Option.SetMaxDepth; }; break;
                     case ConsoleKey.D7: { option = Option.SetRootImgDirName; }; break;
+                    case ConsoleKey.D8: { option = Option.SetDirectoryNameCategoryIdentifierSuffix; }; break;
+                    case ConsoleKey.D9: { option = Option.SetConsiderParentDirectoriesForCategories; }; break;
                 }
                 Console.WriteLine();
 
@@ -119,6 +130,22 @@ namespace ImageFinder {
                 if (option == Option.SetRootImgDirName) {
                     Console.WriteLine("Type the name of the directory containing the images and confirm with return: ");
                     rootImgDirName = Console.ReadLine().Trim();
+
+                    option = null;
+                }
+
+                if (option == Option.SetDirectoryNameCategoryIdentifierSuffix) {
+                    Console.WriteLine("Type the name of the suffix a directiory must end with to be considered a category and confirm with return: ");
+                    directoryNameCategoryIdentifierSuffix = Console.ReadLine().Trim();
+
+                    option = null;
+                }
+
+                if (option == Option.SetConsiderParentDirectoriesForCategories) {
+                    Console.WriteLine("Type 'true' if parent directories should be used as categories (otherwise defaults to false) and confirm with return: ");
+                    if (bool.TryParse(Console.ReadLine().Trim(), out bool result)) {
+                        considerParentDirectoriesForCategories = result;
+                    }
 
                     option = null;
                 }
@@ -177,7 +204,7 @@ namespace ImageFinder {
             }
 
             foreach (string childDirPath in Directory.GetDirectories(dirPath)) {
-                if (requiresImgDirCheck && childDirPath.EndsWith(rootImgDirName))
+                if (!requiresImgDirCheck || childDirPath.EndsWith(rootImgDirName))
                     processDirs(childDirPath, depth + 1);
             }
         }
@@ -243,6 +270,11 @@ namespace ImageFinder {
                 tags = ImageUtil.GetTagsFromImage(imgPath);
             } catch (Exception e) { };
 
+            string categories = "";
+            try {
+                categories = getCategories(outputPath);
+            } catch (Exception e) { };
+
             return $@"
                     {{
                         thumb: '{ImageUtil.getPreviewPath(outputPath)}',
@@ -250,8 +282,37 @@ namespace ImageFinder {
                         title: '{Path.GetFileName(outputPath)}',
                         timestamp: '{ (long) createdAt.Subtract(new DateTime(1970, 1, 1, 0, 0, 0)).TotalMilliseconds}',
                         creationDate: '{createdAt:G}',
-                        tags: '{tags ?? ""}'
+                        tags: '{tags ?? ""}',
+                        categories: '{categories}'
                     }},";
+        }
+
+        static string getCategories(string imgPath) {
+
+            string categories = "";
+            string[] pathNames = imgPath.Split(Path.DirectorySeparatorChar);
+            if (pathNames.Length == 1) {
+                pathNames = imgPath.Split(Path.AltDirectorySeparatorChar);
+            }
+
+            for (int i = 0; i < pathNames.Length - 1; i++) {
+
+                if (considerParentDirectoriesForCategories || pathNames.Length - 2 == i) {
+                    string dirName = pathNames[i].ToLower();
+
+                    if (CATEGORY_NAMES_TO_IGNORE.Contains(dirName)) continue;
+
+                    if (directoryNameCategoryIdentifierSuffix == null || directoryNameCategoryIdentifierSuffix.Length == 0 || 
+                        dirName.EndsWith(directoryNameCategoryIdentifierSuffix)) {
+
+                        if (categories.Length > 0) categories += ",";
+
+                        categories += dirName;
+                    }
+                }
+            }
+
+            return categories;
         }
 
         static DateTime getCreationDate(string imgPath) {
