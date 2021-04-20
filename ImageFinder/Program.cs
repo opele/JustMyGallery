@@ -17,6 +17,7 @@ namespace ImageFinder {
     class Program {
 
         private const string OUTPUT_FILE_NAME = "imageData.txt";
+        private const string TAGS_INPUT_FILE_NAME = "tags.txt";
         private static string[] CATEGORY_NAMES_TO_IGNORE = { "images", "img", "pics", "pictures" };
         private const int MAX_DEPTH = 4;
         public const int PREVIEW_WIDTH_PX = 230; // can not be changes because currently hardcoded in gallery html
@@ -34,6 +35,7 @@ namespace ImageFinder {
             SetConsiderParentDirectoriesForCategories
         }
 
+        static Dictionary<string, string> currentImgToTagsFromFile = new Dictionary<string, string>();
         static StreamWriter output;
         static int imgListCount;
         static int imgPrevGenCount;
@@ -199,6 +201,8 @@ namespace ImageFinder {
 
             bool requiresImgDirCheck = depth == 0 && rootImgDirName != null && rootImgDirName.Length > 0;
 
+            RefreshTagsFromFile(dirPath);
+
             foreach (string filePath in Directory.GetFiles(dirPath)) {
                 if (!requiresImgDirCheck) processFile(filePath);
             }
@@ -270,6 +274,18 @@ namespace ImageFinder {
                 tags = ImageUtil.GetTagsFromImage(imgPath);
             } catch (Exception e) { };
 
+            string tagsFromFile = "";
+            try {
+                tagsFromFile = GetTagsFromFile(imgPath);
+            }
+            catch (Exception e) { };
+
+            if (tags == null || tags.Length == 0) {
+                tags = tagsFromFile;
+            } else if (tagsFromFile != null && tagsFromFile.Length > 0) {
+                tags += "," + tagsFromFile;
+            }
+
             string categories = "";
             try {
                 categories = getCategories(outputPath);
@@ -286,6 +302,15 @@ namespace ImageFinder {
                         categories: '{categories}'
                     }},";
         }
+
+        static string GetTagsFromFile(string imgPath) {
+            string fileName = Path.GetFileName(imgPath);
+            if (currentImgToTagsFromFile.ContainsKey(fileName)) {
+                return currentImgToTagsFromFile[fileName];
+            }
+            return "";
+        }
+        
 
         static string getCategories(string imgPath) {
 
@@ -344,6 +369,27 @@ namespace ImageFinder {
             }
 
             return createdAt.Value;
+        }
+
+        static void RefreshTagsFromFile(string dirPath) {
+
+            currentImgToTagsFromFile.Clear();
+
+            string tagsFilePAth = dirPath + Path.DirectorySeparatorChar + TAGS_INPUT_FILE_NAME;
+
+            if (File.Exists(tagsFilePAth)) {
+
+                string tagsTxt = File.ReadAllText(tagsFilePAth);
+
+                foreach (string line in tagsTxt.Split(Environment.NewLine.ToCharArray())) {
+
+                    string[] imgNameToTags = line.Split(':');
+
+                    if (imgNameToTags.Length == 2) {
+                        currentImgToTagsFromFile.Add(imgNameToTags[0], imgNameToTags[1]);
+                    }
+                }
+            }
         }
     }
 }

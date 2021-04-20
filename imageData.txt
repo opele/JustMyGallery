@@ -426,7 +426,7 @@ var imgData = [
                         title: 'pablo-guerrero--Q1p5Gzn45c-unsplash.jpg',
                         timestamp: '1617709922187',
                         creationDate: '06/04/2021 11:52:02',
-                        tags: '',
+                        tags: 'fog,nature',
                         categories: ''
                     },
 
@@ -476,7 +476,7 @@ var imgData = [
                         title: 'shot-by-cerqueira-lYgjpIWPfvg-unsplash.jpg',
                         timestamp: '1617709922227',
                         creationDate: '06/04/2021 11:52:02',
-                        tags: '',
+                        tags: 'sky,statue,building',
                         categories: ''
                     },
 
@@ -676,7 +676,7 @@ var imgData = [
                         title: 'cat-han-j2_UihbuU5E-unsplash.jpg',
                         timestamp: '1617709921647',
                         creationDate: '06/04/2021 11:52:01',
-                        tags: '',
+                        tags: 'hat',
                         categories: 'people'
                     },
 ];

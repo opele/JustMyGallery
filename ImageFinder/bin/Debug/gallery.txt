@@ -4,14 +4,15 @@ Gallery Website Dev Notes
 
 
 TODO:
-- support tags for png
+- support category or tag filtering
 - apply filter when pressing enter and input field is selected
-- capture number button events for setting rating
 - verify preview images are lazy loaded
 - save filter/sort settings in local storage
 - use minified js
 - read img data from json file
 - readme
+	tags vs categories (see below)
+
 	resources used: 
 	Galleria: https://galleriajs.github.io/
 	Bootstrap: https://getbootstrap.com/
@@ -53,8 +54,8 @@ ideas:
 tags
 	png does not support tags like jpeg
 		parse tags.txt file format:   
-			imageName1:tag1,tag2
-			imageName2:tag1,tag2,tag3
+			imageName1.jpeg:tag1,tag2
+			imageName2.png:tag1,tag2,tag3
 		must be placed in same directory as image
 	alternative: categories can be derived from the folder structure the image is placed in
 		easy to use, just need to move files into folders
