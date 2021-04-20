@@ -4,6 +4,7 @@ Gallery Website Dev Notes
 
 
 TODO:
+- add option to increase / decrease image size when in full view
 - support category or tag filtering
 - apply filter when pressing enter and input field is selected
 - verify preview images are lazy loaded
