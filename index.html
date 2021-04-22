@@ -37,6 +37,12 @@
 		.unchecked:hover {
             font-size : 25px;
         }
+        
+        
+        #sentinel {
+		  width: 1px;
+		  height: 1px;
+		}
 	</style>
 
 
@@ -768,8 +774,11 @@ var imgData = [
 		 
 	 </div>
 
+	 <div id="sentinel"></div>
 	<div class="galleria">
 	</div>
+	
+	
 	
 	<!-- START Bootstrap-Cookie-Alert -->
 	<div class="alert text-center cookiealert" role="alert">
@@ -827,8 +836,8 @@ var imgData = [
 			}
 		
 			Galleria.run('.galleria', {
-				dataSource: imagesToLoad,
-				thumbnails: 'lazy',
+				dataSource: imagesToLoad.slice(0,3),
+				//thumbnails: 'lazy',
 				transition: 'pulse',
 				thumbCrop: 'width',
 				imageCrop: false,
@@ -846,7 +855,24 @@ var imgData = [
 		}
 		
 		Galleria.ready(function(options) {
-				this.lazyLoadChunks( 10 );
+				
+				var galleriaRef = this;
+				var sentinel = document.querySelector('#sentinel');
+				var thumbsContainer = document.querySelector('.galleria-thumbnails');
+				thumbsContainer.appendChild(sentinel);
+				
+				var callback = (entries, observer) => {
+				  entries.forEach(entry => {
+					  if (entry.isIntersecting) {
+					  	  // TODO: load multiple and track the image number to avoid duplicates
+					  	  galleriaRef.push(imgData[galleriaRef.getDataLength()]);
+					  	  thumbsContainer.appendChild(sentinel);
+					  }
+				  });
+				};
+				
+				var observer = new IntersectionObserver(callback);
+				observer.observe(sentinel);
 			});
 		
 		
