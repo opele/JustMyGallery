@@ -828,16 +828,16 @@ var imgData = [
 			
 		}());
 		
+		var imagesToLoad;
 		function loadImages() {
 		
-			var imagesToLoad = imgData;
+			imagesToLoad = imgData;
 			if (typeof filterFunction === 'function') {
 				imagesToLoad = filterFunction(imagesToLoad);
 			}
 		
 			Galleria.run('.galleria', {
-				dataSource: imagesToLoad.slice(0,3),
-				//thumbnails: 'lazy',
+				dataSource: imagesToLoad.slice(0,30),
 				transition: 'pulse',
 				thumbCrop: 'width',
 				imageCrop: false,
@@ -854,26 +854,57 @@ var imgData = [
 			});
 		}
 		
+		var scrolledToEnd = false;
+		var lastChunkLoaded = false;
 		Galleria.ready(function(options) {
-				
-				var galleriaRef = this;
-				var sentinel = document.querySelector('#sentinel');
-				var thumbsContainer = document.querySelector('.galleria-thumbnails');
+			
+			var galleriaRef = this;
+			var sentinel = document.querySelector('#sentinel');
+			var thumbsContainer = document.querySelector('.galleria-thumbnails');
+			thumbsContainer.appendChild(sentinel);
+			
+			var callback = (entries, observer) => {
+			  entries.forEach(entry => {
+				  if (entry.isIntersecting) {
+					scrolledToEnd = true;
+					tryLoadNextChunk();
+				  } else {
+					scrolledToEnd = false;
+				  }
+			  });
+			};
+			
+			var observer = new IntersectionObserver(callback);
+			observer.observe(sentinel);
+			
+			galleriaRef.bind("thumbnail", function(e) {
 				thumbsContainer.appendChild(sentinel);
-				
-				var callback = (entries, observer) => {
-				  entries.forEach(entry => {
-					  if (entry.isIntersecting) {
-					  	  // TODO: load multiple and track the image number to avoid duplicates
-					  	  galleriaRef.push(imgData[galleriaRef.getDataLength()]);
-					  	  thumbsContainer.appendChild(sentinel);
-					  }
-				  });
-				};
-				
-				var observer = new IntersectionObserver(callback);
-				observer.observe(sentinel);
+				if (e.index == galleriaRef.getDataLength() - 1) {
+					lastChunkLoaded = true;
+					tryLoadNextChunk();
+				}
 			});
+		});
+		
+		function tryLoadNextChunk() {
+		
+			var gallery = Galleria.get(0);
+			var chunkSize = 15;
+			var currentLoadSize = gallery.getDataLength();
+			
+			if (lastChunkLoaded && scrolledToEnd && currentLoadSize < imagesToLoad.length) {
+				
+				var nextLoadSize = currentLoadSize + chunkSize;
+				if (nextLoadSize > imagesToLoad.length) {
+					nextLoadSize = imagesToLoad.length;
+				}
+				
+				gallery.push(imagesToLoad.slice(currentLoadSize, nextLoadSize));
+				
+				lastChunkLoaded = false;
+			}
+		}
+		
 		
 		
 		// sorting
