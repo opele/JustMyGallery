@@ -7,11 +7,15 @@ TODO:
 - add option to increase / decrease image size when in full view
 	- vertical slider top left 
 	- size to 90 or 80 percent width instead of going full size
+		set height greater than width
+		css: -webkit-appearance: slider-vertical
+		html: orient="vertical"
+	- cntr + mousewheel to change size
 - support category OR tag filtering
 - support sorting by rating + other criteria, so rating is the primary sort factor until toggled off
 - apply filter when pressing enter and input field is selected
-- verify preview images are lazy loaded
 - save filter/sort settings in local storage
+- dock filter and sorting header like Fixed Navigation Bar example on https://www.w3schools.com/bootstrap4/bootstrap_navbar.asp
 - use minified js
 - read img data from json file
 - readme
@@ -26,6 +30,7 @@ TODO:
 	local storage consent banner: https://github.com/Wruczek/Bootstrap-Cookie-Alert
 - add MIT license
 - create github page: https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site
+- multithreading c# app for previewimage generaion
 
 
 Requirements
