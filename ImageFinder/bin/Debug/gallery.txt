@@ -5,11 +5,8 @@ Gallery Website Dev Notes
 
 TODO:
 - add option to increase / decrease image size when in full view
-	- vertical slider top left 
 	- size to 90 or 80 percent width instead of going full size
-		set height greater than width
-		css: -webkit-appearance: slider-vertical
-		html: orient="vertical"
+		document.documentElement.clientWidth and .clientHeight
 	- cntr + mousewheel to change size
 - support category OR tag filtering
 - support sorting by rating + other criteria, so rating is the primary sort factor until toggled off

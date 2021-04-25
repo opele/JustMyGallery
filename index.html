@@ -17,6 +17,12 @@
 			width:230px, /* the width is hardcoded in the theme css */
 		}
 		
+		.image-size-range {
+			width: 150px;
+			position: absolute;
+			z-index: 5;
+		}
+		
 		
 		.rate {
 			float: left;
@@ -773,11 +779,13 @@ var imgData = [
 		 <button type="button" onclick="filterByDateRange()">Filter by Date Range</button> 
 		 
 	 </div>
+	 
+	
 
 	 <div id="sentinel"></div>
 	<div class="galleria">
 	</div>
-	
+	 
 	
 	
 	<!-- START Bootstrap-Cookie-Alert -->
@@ -1202,6 +1210,16 @@ var imgData = [
 		});
 
 		
+		Galleria.on('fullscreen_exit', function(e) {
+			hideImageSizeRange();
+		});
+		
+		function hideImageSizeRange() {
+			var range = $("#imageSizeRange");
+			if (range.length) {
+				range.css('display','none');
+			}
+		}
 		
 		// galleria event callback when an preview image has been selected and is displayed in the lightbox 
 		Galleria.on('image', function(e) {
@@ -1257,6 +1275,27 @@ var imgData = [
 					// need to leave a bit of space to not obstruct the scrollbar by the right nav element control which overlays the image
 					$(".galleria-image-nav").css("width", "99%");
 					
+					var range = $("#imageSizeRange");
+					if (!range.length) {
+						var rangeHtml = '<input type="range" class="form-range image-size-range" min="0.1" max="1" step="0.1" id="imageSizeRange">';
+						$('.galleria-container').append(rangeHtml);
+						range = $("#imageSizeRange");
+					} else {
+						range.css('display','block');
+					}
+					
+					range.val(1.0);
+					
+					range.css("display", "block");
+					range.on("input change", function() {
+						var newHeight = currentImg.naturalHeight * range.val() + 'px';
+						var newWidth = currentImg.naturalWidth * range.val() + 'px';
+						currentImg.style.height = newHeight;
+						currentImg.style.width = newWidth;
+						currentImg.width = newWidth;
+						currentImg.height = newHeight;
+					});
+					
 				} else {
 					resetFullSizeView(e, galleriaRef);
 				}
@@ -1268,6 +1307,8 @@ var imgData = [
 			// Fitting image to screen size
 			
 			var currentImg = $("#fullSizeImage").get(0);
+			
+			hideImageSizeRange();
 			
 			currentImg.parentElement.parentElement.style.overflow = 'hidden';
 			currentImg.parentElement.style.overflow = 'hidden';
