@@ -847,8 +847,9 @@ var imgData = [
 				fullscreenDoubleTap: false,
 				// Shows navigation as cursor for webkit
 				_webkitCursor: true,
-				// Animates the thumbnails
-				_animate: true,
+				// Animates the thumbnails: when a new image is pushed they fly into place
+				// unfortunately bugged: the images keep loading for around 5sec even though they are actually loaded (even on local)
+				_animate: false,
 				// Centers the thumbnails inside it’s container
 				_center: true
 			});
