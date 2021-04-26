@@ -1248,7 +1248,6 @@ var imgData = [
 					currentImg = e.imageTarget;
 					currentImg.id = "fullSizeImage";
 					
-					
 					currentImg.parentElement.parentElement.style.overflow = 'auto';
 					currentImg.parentElement.style.overflow = ''; // if we set auto here, it will crop the vertical scrollbar for some reason
 					currentImg.parentElement.style.height = 'auto';
@@ -1275,32 +1274,47 @@ var imgData = [
 					// need to leave a bit of space to not obstruct the scrollbar by the right nav element control which overlays the image
 					$(".galleria-image-nav").css("width", "99%");
 					
+					// custom resize
+					let optimalWidthRatio = 0.80;
+					let maxScale = 1.5;
+					let screenWidth = document.documentElement.clientWidth;
+					let optimalWidth = optimalWidthRatio * screenWidth;
+					let optimalScale = optimalWidth / currentImg.clientWidth;
+					if (optimalScale > maxScale) {
+						optimalScale = maxScale;
+					}
+					
 					var range = $("#imageSizeRange");
 					if (!range.length) {
-						var rangeHtml = '<input type="range" class="form-range image-size-range" min="0.1" max="1" step="0.1" id="imageSizeRange">';
+						var rangeHtml = '<input type="range" class="form-range image-size-range" min="0.1" max="' + maxScale + '" step="0.01" id="imageSizeRange">';
 						$('.galleria-container').append(rangeHtml);
 						range = $("#imageSizeRange");
 					} else {
 						range.css('display','block');
 					}
 					
-					range.val(1.0);
-					
 					range.css("display", "block");
 					range.on("input change", function() {
-						var newHeight = currentImg.naturalHeight * range.val() + 'px';
-						var newWidth = currentImg.naturalWidth * range.val() + 'px';
-						currentImg.style.height = newHeight;
-						currentImg.style.width = newWidth;
-						currentImg.width = newWidth;
-						currentImg.height = newHeight;
+						applyScaleToImg(range.val(), currentImg);
 					});
+					
+					range.val(optimalScale);
+					applyScaleToImg(range.val(), currentImg);
 					
 				} else {
 					resetFullSizeView(e, galleriaRef);
 				}
 			}
 		});
+		
+		function applyScaleToImg(scale, currentImg) {
+			var newHeight = currentImg.naturalHeight * scale + 'px';
+			var newWidth = currentImg.naturalWidth * scale + 'px';
+			currentImg.style.height = newHeight;
+			currentImg.style.width = newWidth;
+			currentImg.width = newWidth;
+			currentImg.height = newHeight;
+		}
 		
 		// TODO: no need to pass in the galleria ref, can be retirved statically
 		function resetFullSizeView(e, galleriaRef) {
