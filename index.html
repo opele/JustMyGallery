@@ -798,9 +798,8 @@ var imgData = [
 	<!-- END Bootstrap-Cookie-Alert -->
 	
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"></script>
-	<!--<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>-->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF" crossorigin="anonymous"></script>
 	<script src="lib/galleria.js"></script>
 	<script src="lib/bootstrap-select.min.js"></script>
 	<script src="lib/cookiealert.js"></script>
@@ -1050,6 +1049,11 @@ var imgData = [
 		}());
 		
 		
+		$(function () {
+		  $('[data-toggle="tooltip"]').tooltip()
+		})
+		
+		
 		
 		
 		// rating
@@ -1194,18 +1198,30 @@ var imgData = [
 		/* SHOW IMAGE IN ORIGINAL SIZE */
 		
 		// allow scrolling with mousewheel
-		var $window = $(window);
-		var scrollTime = .5;
 		var scrollDistance = 170;
 
-		$window.on("mousewheel DOMMouseScroll", function(event){
+		$(window).on("mousewheel DOMMouseScroll", function(event){
+			// is viewing image in original size / custom resize mode on
 			if ($("#fullSizeImage").length && $("#fullSizeImage").get(0).style.display != "none") {
 				var target = $(".galleria-images").get(0);
 
-				event.preventDefault();  
-
-				var delta = event.originalEvent.wheelDelta/120 || -event.originalEvent.detail/3;
-				target.scrollTop -= parseInt(delta*scrollDistance);
+				event.preventDefault();
+				
+				if (event.shiftKey) {
+					// change image size
+					var range = $("#imageSizeRange");
+					if (range.length) {
+						var delta = event.originalEvent.wheelDelta/120 || -event.originalEvent.detail/3;
+						range.val(range.val() - delta*0.04);
+						range.change();
+					}
+					
+				} else {
+					// scroll the view
+					var delta = event.originalEvent.wheelDelta/120 || -event.originalEvent.detail/3;
+					target.scrollTop -= parseInt(delta*scrollDistance);
+				}
+				
 			}
 		});
 
@@ -1286,7 +1302,7 @@ var imgData = [
 					
 					var range = $("#imageSizeRange");
 					if (!range.length) {
-						var rangeHtml = '<input type="range" class="form-range image-size-range" min="0.1" max="' + maxScale + '" step="0.01" id="imageSizeRange">';
+						var rangeHtml = '<input type="range" class="form-range image-size-range" min="0.1" max="' + maxScale + '" step="0.01" id="imageSizeRange" data-toggle="tooltip" data-placement="bottom" title="Use Shift + Mousewheel">';
 						$('.galleria-container').append(rangeHtml);
 						range = $("#imageSizeRange");
 					} else {
