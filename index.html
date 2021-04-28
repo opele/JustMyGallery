@@ -768,9 +768,11 @@ var imgData = [
 		 <button type="button" onclick="filterByName()">Filter by Name</button> 
 		 
 		 <select id="tagsFilter" class="selectpicker" multiple title="Nothing selected"></select>
-		 <button type="button" onclick="filterByTags()">Filter by Tags</button> 
+		 <button type="button" onclick="filterByTags()">Filter by Tags</button>
 		 
 		 <select id="categoryFilter" class="selectpicker" title="Nothing selected" data-allow-clear="true" onchange="filterByCategory()"></select>
+		 
+		 <button id="toggleTagsAndCategoryFilterBtn" type="button" onclick="toggleTagsAndCategoryFilter()" data-toggle="tooltip" data-placement="bottom" title="Toggles if images must have a selected tag or category vs tag and category">Tags AND Category</button>
 		 
 		 <label for="inputDateFromFilter">From: </label>
 		 <input type="date" id="inputDateFromFilter">
@@ -809,12 +811,15 @@ var imgData = [
 		var nameFilterFunc = function(dataItemToFilter) {return true;};
 		var tagsFilterFunc = function(dataItemToFilter) {return true;};
 		var categoryFilterFunc = function(dataItemToFilter) {return true;};
+		var categoriesAndTags = true;
 		var dateRangeFilterFunc = function(dataItemToFilter) {return true;};
 		var filterFunction = function(arr) {
 				return arr.filter(function(dataItemToFilter) {
 						return nameFilterFunc(dataItemToFilter) && 
-							tagsFilterFunc(dataItemToFilter) &&
-							categoryFilterFunc(dataItemToFilter) &&
+							(
+								(categoriesAndTags && tagsFilterFunc(dataItemToFilter) && categoryFilterFunc(dataItemToFilter)) ||
+								(!categoriesAndTags && (tagsFilterFunc(dataItemToFilter) || categoryFilterFunc(dataItemToFilter))) 
+							) &&
 							dateRangeFilterFunc(dataItemToFilter);
 					});
 			};
@@ -1048,10 +1053,19 @@ var imgData = [
 				});
 		}());
 		
+		function toggleTagsAndCategoryFilter() {
 		
-		$(function () {
-		  $('[data-toggle="tooltip"]').tooltip()
-		})
+			categoriesAndTags = !categoriesAndTags;
+			
+			if (categoriesAndTags) {
+				$('#toggleTagsAndCategoryFilterBtn').html("Tags AND Category");
+			} else {
+				$('#toggleTagsAndCategoryFilterBtn').html("Tags OR Category");
+			}
+			
+			loadImages();
+		}
+		
 		
 		
 		
@@ -1366,6 +1380,10 @@ var imgData = [
 			//galleriaRef.resize({width:'100%', height:'100%'});
 			galleriaRef.refreshImage();
 		}
+		
+		$(function () {
+		  $('[data-toggle="tooltip"]').tooltip()
+		})
 		
     </script>
 
