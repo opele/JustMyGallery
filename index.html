@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	<link rel="stylesheet" href="lib/cookiealert.css">
 	<link rel="stylesheet" href="lib/bootstrap-select.min.css">
@@ -758,11 +758,29 @@ var imgData = [
 		<h2>Example Gallery</h2>
 		<p>Free to use gallery template for anyone interested in hosting images. Placeholder pictures from <a target="_blank" href="https://unsplash.com/">Unsplash</a>.</p>
 		<p>Made with Galleria Folio template.</p>
-		 <button type="button" onclick="sortByDateAsc()" >Date sort asc</button> 
-		 <button type="button" onclick="sortByDateDesc()">Date sort desc</button> 
-		 <button type="button" onclick="sortByName()">Sort by Name</button> 
-		 <button type="button" onclick="sortByRating()">Sort by Rating</button> 
+		
+		<!-- sorting -->
+		<div class="custom-control custom-switch">
+		  <input type="checkbox" class="custom-control-input" id="sortByDateAscSwitch" onclick="toggleSortByDateAsc()">
+		  <label class="custom-control-label" for="sortByDateAscSwitch">Date sort asc</label>
+		</div>
 		 
+		 <div class="custom-control custom-switch">
+		  <input type="checkbox" class="custom-control-input" id="sortByDateDescSwitch" onclick="toggleSortByDateDesc()">
+		  <label class="custom-control-label" for="sortByDateDescSwitch">Date sort desc</label>
+		</div> 
+		 
+		 <div class="custom-control custom-switch">
+		  <input type="checkbox" class="custom-control-input" id="sortByNameSwitch" onclick="toggleSortByName()">
+		  <label class="custom-control-label" for="sortByNameSwitch">Sort by Name</label>
+		</div>
+		 
+		 <div class="custom-control custom-switch">
+		  <input type="checkbox" class="custom-control-input" id="sortByRatingSwitch" onclick="toggleSortByRating()">
+		  <label class="custom-control-label" for="sortByRatingSwitch">Sort by Rating</label>
+		</div>
+		
+		 <!-- filters -->
 		 <label for="inputNameFilter">Name Filter: </label>
 		 <input type="text" id="inputNameFilter">
 		 <button type="button" onclick="filterByName()">Filter by Name</button> 
@@ -847,6 +865,8 @@ var imgData = [
 			if (typeof filterFunction === 'function') {
 				imagesToLoad = filterFunction(imagesToLoad);
 			}
+			
+			imagesToLoad.sort(sortImages);
 		
 			Galleria.run('.galleria', {
 				dataSource: imagesToLoad.slice(0,30),
@@ -874,6 +894,7 @@ var imgData = [
 			var galleriaRef = this;
 			var sentinel = document.querySelector('#sentinel');
 			var thumbsContainer = document.querySelector('.galleria-thumbnails');
+			console.log('sentinel: ' + sentinel + ', thumbs: ' + thumbsContainer);
 			thumbsContainer.appendChild(sentinel);
 			
 			var callback = (entries, observer) => {
@@ -921,60 +942,88 @@ var imgData = [
 		
 		
 		// sorting
-		function sortByDateAsc() {
-			Galleria.configure({
-				dataSort: function(a, b) {
-						if(a.timestamp && b.timestamp) return a.timestamp - b.timestamp;
-						return 0;
+		var sortByRating = false;
+		var sortByDateAsc = false;
+		var sortByDateDesc = false;
+		var sortByName = false;
+		
+		function sortImages(a, b) {
+			
+			var ratingSortResult = 0;
+			if (sortByRating) {
+				ratingSortResult = sortImagesByRating(a, b);
+			}
+			
+			if (ratingSortResult == 0) {
+			
+				if (sortByDateAsc) {
+					if(a.timestamp && b.timestamp) return a.timestamp - b.timestamp;
+					
+				} else if (sortByDateDesc) {
+					if(a.timestamp && b.timestamp) return b.timestamp - a.timestamp;
+					
+				} else if (sortByName) {
+					if(a.title && b.title) {
+						var x = a.title.toLowerCase();
+						var y = b.title.toLowerCase();
+						if (x < y) return -1;
+						if (x > y) return 1;
 					}
-			});
+				}
+			}
+			
+			return ratingSortResult;
+		}
+		
+		function sortImagesByRating(a, b) {
+			var localItemObjA = JSON.parse(localStorage.getItem(a.image));
+			var aHasRating = localItemObjA && localItemObjA.rating;
+			
+			var localItemObjB = JSON.parse(localStorage.getItem(b.image));
+			var bHasRating = localItemObjB && localItemObjB.rating;
+			
+			if (!aHasRating && !bHasRating) return 0;
+			if (!aHasRating && bHasRating) return 1;
+			if (aHasRating && !bHasRating) return -1;
+			if (localItemObjA.rating > localItemObjB.rating) return -1;
+			if (localItemObjA.rating < localItemObjB.rating) return 1;
+			return 0;
+		}
+		
+		function toggleSortByDateAsc() {
+			sortByDateAsc = $('#sortByDateAscSwitch').is(':checked');
+			sortByDateDesc = false;
+			sortByName = false;
+			refreshSortingUi();
 			loadImages();
 		}
 		
-		function sortByDateDesc() {
-			Galleria.configure({
-				dataSort: function(a, b) {
-						if(a.timestamp && b.timestamp) return b.timestamp - a.timestamp;
-						return 0;
-					}
-			});
+		function toggleSortByDateDesc() {
+			sortByDateDesc = $('#sortByDateDescSwitch').is(':checked');
+			sortByDateAsc = false;
+			sortByName = false;
+			refreshSortingUi();
 			loadImages();
 		}
 		
-		function sortByName() {
-			Galleria.configure({
-				dataSort: function(a, b) {
-						if(a.title && b.title) {
-							var x = a.title.toLowerCase();
-							var y = b.title.toLowerCase();
-							if (x < y) return -1;
-							if (x > y) return 1;
-						}
-						return 0;
-					}
-			});
+		function toggleSortByName() {
+			sortByName = $('#sortByNameSwitch').is(':checked');
+			sortByDateDesc = false;
+			sortByDateAsc = false;
+			refreshSortingUi();
 			loadImages();
 		}
 		
-		function sortByRating() {
-			Galleria.configure({
-				dataSort: function(a, b) {
-				
-						var localItemObjA = JSON.parse(localStorage.getItem(a.image));
-						var aHasRating = localItemObjA && localItemObjA.rating;
-						
-						var localItemObjB = JSON.parse(localStorage.getItem(b.image));
-						var bHasRating = localItemObjB && localItemObjB.rating;
-						
-						if (!aHasRating && !bHasRating) return 0;
-						if (!aHasRating && bHasRating) return 1;
-						if (aHasRating && !bHasRating) return -1;
-						if (localItemObjA.rating > localItemObjB.rating) return -1;
-						if (localItemObjA.rating < localItemObjB.rating) return 1;
-						return 0;
-					}
-			});
+		function toggleSortByRating() {
+			sortByRating = $('#sortByRatingSwitch').is(':checked');
 			loadImages();
+		}
+		
+		function refreshSortingUi() {
+			$('#sortByDateAscSwitch').prop('checked', sortByDateAsc);
+			$('#sortByDateDescSwitch').prop('checked', sortByDateDesc);
+			$('#sortByNameSwitch').prop('checked', sortByName);
+			$('#sortByRatingSwitch').prop('checked', sortByRating);
 		}
 		
 		

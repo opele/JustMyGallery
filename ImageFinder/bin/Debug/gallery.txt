@@ -4,9 +4,9 @@ Gallery Website Dev Notes
 
 
 TODO:
-- support category OR tag filtering
-- support sorting by rating + other criteria, so rating is the primary sort factor until toggled off
 - apply filter when pressing enter and input field is selected
+	- tooltip: Confirm with Return Key
+- bug: when sorting or filtering, Galleria deletes the sentinel
 - save filter/sort settings in local storage
 - dock filter and sorting header like Fixed Navigation Bar example on https://www.w3schools.com/bootstrap4/bootstrap_navbar.asp
 - use minified js
