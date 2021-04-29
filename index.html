@@ -782,7 +782,7 @@ var imgData = [
 		
 		 <!-- filters -->
 		 <label for="inputNameFilter">Name Filter: </label>
-		 <input type="text" id="inputNameFilter">
+		 <input type="text" id="inputNameFilter" data-toggle="tooltip" data-placement="bottom" title="Press Return Key to confirm">
 		 <button type="button" onclick="filterByName()">Filter by Name</button> 
 		 
 		 <select id="tagsFilter" class="selectpicker" multiple title="Nothing selected"></select>
@@ -1042,6 +1042,16 @@ var imgData = [
 			loadImages();
 		}
 		
+		(function() {
+				$('#inputNameFilter').keypress(function(event) {
+					
+					if (event.which == 13) { // return key
+						event.preventDefault();
+						filterByName();
+					}
+				});
+		}());
+		
 		function filterByDateRange() {
 		
 			// the number of milliseconds from midnight UTC the morning of 1970-01-01 to the time represented by the Date object
@@ -1100,7 +1110,7 @@ var imgData = [
 				  categoryFilterFunc = function(dataItemToFilter) {return true;};
 				  loadImages();
 				});
-		}());
+		}());		
 		
 		function toggleTagsAndCategoryFilter() {
 		
