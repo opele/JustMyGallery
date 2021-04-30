@@ -4,7 +4,6 @@ Gallery Website Dev Notes
 
 
 TODO:
-- bug: when sorting or filtering, Galleria deletes the sentinel
 - save filter/sort settings in local storage
 - dock filter and sorting header like Fixed Navigation Bar example on https://www.w3schools.com/bootstrap4/bootstrap_navbar.asp
 - use minified js

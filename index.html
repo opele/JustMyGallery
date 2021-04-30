@@ -800,9 +800,6 @@ var imgData = [
 		 
 	 </div>
 	 
-	
-
-	 <div id="sentinel"></div>
 	<div class="galleria">
 	</div>
 	 
@@ -859,6 +856,8 @@ var imgData = [
 		}());
 		
 		var imagesToLoad;
+		var scrolledToEnd = false;
+		var lastChunkLoaded = false;
 		function loadImages() {
 		
 			imagesToLoad = imgData;
@@ -887,15 +886,18 @@ var imgData = [
 			});
 		}
 		
-		var scrolledToEnd = false;
-		var lastChunkLoaded = false;
+		
 		Galleria.ready(function(options) {
-			
-			var galleriaRef = this;
-			var sentinel = document.querySelector('#sentinel');
-			var thumbsContainer = document.querySelector('.galleria-thumbnails');
-			console.log('sentinel: ' + sentinel + ', thumbs: ' + thumbsContainer);
-			thumbsContainer.appendChild(sentinel);
+			scrolledToEnd = false;
+			lastChunkLoaded = false;
+			updateLazyLoadSentinel();
+		});
+		
+		function updateLazyLoadSentinel() {
+			var galleriaRef = Galleria.get(0);
+			var thumbsContainer = $('.galleria-thumbnails');
+			thumbsContainer.append('<div id="sentinel"></div>');
+			var sentinel = $('#sentinel').get(0);
 			
 			var callback = (entries, observer) => {
 			  entries.forEach(entry => {
@@ -912,13 +914,13 @@ var imgData = [
 			observer.observe(sentinel);
 			
 			galleriaRef.bind("thumbnail", function(e) {
-				thumbsContainer.appendChild(sentinel);
+				thumbsContainer.get(0).appendChild(sentinel);
 				if (e.index == galleriaRef.getDataLength() - 1) {
 					lastChunkLoaded = true;
 					tryLoadNextChunk();
 				}
 			});
-		});
+		}
 		
 		function tryLoadNextChunk() {
 		
