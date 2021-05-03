@@ -4,19 +4,25 @@ Gallery Website Dev Notes
 
 
 TODO:
-- save filter/sort settings in local storage
-- dock filter and sorting header like Fixed Navigation Bar example on https://www.w3schools.com/bootstrap4/bootstrap_navbar.asp
-- use minified js
+- save/load filter/sort settings in local storage
+- make sidebar open/close and input navigateable via keyboard only
+
+- modularize the JS
+- use minified JS
 - read img data from json file
+- test in Edge/FF/Chrome on Mac and PC
 - readme
 	tags vs categories (see below)
+	C# console app
 
 	resources used: 
 	Galleria: https://galleriajs.github.io/
 	Bootstrap: https://getbootstrap.com/
 	jQuery: https://jquery.com/
 	images: https://unsplash.com/ and https://nasa.gov
+	bootstrap theme: https://github.com/thomaspark/bootswatch (demos: https://bootswatch.com/superhero/)
 	multiselect: https://developer.snapappointments.com/bootstrap-select/
+	sidebar: https://www.codeply.com/go/3e0RAjccRO/bootstrap-4-collapsing-sidebar-menu
 	local storage consent banner: https://github.com/Wruczek/Bootstrap-Cookie-Alert
 - add MIT license
 - create github page: https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site

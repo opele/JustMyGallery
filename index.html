@@ -3,14 +3,19 @@
 <head>
 	<meta charset="utf-8">
 	
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+	<!-- original bootstrap css:
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+	-->
+	<!-- custom bootstrap css theme from https://github.com/thomaspark/bootswatch -->
+	<link rel="stylesheet" href="lib/bootstrap.min.css">
+	
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	<link rel="stylesheet" href="lib/cookiealert.css">
 	<link rel="stylesheet" href="lib/bootstrap-select.min.css">
 
 
 	<style>
-		.galleria{ width: auto; min-height: 4000px; background: grey }
+		.galleria{ min-width: 500px; min-height: 4000px; background: #2b3e50 }
 		
 		
 		body .galleria-thumbnails .galleria-image { 
@@ -49,6 +54,53 @@
 		  width: 1px;
 		  height: 1px;
 		}
+		
+		
+		/* Sidebar Start */
+		.sidebar {
+			opacity: 0.85;
+			min-height: 100vh;
+			height: 100%;
+			width: 250px;
+			padding: 0;
+			position: fixed;
+			z-index: 1;
+			top: 0;
+			left: -250px;
+			overflow-x: hidden;
+			transition: 0.5s;
+			padding-top: 60px;
+		}
+		
+		.sidebar-input-box {
+			 background-color: #a5b6c3;
+			 position: absolute;
+			 right: 5px;
+			 width: 158px;
+		}
+
+		/* for smaller screens */
+		@media screen and (max-height: 450px) {
+		  .sidebar {padding-top: 15px;}
+		}
+
+		/* Separators */
+		.sidebar-separator-title {
+			height: 35px;
+			background-color: #6c5a5a;
+		}
+		.sidebar-separator {
+			height: 25px;
+			background-color: #6c5a5a;
+		}
+		.logo-separator {
+			height: 60px;
+		}
+		
+		/* Sidebar End */
+		
+		
+		
 	</style>
 
 
@@ -754,67 +806,136 @@ var imgData = [
 
 <body>
 
-	<div id="galleryHeader">
-		<h2>Example Gallery</h2>
-		<p>Free to use gallery template for anyone interested in hosting images. Placeholder pictures from <a target="_blank" href="https://unsplash.com/">Unsplash</a>.</p>
-		<p>Made with Galleria Folio template.</p>
+	<div id="sidebar-container" class="sidebar d-none d-md-block">
+        <ul class="list-group">
 		
-		<!-- sorting -->
-		<div class="custom-control custom-switch">
-		  <input type="checkbox" class="custom-control-input" id="sortByDateAscSwitch" onclick="toggleSortByDateAsc()">
-		  <label class="custom-control-label" for="sortByDateAscSwitch">Date sort asc</label>
+            <li class="list-group-item sidebar-separator-title text-muted d-flex align-items-center menu-collapsed">
+                <small>Sorting</small>
+            </li>
+			<a id="sortByDateDescButton" class="list-group-item list-group-item-action flex-column align-items-start bg-dark">
+				<div class="d-flex w-100 justify-content-start align-items-center">
+					<div class="custom-control custom-switch">
+					  <input type="checkbox" class="custom-control-input" id="sortByDateDescSwitch">
+					  <label class="custom-control-label" for="sortByDateDescSwitch">Newest first</label>
+					</div>
+				</div>
+			</a>
+			
+			<a id="sortByDateAscButton" class="list-group-item list-group-item-action flex-column align-items-start bg-dark">
+				<div class="d-flex w-100 justify-content-start align-items-center">
+					<div class="custom-control custom-switch">
+					  <input type="checkbox" class="custom-control-input" id="sortByDateAscSwitch">
+					  <label class="custom-control-label" for="sortByDateAscSwitch">Oldest first</label>
+					</div>
+				</div>
+			</a>
+			
+            <a id="sortByNameButton" class="list-group-item list-group-item-action flex-column align-items-start bg-dark">
+				<div class="d-flex w-100 justify-content-start align-items-center">
+					<div class="custom-control custom-switch">
+					  <input type="checkbox" class="custom-control-input" id="sortByNameSwitch">
+					  <label class="custom-control-label" for="sortByNameSwitch">Alphabetical by Title</label>
+					</div>
+				</div>
+			</a>
+			
+			<a id="sortByRatingButton" class="list-group-item list-group-item-action flex-column align-items-start bg-dark">
+				<div class="d-flex w-100 justify-content-start align-items-center">
+					<div class="custom-control custom-switch">
+					  <input type="checkbox" class="custom-control-input" id="sortByRatingSwitch">
+					  <label class="custom-control-label" for="sortByRatingSwitch">Rated first</label>
+					</div>
+				</div>
+			</a>
+			
+            <li class="list-group-item sidebar-separator-title text-muted d-flex align-items-center menu-collapsed">
+                <small>Filtering</small>
+            </li>
+			
+			<!-- Title Filter -->
+            <div class="list-group-item bg-dark" id="nameFilterContainer">
+                <div class="d-flex w-100 justify-content-start align-items-center">
+                    <label for="inputNameFilter">Title: </label>
+					<input type="text" id="inputNameFilter" class="sidebar-input-box" style='margin-left: 10px' data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='focus' title="Press Return Key to confirm">
+                </div>
+            </div>
+			
+			<!-- Date Filter -->
+			<div class="list-group-item bg-dark" id="dateFilterContainer">
+                <div class="d-flex w-100 justify-content-start align-items-center">
+                    <label for="inputDateFromFilter">From: </label>
+					<input type="date" id="inputDateFromFilter" class="sidebar-input-box" style='margin-left: 10px' onblur='filterByDateRange()' onchange='filterFromDateChanged()'>
+                </div>
+				<div class="d-flex w-100 justify-content-start align-items-center">
+                    <label for="inputDateToFilter">To: </label>
+					<input type="date" id="inputDateToFilter" class="sidebar-input-box" style='margin-left: 28px' onblur='filterByDateRange()' onchange='filterToDateChanged()'>
+                </div>
+            </div>
+			
+			<!-- Tags Filter -->
+			<div class="list-group-item bg-dark" id="tagsFilterContainer">
+                <div class="d-flex w-100 justify-content-start align-items-center">
+					<label for="tagsFilter" style='margin-right: 35px'>Tags: </label>
+                    <select id="tagsFilter" class="!sidebar-input-box selectpicker" multiple title="Nothing selected"></select>
+                </div>
+            </div>
+			
+			<!-- Category Filter -->
+			<div class="list-group-item bg-dark" id="categoryFilterContainer">
+                <div class="d-flex w-100 justify-content-start align-items-center">
+					<label for="categoryFilter" style='margin-right: 5px'>Category: </label>
+					<select id="categoryFilter" class="!sidebar-input-box selectpicker" title="Nothing selected" data-allow-clear="true"></select>
+                </div>
+            </div>
+			
+			<!-- Combine Tags And Category Filter -->
+			<div class="list-group-item bg-dark" id="toggleTagsAndCategoryFilterContainer">
+				<button id="toggleTagsAndCategoryFilterBtn" 
+					class="btn btn-outline-primary d-flex w-100" 
+					style="padding-left:35px;" 
+					onclick="toggleTagsAndCategoryFilter()" 
+					data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' 
+					data-trigger='hover' title="Toggles if images must have a selected tag or category vs tag and category">Tags AND Category</button>
+            </div>
+			
+            <!-- Separator without title -->
+            <li class="list-group-item sidebar-separator"></li>
+            <a onclick="closeSidebar()" class="bg-dark list-group-item list-group-item-action d-flex align-items-center">
+                <div class="d-flex w-100 justify-content-start align-items-center">
+                    <span id="collapse-icon" class="fa fa-times mr-3"></span>
+                    <span id="collapse-text">Close</span>
+                </div>
+            </a>
+        </ul>
+    </div><!-- sidebar-container END -->
+
+	<div class="container">
+		<div class="jumbotron">
+			<h1 class="display-3">Example Gallery</h1>
+			<p class="lead">Free to use gallery template for anyone interested in hosting images. Placeholder pictures from <a target="_blank" href="https://unsplash.com/">Unsplash</a>.</p>
+			<hr class="my-4">
+			<p>Ideal for large galleries which can be filtered and sorted. Made with <a target="_blank" href="https://github.com/galleriajs/galleria">Galleria</a> Folio and many other components. No server side code. 
+			</br> Visit the open source GitHub repository for details. </p>
+			
 		</div>
-		 
-		 <div class="custom-control custom-switch">
-		  <input type="checkbox" class="custom-control-input" id="sortByDateDescSwitch" onclick="toggleSortByDateDesc()">
-		  <label class="custom-control-label" for="sortByDateDescSwitch">Date sort desc</label>
-		</div> 
-		 
-		 <div class="custom-control custom-switch">
-		  <input type="checkbox" class="custom-control-input" id="sortByNameSwitch" onclick="toggleSortByName()">
-		  <label class="custom-control-label" for="sortByNameSwitch">Sort by Name</label>
-		</div>
-		 
-		 <div class="custom-control custom-switch">
-		  <input type="checkbox" class="custom-control-input" id="sortByRatingSwitch" onclick="toggleSortByRating()">
-		  <label class="custom-control-label" for="sortByRatingSwitch">Sort by Rating</label>
-		</div>
-		
-		 <!-- filters -->
-		 <label for="inputNameFilter">Name Filter: </label>
-		 <input type="text" id="inputNameFilter" data-toggle="tooltip" data-placement="bottom" title="Press Return Key to confirm">
-		 <button type="button" onclick="filterByName()">Filter by Name</button> 
-		 
-		 <select id="tagsFilter" class="selectpicker" multiple title="Nothing selected"></select>
-		 <button type="button" onclick="filterByTags()">Filter by Tags</button>
-		 
-		 <select id="categoryFilter" class="selectpicker" title="Nothing selected" data-allow-clear="true" onchange="filterByCategory()"></select>
-		 
-		 <button id="toggleTagsAndCategoryFilterBtn" type="button" onclick="toggleTagsAndCategoryFilter()" data-toggle="tooltip" data-placement="bottom" title="Toggles if images must have a selected tag or category vs tag and category">Tags AND Category</button>
-		 
-		 <label for="inputDateFromFilter">From: </label>
-		 <input type="date" id="inputDateFromFilter">
-		 <label for="inputDateToFilter">To: </label>
-		 <input type="date" id="inputDateToFilter">
-		 <button type="button" onclick="filterByDateRange()">Filter by Date Range</button> 
-		 
-	 </div>
-	 
-	<div class="galleria">
 	</div>
+	
+	<span id="sidebarOpenBtn" style="font-size:30px;cursor:pointer;position:fixed;left:10px;top:50px;z-index:5;" onclick="openSidebar()">&#9776;</span>
 	 
+	<div class="galleria"></div>
 	
 	
-	<!-- START Bootstrap-Cookie-Alert -->
+	
+	
+	<!-- Bootstrap-Cookie-Alert -->
 	<div class="alert text-center cookiealert" role="alert">
 		This website uses your local browser storage to remember your filter / sort settings and when you rate images.
 		<button type="button" class="btn btn-primary btn-sm acceptcookies">
 			I consent
 		</button>
 	</div>
-	<!-- END Bootstrap-Cookie-Alert -->
 	
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"></script>
+	<script src="lib/jquery-3.6.0.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF" crossorigin="anonymous"></script>
 	<script src="lib/galleria.js"></script>
@@ -823,10 +944,19 @@ var imgData = [
 	
 	<script>
 	
+		var filterByNameEnabled = false;
+		var filterByDateEnabled = false;
+		var currentFromFilterDate;
+		var currentToFilterDate;
+		var filterByTagsEnabled = false;
+		var currentFilterTags;
+		var filterByCategoryEnabled = false;
+		var currentFilterCategory;
+		var categoriesAndTags = true;
+		
 		var nameFilterFunc = function(dataItemToFilter) {return true;};
 		var tagsFilterFunc = function(dataItemToFilter) {return true;};
 		var categoryFilterFunc = function(dataItemToFilter) {return true;};
-		var categoriesAndTags = true;
 		var dateRangeFilterFunc = function(dataItemToFilter) {return true;};
 		var filterFunction = function(arr) {
 				return arr.filter(function(dataItemToFilter) {
@@ -992,8 +1122,41 @@ var imgData = [
 			return 0;
 		}
 		
+		(function() {
+			// when the list item is highlighted toggle the switch regardless if the checkbox was actually clicked
+			$('#sortByDateAscButton').on('click', function(e) {
+			  toggleSortByDateAsc();
+			});
+			// ignore clicks directly on the checkbox, which also trigger the parent
+			$('#sortByDateAscSwitch').on('click', function(e) {
+				return false;
+			});
+			
+			$('#sortByDateDescButton').on('click', function(e) {
+			  toggleSortByDateDesc();
+			});
+			$('#sortByDateDescSwitch').on('click', function(e) {
+				return false;
+			});
+			
+			$('#sortByNameButton').on('click', function(e) {
+			  toggleSortByName();
+			});
+			$('#sortByNameSwitch').on('click', function(e) {
+				return false;
+			});
+			
+			$('#sortByRatingButton').on('click', function(e) {
+			  toggleSortByRating();
+			});
+			$('#sortByRatingSwitch').on('click', function(e) {
+				return false;
+			});
+		}());
+		
 		function toggleSortByDateAsc() {
-			sortByDateAsc = $('#sortByDateAscSwitch').is(':checked');
+			sortByDateAsc = !sortByDateAsc;
+			$('#sortByDateAscSwitch').prop('checked', sortByDateAsc);
 			sortByDateDesc = false;
 			sortByName = false;
 			refreshSortingUi();
@@ -1001,7 +1164,8 @@ var imgData = [
 		}
 		
 		function toggleSortByDateDesc() {
-			sortByDateDesc = $('#sortByDateDescSwitch').is(':checked');
+			sortByDateDesc = !sortByDateDesc;
+			$('#sortByDateDescSwitch').prop('checked', sortByDateDesc);
 			sortByDateAsc = false;
 			sortByName = false;
 			refreshSortingUi();
@@ -1009,7 +1173,8 @@ var imgData = [
 		}
 		
 		function toggleSortByName() {
-			sortByName = $('#sortByNameSwitch').is(':checked');
+			sortByName = !sortByName;
+			$('#sortByNameSwitch').prop('checked', sortByName);
 			sortByDateDesc = false;
 			sortByDateAsc = false;
 			refreshSortingUi();
@@ -1017,7 +1182,8 @@ var imgData = [
 		}
 		
 		function toggleSortByRating() {
-			sortByRating = $('#sortByRatingSwitch').is(':checked');
+			sortByRating = !sortByRating;
+			$('#sortByRatingSwitch').prop('checked', sortByRating);
 			loadImages();
 		}
 		
@@ -1030,41 +1196,56 @@ var imgData = [
 		
 		
 		
-		// filters
-		function filterByName() {
-		
-			var filter = $("#inputNameFilter").val();
-			if (isBlank(filter)) {
-				nameFilterFunc = function(dataItemToFilter) {return true;};
-			} else {
-				nameFilterFunc = function(dataItemToFilter) {
-						return dataItemToFilter.title && dataItemToFilter.title.toLowerCase().includes(filter.toLowerCase());
-					}
-			}
-			loadImages();
-		}
-		
+		//// filters ////
+		// image title filter
 		(function() {
 				$('#inputNameFilter').keypress(function(event) {
 					
 					if (event.which == 13) { // return key
 						event.preventDefault();
 						filterByName();
+						$('[data-toggle="tooltip"]').tooltip('hide');
 					}
 				});
 		}());
 		
-		function filterByDateRange() {
+		function filterByName() {
+			
+			var filter = $("#inputNameFilter").val();
+			if (isBlank(filter)) {
+				filterByNameEnabled = false;
+				nameFilterFunc = function(dataItemToFilter) {return true;};
+			} else {
+				filterByNameEnabled = true;
+				nameFilterFunc = function(dataItemToFilter) {
+						return dataItemToFilter.title && dataItemToFilter.title.toLowerCase().includes(filter.toLowerCase());
+					}
+			}
+			displayAsActive(filterByNameEnabled, $('#nameFilterContainer').get(0));
+			loadImages();
+		}
 		
+		// date filter
+		function filterByDateRange() {
 			// the number of milliseconds from midnight UTC the morning of 1970-01-01 to the time represented by the Date object
-			var filterFrom = document.getElementById("inputDateFromFilter").valueAsNumber;
-			var filterTo = document.getElementById("inputDateToFilter").valueAsNumber;
+			filterFrom = document.getElementById("inputDateFromFilter").valueAsNumber;
+			filterTo = document.getElementById("inputDateToFilter").valueAsNumber;
+			
+			// check if dates changed
+			if ( (filterFrom !== currentFromFilterDate && !(isNaN(filterFrom) && isNaN(currentFromFilterDate))) || 
+				 (filterTo !== currentToFilterDate && !(isNaN(filterTo) && isNaN(currentToFilterDate)))) {
+				currentFromFilterDate = filterFrom;
+				currentToFilterDate = filterTo;
+			} else {
+				return;
+			}
 			
 			if ((isBlank(filterFrom) || isNaN(filterFrom)) && (isBlank(filterTo) || isNaN(filterTo))) {
 				dateRangeFilterFunc = function(dataItemToFilter) {return true;};
+				filterByDateEnabled = false;
 				
 			} else {
-			
+				filterByDateEnabled = true;
 				if (isBlank(filterFrom) || isNaN(filterFrom)) {
 					filterFrom = -1;
 				}
@@ -1077,43 +1258,110 @@ var imgData = [
 						return dataItemToFilter.timestamp && dataItemToFilter.timestamp >= filterFrom && dataItemToFilter.timestamp <= filterTo;
 					}
 			}
+			displayAsActive(filterByDateEnabled, $('#dateFilterContainer').get(0));
 			loadImages();
 		}
 		
+		function filterFromDateChanged() {
+			var filterFrom = document.getElementById("inputDateFromFilter").valueAsNumber;
+			if (isBlank(filterFrom) || isNaN(filterFrom)) filterByDateRange(); // onblur does not fire in FF when clearing the date
+		}
+		
+		function filterToDateChanged() {
+			var filterTo = document.getElementById("inputDateToFilter").valueAsNumber;
+			if (isBlank(filterTo) || isNaN(filterTo)) filterByDateRange(); // onblur does not fire in FF when clearing the date
+		}
+		
+		
+		// tags filter
 		function filterByTags() {
 		
 			var filterTags = $('#tagsFilter').val();
+			
+			if (arraysEqual(filterTags, currentFilterTags)) return;
+			
+			currentFilterTags = filterTags;
+			
 			if (!filterTags || filterTags.length == 0) {
 				tagsFilterFunc = function(dataItemToFilter) {return true;};
+				filterByTagsEnabled = false;
 			} else {
+				filterByTagsEnabled = true;
 				tagsFilterFunc = function(dataItemToFilter) {
 						return dataItemToFilter.tags && findIntersection(dataItemToFilter.tags.split(","), filterTags).length > 0;
 					}
 			}
+			displayAsActive(filterByTagsEnabled, $('#tagsFilterContainer').get(0));
 			loadImages();
+		}
+		
+		(function() {
+				$('#tagsFilter').on('show.bs.select', function (e) {
+					toggleDisplaySidebarElementInForeground($('#tagsFilterContainer'), true);
+				});
+		
+				$('#tagsFilter').on('hide.bs.select', function (e) {
+					toggleDisplaySidebarElementInForeground($('#tagsFilterContainer'), false);
+					filterByTags();
+				});
+		}());
+		
+		// category filter
+		(function() {
+				// TODO: this will not work with multiple clearable dropdowns
+				$('.bs-select-clear-selected').click(function() {
+					currentFilterCategory = null;
+					filterByCategoryEnabled = false;
+					categoryFilterFunc = function(dataItemToFilter) {return true;};
+					displayAsActive(filterByCategoryEnabled, $('#categoryFilterContainer').get(0));
+					loadImages();
+				});
+		}());
+		
+		(function() {
+				$('#categoryFilter').on('show.bs.select', function (e) {
+					toggleDisplaySidebarElementInForeground($('#categoryFilterContainer'), true);
+				});
+		
+				$('#categoryFilter').on('hide.bs.select', function (e) {
+					toggleDisplaySidebarElementInForeground($('#categoryFilterContainer'), false);
+					filterByCategory();
+				});
+		}());
+		
+		function toggleDisplaySidebarElementInForeground(element, showInForeground) {
+			$('#sidebar-container > ul > div').each(function(index) {
+				if (showInForeground) {
+					if (!element.is($(this))) {
+						$(this).css('z-index', 0);
+					}
+				} else {
+					$(this).css('z-index', 2)
+				}
+			});
 		}
 		
 		function filterByCategory() {
 		
 			var filterCategory = $('#categoryFilter').val();
+			
+			if (filterCategory === currentFilterCategory) return;
+			currentFilterCategory = filterCategory;
+			
 			if (!filterCategory) {
+				filterByCategoryEnabled = false;
 				categoryFilterFunc = function(dataItemToFilter) {return true;};
 			} else {
+				filterByCategoryEnabled = true;
 				categoryFilterFunc = function(dataItemToFilter) {
 						return dataItemToFilter.categories && dataItemToFilter.categories.split(",").includes(filterCategory);
 					}
 			}
+			displayAsActive(filterByCategoryEnabled, $('#categoryFilterContainer').get(0));
 			loadImages();
 		}
 		
-		(function() {
-				// TODO: this will not work with multiple clearable dropdowns
-				$('.bs-select-clear-selected').click(function() {
-				  categoryFilterFunc = function(dataItemToFilter) {return true;};
-				  loadImages();
-				});
-		}());		
-		
+		// combine tags and category filter
 		function toggleTagsAndCategoryFilter() {
 		
 			categoriesAndTags = !categoriesAndTags;
@@ -1124,9 +1372,38 @@ var imgData = [
 				$('#toggleTagsAndCategoryFilterBtn').html("Tags OR Category");
 			}
 			
-			loadImages();
+			if (filterByCategoryEnabled && filterByTagsEnabled) {
+				loadImages();
+			}
 		}
 		
+		
+		//// sidebar ////
+		function openSidebar() {
+		  $('#sidebarOpenBtn').hide();
+		  document.getElementById("sidebar-container").style.left = "0px";
+		}
+
+		function closeSidebar() {
+		  document.getElementById("sidebar-container").style.left = "-250px";
+		  $('#sidebarOpenBtn').show(500);
+		}
+		
+		(function() {
+			$('#sidebarOpenBtn').on('click', function(e) {
+					return false;
+				});
+		});
+		
+		function displayAsActive(isActive, element) {
+			if (isActive) {
+				element.classList.remove("bg-dark");
+				element.classList.add("active");
+			} else {
+				element.classList.remove("active");
+				element.classList.add("bg-dark");
+			}
+		}
 		
 		
 		
@@ -1207,7 +1484,7 @@ var imgData = [
 		 }());
 		 
 		 
-		 
+		 // initialising selections
 		 // tags
 		 function refreshSelectableTags() {
 			var allTagsSet = new Set();
@@ -1263,6 +1540,17 @@ var imgData = [
 		
 		function isViewingImage() {
 			return Galleria.get(0).getActiveImage() != null && $(Galleria.get(0).getActiveImage()).is(':visible');
+		}
+		
+		function arraysEqual(a, b) {
+		  if (a === b) return true;
+		  if (a == null || b == null) return false;
+		  if (a.length !== b.length) return false;
+
+		  for (var i = 0; i < a.length; ++i) {
+			if (a[i] !== b[i]) return false;
+		  }
+		  return true;
 		}
 		
 		
