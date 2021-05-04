@@ -944,6 +944,10 @@ var imgData = [
 	
 	<script>
 	
+		// debug
+		var numberOfPreviewImagesLoaded = 0; // currently displayed, resets when applying new filtering/sorting
+		var numberOfFullSizeImagesLoaded = 0; // loaded in this session without page refresh
+	
 		var filterByNameEnabled = false;
 		var filterByDateEnabled = false;
 		var currentFromFilterDate;
@@ -990,6 +994,8 @@ var imgData = [
 		var lastChunkLoaded = false;
 		function loadImages() {
 		
+			numberOfPreviewImagesLoaded = 0;
+		
 			imagesToLoad = imgData;
 			if (typeof filterFunction === 'function') {
 				imagesToLoad = filterFunction(imagesToLoad);
@@ -1014,6 +1020,9 @@ var imgData = [
 				// Centers the thumbnails inside it’s container
 				_center: true
 			});
+			
+			// navigate to top
+			window.scrollTo(0, 0);
 		}
 		
 		
@@ -1044,6 +1053,7 @@ var imgData = [
 			observer.observe(sentinel);
 			
 			galleriaRef.bind("thumbnail", function(e) {
+				++numberOfPreviewImagesLoaded;
 				thumbsContainer.get(0).appendChild(sentinel);
 				if (e.index == galleriaRef.getDataLength() - 1) {
 					lastChunkLoaded = true;
@@ -1602,6 +1612,8 @@ var imgData = [
 		
 		// galleria event callback when an preview image has been selected and is displayed in the lightbox 
 		Galleria.on('image', function(e) {
+		
+			++numberOfFullSizeImagesLoaded;
 				
 			// move the info box to the left from center
 			// actually moves presumably because the folio theme sets the style -webkit-transition: all 100ms;
