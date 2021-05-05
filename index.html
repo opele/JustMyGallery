@@ -1101,15 +1101,19 @@ var imgData = [
 				 // use keydown instead of keypress which also catches non-printing keys such as Shift, Esc...
 				$(window).keydown(function( event ) {
 				
-						if (event.key == 'Escape') {
-							closeSidebar();
+						if (isViewingImage()) { // single image mode
+							// enable rating with number keys 1 to 5
+							processKeyEvtForRating(event);
 							
-						} else if (event.key == 'F1') { 
-							openSidebar();
-						}
+						} else { // displaying gallery with preview images
 						
-						// enable rating with number keys 1 to 5
-						processKeyEvtForRating(event);
+							if (event.key == 'Escape') {
+								closeSidebar();
+							
+							} else if (event.key == 'F1') { 
+								openSidebar();
+							}
+						}
 				});
 		 }());
 		
@@ -1503,14 +1507,10 @@ var imgData = [
 		 
 		 
 		 function processKeyEvtForRating(event) {
-			// enable rating with number keys
-			// key codes are from 49 (1) to 53 (5)
-			if (!isViewingImage()) {
-				return;
-			}
 			
 			var rateEl = $('.galleria-info').find('#rating');
 			
+			// enable rating with number keys
 			// 1 to 5, works with both: numpad or number keys under F-keys
 			if (event.key == '1') {
 				rateEl.children('span').get(0).click();
