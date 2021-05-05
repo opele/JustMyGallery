@@ -78,6 +78,15 @@
 			 right: 5px;
 			 width: 158px;
 		}
+		
+		.sidebar-open-button {
+			font-size: 30px;
+			cursor: pointer;
+			position: fixed;
+			left: 10px;
+			top: 50px;
+			z-index: 5;
+		}
 
 		/* for smaller screens */
 		@media screen and (max-height: 450px) {
@@ -920,7 +929,9 @@ var imgData = [
 		</div>
 	</div>
 	
-	<span id="sidebarOpenBtn" style="font-size:30px;cursor:pointer;position:fixed;left:10px;top:50px;z-index:5;" onclick="openSidebar()">&#9776;</span>
+	<span id="sidebarOpenBtn" class="sidebar-open-button" onclick="openSidebar()"
+		data-toggle="tooltip" data-placement="right" data-delay='{"show":500, "hide":200}' 
+		data-trigger='hover' title="Shows Sidebar or press F1">&#9776;</span>
 	 
 	<div class="galleria"></div>
 	
@@ -1080,6 +1091,29 @@ var imgData = [
 				lastChunkLoaded = false;
 			}
 		}
+		
+		
+		
+		
+		// window keyboard event listener
+		 (function() {
+		 		 
+				 // use keydown instead of keypress which also catches non-printing keys such as Shift, Esc...
+				$(window).keydown(function( event ) {
+				
+						if (event.key == 'Escape') {
+							closeSidebar();
+							
+						} else if (event.key == 'F1') { 
+							openSidebar();
+						}
+						
+						// enable rating with number keys 1 to 5
+						processKeyEvtForRating(event);
+				});
+		 }());
+		
+		
 		
 		
 		
@@ -1468,30 +1502,28 @@ var imgData = [
 			+ '</div>';
 		 
 		 
-		 (function() {
-		 		 // enable rating with number keys
-				$(window).keydown(function( event ) {
-						
-						if (!isViewingImage()) {
-							return;
-						}
-						
-						var rateEl = $('.galleria-info').find('#rating');
-						
-						// key codes are from 49 (1) to 53 (5)
-						if (event.which == 49) {
-							rateEl.children('span').get(0).click();
-						} else if (event.which == 50) {
-							rateEl.children('span').get(1).click();
-						} else if (event.which == 51) {
-							rateEl.children('span').get(2).click();
-						} else if (event.which == 52) {
-							rateEl.children('span').get(3).click();
-						} else if (event.which == 53) {
-							rateEl.children('span').get(4).click();
-						}
-				});
-		 }());
+		 function processKeyEvtForRating(event) {
+			// enable rating with number keys
+			// key codes are from 49 (1) to 53 (5)
+			if (!isViewingImage()) {
+				return;
+			}
+			
+			var rateEl = $('.galleria-info').find('#rating');
+			
+			// 1 to 5, works with both: numpad or number keys under F-keys
+			if (event.key == '1') {
+				rateEl.children('span').get(0).click();
+			} else if (event.key == '2') {
+				rateEl.children('span').get(1).click();
+			} else if (event.key == '3') {
+				rateEl.children('span').get(2).click();
+			} else if (event.key == '4') {
+				rateEl.children('span').get(3).click();
+			} else if (event.key == '5') {
+				rateEl.children('span').get(4).click();
+			}
+		 }
 		 
 		 
 		 // initialising selections
