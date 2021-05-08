@@ -87,6 +87,10 @@
 			top: 50px;
 			z-index: 5;
 		}
+		
+		.sidebar-close {
+			cursor: default;
+		}
 
 		/* for smaller screens */
 		@media screen and (max-height: 450px) {
@@ -97,6 +101,9 @@
 		.sidebar-separator-title {
 			height: 35px;
 			background-color: #6c5a5a;
+			font-weight: 900;
+			font-size: 150%;
+			cursor: default;
 		}
 		.sidebar-separator {
 			height: 25px;
@@ -909,10 +916,13 @@ var imgData = [
 			
             <!-- Separator without title -->
             <li class="list-group-item sidebar-separator"></li>
-            <a onclick="closeSidebar()" class="bg-dark list-group-item list-group-item-action d-flex align-items-center">
+            <a onclick="closeSidebar()" class="bg-dark list-group-item list-group-item-action d-flex align-items-center"
+            		data-toggle="tooltip" data-placement="bottom" data-delay='{"show":1500, "hide":200}' 
+					data-trigger='hover' title="Also closes with ESC key">
+					
                 <div class="d-flex w-100 justify-content-start align-items-center">
                     <span id="collapse-icon" class="fa fa-times mr-3"></span>
-                    <span id="collapse-text">Close</span>
+                    <span id="collapse-text" class="sidebar-close">Close</span>
                 </div>
             </a>
         </ul>
@@ -931,7 +941,7 @@ var imgData = [
 	
 	<span id="sidebarOpenBtn" class="sidebar-open-button" onclick="openSidebar()"
 		data-toggle="tooltip" data-placement="right" data-delay='{"show":500, "hide":200}' 
-		data-trigger='hover' title="Shows Sidebar or press F1">&#9776;</span>
+		data-trigger='hover' title="Click to show sidebar or press the 1 key">&#9776;</span>
 	 
 	<div class="galleria"></div>
 	
@@ -976,10 +986,20 @@ var imgData = [
 		var filterFunction = function(arr) {
 				return arr.filter(function(dataItemToFilter) {
 						return nameFilterFunc(dataItemToFilter) && 
-							(
-								(categoriesAndTags && tagsFilterFunc(dataItemToFilter) && categoryFilterFunc(dataItemToFilter)) ||
-								(!categoriesAndTags && (tagsFilterFunc(dataItemToFilter) || categoryFilterFunc(dataItemToFilter))) 
+						
+							// if tag AND category filters are on, only then consider categoriesAndTags
+							// otherwise the OR condition is true and we don't even evaluate the filters
+							((!filterByTagsEnabled || !filterByCategoryEnabled) ||
+								((categoriesAndTags && tagsFilterFunc(dataItemToFilter) && categoryFilterFunc(dataItemToFilter)) ||
+								(!categoriesAndTags && (tagsFilterFunc(dataItemToFilter) || categoryFilterFunc(dataItemToFilter))))
 							) &&
+							
+							// if one of them is off, then just apply it regardless of categoriesAndTags
+							// this avoids showing all results when categoriesAndTags = false (i.e. OR filtering) and one of the filters is not active (i.e. allows all)
+							((filterByTagsEnabled && filterByCategoryEnabled) ||
+								(tagsFilterFunc(dataItemToFilter) && categoryFilterFunc(dataItemToFilter))
+							) &&
+							
 							dateRangeFilterFunc(dataItemToFilter);
 					});
 			};
@@ -996,9 +1016,12 @@ var imgData = [
 			//	Galleria.run('.galleria', {
 			//	dataSource: data});
 			
+			initSidebar();
+			
 			loadImages();
 			
 		}());
+		
 		
 		var imagesToLoad;
 		var scrolledToEnd = false;
@@ -1260,21 +1283,32 @@ var imgData = [
 		function filterByName() {
 			
 			var filter = $("#inputNameFilter").val();
-			if (isBlank(filter)) {
-				filterByNameEnabled = false;
-				nameFilterFunc = function(dataItemToFilter) {return true;};
-			} else {
-				filterByNameEnabled = true;
+			
+			filterByNameEnabled = !isBlank(filter);
+			applyFilterByName(filter);
+			
+			store('filterByNameEnabled', filterByNameEnabled);
+			store('currentFilterByName', filter);
+
+			loadImages();
+		}
+		
+		function applyFilterByName(filter) {
+			
+			if (filterByNameEnabled) {
 				nameFilterFunc = function(dataItemToFilter) {
 						return dataItemToFilter.title && dataItemToFilter.title.toLowerCase().includes(filter.toLowerCase());
 					}
+			} else {
+				nameFilterFunc = function(dataItemToFilter) {return true;};
 			}
+			
 			displayAsActive(filterByNameEnabled, $('#nameFilterContainer').get(0));
-			loadImages();
 		}
 		
 		// date filter
 		function filterByDateRange() {
+			
 			// the number of milliseconds from midnight UTC the morning of 1970-01-01 to the time represented by the Date object
 			filterFrom = document.getElementById("inputDateFromFilter").valueAsNumber;
 			filterTo = document.getElementById("inputDateToFilter").valueAsNumber;
@@ -1288,12 +1322,23 @@ var imgData = [
 				return;
 			}
 			
-			if ((isBlank(filterFrom) || isNaN(filterFrom)) && (isBlank(filterTo) || isNaN(filterTo))) {
-				dateRangeFilterFunc = function(dataItemToFilter) {return true;};
-				filterByDateEnabled = false;
-				
-			} else {
-				filterByDateEnabled = true;
+			filterByDateEnabled = !((isBlank(filterFrom) || isNaN(filterFrom)) && (isBlank(filterTo) || isNaN(filterTo)));
+			
+			applyFilterByDateRange();
+			
+			store('filterByDateEnabled', filterByDateEnabled);
+			store('currentFromFilterDate', currentFromFilterDate);
+			store('currentToFilterDate', currentToFilterDate);
+			
+			loadImages();
+		}
+		
+		function applyFilterByDateRange() {
+			
+			var filterFrom = currentFromFilterDate;
+			var filterTo = currentToFilterDate;
+			
+			if (filterByDateEnabled) {
 				if (isBlank(filterFrom) || isNaN(filterFrom)) {
 					filterFrom = -1;
 				}
@@ -1305,9 +1350,12 @@ var imgData = [
 				dateRangeFilterFunc = function(dataItemToFilter) {
 						return dataItemToFilter.timestamp && dataItemToFilter.timestamp >= filterFrom && dataItemToFilter.timestamp <= filterTo;
 					}
+				
+			} else { 
+				dateRangeFilterFunc = function(dataItemToFilter) {return true;};
 			}
+			
 			displayAsActive(filterByDateEnabled, $('#dateFilterContainer').get(0));
-			loadImages();
 		}
 		
 		function filterFromDateChanged() {
@@ -1329,20 +1377,30 @@ var imgData = [
 			if (arraysEqual(filterTags, currentFilterTags)) return;
 			
 			currentFilterTags = filterTags;
+			filterByTagsEnabled = filterTags && filterTags.length > 0;
 			
-			if (!filterTags || filterTags.length == 0) {
-				tagsFilterFunc = function(dataItemToFilter) {return true;};
-				filterByTagsEnabled = false;
-			} else {
-				filterByTagsEnabled = true;
-				tagsFilterFunc = function(dataItemToFilter) {
-						return dataItemToFilter.tags && findIntersection(dataItemToFilter.tags.split(","), filterTags).length > 0;
-					}
-			}
-			displayAsActive(filterByTagsEnabled, $('#tagsFilterContainer').get(0));
+			applyFilterByTags();
+			
+			store('filterByTagsEnabled', filterByTagsEnabled);
+			store('currentFilterTags', currentFilterTags);
+			
 			loadImages();
 		}
 		
+		function applyFilterByTags() {
+			
+			if (filterByTagsEnabled) {
+				tagsFilterFunc = function(dataItemToFilter) {
+						return dataItemToFilter.tags && findIntersection(dataItemToFilter.tags.split(","), currentFilterTags).length > 0;
+					}
+			} else {
+				tagsFilterFunc = function(dataItemToFilter) {return true;};
+			}
+			
+			displayAsActive(filterByTagsEnabled, $('#tagsFilterContainer').get(0));
+		}
+		
+		// toggle z-index on show and hide dropdown events, so the select options do not display behind other controls
 		(function() {
 				$('#tagsFilter').on('show.bs.select', function (e) {
 					toggleDisplaySidebarElementInForeground($('#tagsFilterContainer'), true);
@@ -1356,16 +1414,24 @@ var imgData = [
 		
 		// category filter
 		(function() {
+				// this event triggers when clearing the selected value on a single select droptown
 				// TODO: this will not work with multiple clearable dropdowns
 				$('.bs-select-clear-selected').click(function() {
+					
 					currentFilterCategory = null;
 					filterByCategoryEnabled = false;
 					categoryFilterFunc = function(dataItemToFilter) {return true;};
+					
 					displayAsActive(filterByCategoryEnabled, $('#categoryFilterContainer').get(0));
+					
+					store('filterByCategoryEnabled', filterByCategoryEnabled);
+					store('currentFilterCategory', currentFilterCategory);
+					
 					loadImages();
 				});
 		}());
 		
+		// toggle z-index on show and hide dropdown events, so the select options do not display behind other controls
 		(function() {
 				$('#categoryFilter').on('show.bs.select', function (e) {
 					toggleDisplaySidebarElementInForeground($('#categoryFilterContainer'), true);
@@ -1395,18 +1461,27 @@ var imgData = [
 			
 			if (filterCategory === currentFilterCategory) return;
 			currentFilterCategory = filterCategory;
+			filterByCategoryEnabled = !isBlank(filterCategory);
 			
-			if (!filterCategory) {
-				filterByCategoryEnabled = false;
-				categoryFilterFunc = function(dataItemToFilter) {return true;};
-			} else {
-				filterByCategoryEnabled = true;
-				categoryFilterFunc = function(dataItemToFilter) {
-						return dataItemToFilter.categories && dataItemToFilter.categories.split(",").includes(filterCategory);
-					}
-			}
-			displayAsActive(filterByCategoryEnabled, $('#categoryFilterContainer').get(0));
+			applyFilterByCategory();
+			
+			store('filterByCategoryEnabled', filterByCategoryEnabled);
+			store('currentFilterCategory', currentFilterCategory);
+			
 			loadImages();
+		}
+		
+		function applyFilterByCategory() {
+			
+			if (filterByCategoryEnabled) {
+				categoryFilterFunc = function(dataItemToFilter) {
+						return dataItemToFilter.categories && dataItemToFilter.categories.split(",").includes(currentFilterCategory);
+					}
+			} else {
+				categoryFilterFunc = function(dataItemToFilter) {return true;};
+			}
+			
+			displayAsActive(filterByCategoryEnabled, $('#categoryFilterContainer').get(0));
 		}
 		
 		// combine tags and category filter
@@ -1414,14 +1489,21 @@ var imgData = [
 		
 			categoriesAndTags = !categoriesAndTags;
 			
+			applyTagsAndCategoryFilter();
+			
+			store('categoriesAndTags', categoriesAndTags);
+			
+			if (filterByCategoryEnabled && filterByTagsEnabled) {
+				loadImages();
+			}
+		}
+		
+		function applyTagsAndCategoryFilter() {
+			
 			if (categoriesAndTags) {
 				$('#toggleTagsAndCategoryFilterBtn').html("Tags AND Category");
 			} else {
 				$('#toggleTagsAndCategoryFilterBtn').html("Tags OR Category");
-			}
-			
-			if (filterByCategoryEnabled && filterByTagsEnabled) {
-				loadImages();
 			}
 		}
 		
@@ -1451,6 +1533,43 @@ var imgData = [
 				element.classList.remove("active");
 				element.classList.add("bg-dark");
 			}
+		}
+		
+		function initSidebar() {
+			
+			var currentFilterByName = null;
+			
+			if (isLocalStorageAccepted()) {
+				filterByNameEnabled = localStorage.getItem('filterByNameEnabled') == 'true';
+				currentFilterByName = localStorage.getItem('currentFilterByName');
+				filterByDateEnabled = localStorage.getItem('filterByDateEnabled') == 'true';
+				currentFromFilterDate = parseInt(localStorage.getItem('currentFromFilterDate'));
+				currentToFilterDate = parseInt(localStorage.getItem('currentToFilterDate'));
+				filterByTagsEnabled = localStorage.getItem('filterByTagsEnabled') == 'true';
+				currentFilterTags = localStorage.getItem('currentFilterTags');
+				filterByCategoryEnabled = localStorage.getItem('filterByCategoryEnabled') == 'true';
+				currentFilterCategory = localStorage.getItem('currentFilterCategory');
+				categoriesAndTags = localStorage.getItem('categoriesAndTags') == 'true';
+			}
+			
+			$('#inputNameFilter').val(currentFilterByName);
+			applyFilterByName(currentFilterByName);
+			
+			document.getElementById("inputDateFromFilter").valueAsNumber = currentFromFilterDate;
+			document.getElementById("inputDateToFilter").valueAsNumber = currentToFilterDate;
+			applyFilterByDateRange();
+			
+			if (currentFilterTags != null && currentFilterTags.length > 0) {
+				$('#tagsFilter').selectpicker('val', currentFilterTags.split(","));
+			}
+			applyFilterByTags();
+			
+			if (!isBlank(currentFilterCategory)) {
+				$('#categoryFilter').selectpicker('val', currentFilterCategory);
+			}
+			applyFilterByCategory();
+			
+			applyTagsAndCategoryFilter();
 		}
 		
 		
@@ -1595,7 +1714,11 @@ var imgData = [
 		  return true;
 		}
 		
-		
+		function store(key, value) {
+			if (isLocalStorageAccepted()) {
+				localStorage.setItem(key, value);
+			}
+		}
 		
 		
 		
