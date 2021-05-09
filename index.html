@@ -1198,6 +1198,13 @@ var imgData = [
 			$('#sortByDateAscButton').on('click', function(e) {
 			  toggleSortByDateAsc();
 			});
+			// when the checkbox is focused on, enter key toggles it
+			$('#sortByDateAscButton').on('keydown', function(e) {
+			  if (event.key == 'Enter') {
+				event.preventDefault();
+				toggleSortByDateAsc();
+			  }
+			});
 			// ignore clicks directly on the checkbox, which also trigger the parent
 			$('#sortByDateAscSwitch').on('click', function(e) {
 				return false;
@@ -1206,6 +1213,12 @@ var imgData = [
 			$('#sortByDateDescButton').on('click', function(e) {
 			  toggleSortByDateDesc();
 			});
+			$('#sortByDateDescButton').on('keydown', function(e) {
+			  if (event.key == 'Enter') {
+				event.preventDefault();
+				toggleSortByDateDesc();
+			  }
+			});
 			$('#sortByDateDescSwitch').on('click', function(e) {
 				return false;
 			});
@@ -1213,12 +1226,24 @@ var imgData = [
 			$('#sortByNameButton').on('click', function(e) {
 			  toggleSortByName();
 			});
+			$('#sortByNameButton').on('keydown', function(e) {
+			  if (event.key == 'Enter') {
+				event.preventDefault();
+				toggleSortByName();
+			  }
+			});
 			$('#sortByNameSwitch').on('click', function(e) {
 				return false;
 			});
 			
 			$('#sortByRatingButton').on('click', function(e) {
 			  toggleSortByRating();
+			});
+			$('#sortByRatingButton').on('keydown', function(e) {
+			  if (event.key == 'Enter') {
+				event.preventDefault();
+				toggleSortByRating();
+			  }
 			});
 			$('#sortByRatingSwitch').on('click', function(e) {
 				return false;
@@ -1272,7 +1297,7 @@ var imgData = [
 		(function() {
 				$('#inputNameFilter').keypress(function(event) {
 					
-					if (event.which == 13) { // return key
+					if (event.key == 'Enter') { // return key
 						event.preventDefault();
 						filterByName();
 						$('[data-toggle="tooltip"]').tooltip('hide');
