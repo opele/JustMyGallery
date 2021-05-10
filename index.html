@@ -1435,6 +1435,16 @@ var imgData = [
 					toggleDisplaySidebarElementInForeground($('#tagsFilterContainer'), false);
 					filterByTags();
 				});
+				
+				// close the select menue when pressing left key
+				// enter key (de)selects the focused element
+				$('button.btn.dropdown-toggle.btn-light').keydown(function( event ) {
+					var selectWidget = $('#tagsFilter');
+					if (selectWidget.parent().hasClass('show') && event.key == 'ArrowLeft') {
+						selectWidget.selectpicker('toggle');
+					}
+				});
+				
 		}());
 		
 		// category filter
@@ -1465,6 +1475,14 @@ var imgData = [
 				$('#categoryFilter').on('hide.bs.select', function (e) {
 					toggleDisplaySidebarElementInForeground($('#categoryFilterContainer'), false);
 					filterByCategory();
+				});
+				
+				// close the select menue when pressing left key
+				$('button.btn.dropdown-toggle.bs-placeholder.btn-light').keydown(function( event ) {
+					var selectWidget = $('#categoryFilter');
+					if (selectWidget.parent().hasClass('show') && event.key == 'ArrowLeft') {
+						selectWidget.selectpicker('toggle');
+					}
 				});
 		}());
 		
