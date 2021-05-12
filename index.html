@@ -916,9 +916,10 @@ var imgData = [
 			
             <!-- Separator without title -->
             <li class="list-group-item sidebar-separator"></li>
-            <a onclick="closeSidebar()" class="bg-dark list-group-item list-group-item-action d-flex align-items-center"
-            		data-toggle="tooltip" data-placement="bottom" data-delay='{"show":1500, "hide":200}' 
-					data-trigger='hover' title="Also closes with ESC key">
+            <a  id='closeSidebarBtn' onclick="closeSidebar()" tabindex="0"
+				class="bg-dark list-group-item list-group-item-action d-flex align-items-center"
+            	data-toggle="tooltip" data-placement="bottom" data-delay='{"show":1500, "hide":200}' 
+				data-trigger='hover' title="Also closes with ESC key">
 					
                 <div class="d-flex w-100 justify-content-start align-items-center">
                     <span id="collapse-icon" class="fa fa-times mr-3"></span>
@@ -1425,37 +1426,9 @@ var imgData = [
 			displayAsActive(filterByTagsEnabled, $('#tagsFilterContainer').get(0));
 		}
 		
-		// toggle z-index on show and hide dropdown events, so the select options do not display behind other controls
-		(function() {
-				$('#tagsFilter').on('show.bs.select', function (e) {
-					toggleDisplaySidebarElementInForeground($('#tagsFilterContainer'), true);
-				});
-		
-				$('#tagsFilter').on('hide.bs.select', function (e) {
-					toggleDisplaySidebarElementInForeground($('#tagsFilterContainer'), false);
-					filterByTags();
-				});
-				
-				// close the select menue when pressing left key
-				// enter key (de)selects the focused element
-				$('#tagsFilter + button.btn.dropdown-toggle').keydown(function( event ) {
-					var selectWidget = $('#tagsFilter');
-					if (selectWidget.parent().hasClass('show')) {
-						if (event.key == 'ArrowLeft')
-							selectWidget.selectpicker('toggle');
-					} else {
-						if (event.key == 'Backspace') {
-							selectWidget.selectpicker('deselectAll');
-							filterByTags();
-						}
-					}
-				});
-				
-		}());
-		
 		// category filter
 		(function() {
-				// this event triggers when clearing the selected value on a single select droptown
+				// this event triggers when clearing the selected value on a single select dropdown
 				// TODO: this will not work with multiple clearable dropdowns
 				$('.bs-select-clear-selected').click(function() {
 					
@@ -1471,43 +1444,6 @@ var imgData = [
 					loadImages();
 				});
 		}());
-		
-		// toggle z-index on show and hide dropdown events, so the select options do not display behind other controls
-		(function() {
-				$('#categoryFilter').on('show.bs.select', function (e) {
-					toggleDisplaySidebarElementInForeground($('#categoryFilterContainer'), true);
-				});
-		
-				$('#categoryFilter').on('hide.bs.select', function (e) {
-					toggleDisplaySidebarElementInForeground($('#categoryFilterContainer'), false);
-					filterByCategory();
-				});
-				
-				// close the select menue when pressing left key
-				$('#categoryFilter + button.btn.dropdown-toggle').keydown(function( event ) {
-					var selectWidget = $('#categoryFilter');
-					if (selectWidget.parent().hasClass('show')) {
-						if (event.key == 'ArrowLeft')
-							selectWidget.selectpicker('toggle');
-					} else {
-						if (event.key == 'Backspace' && selectWidget.val().length > 0) {
-							$('.bs-select-clear-selected').click();
-						}
-					}
-				});
-		}());
-		
-		function toggleDisplaySidebarElementInForeground(element, showInForeground) {
-			$('#sidebar-container > ul > div').each(function(index) {
-				if (showInForeground) {
-					if (!element.is($(this))) {
-						$(this).css('z-index', 0);
-					}
-				} else {
-					$(this).css('z-index', 2)
-				}
-			});
-		}
 		
 		function filterByCategory() {
 		
@@ -1573,11 +1509,15 @@ var imgData = [
 		  $('#sidebarOpenBtn').show(500);
 		}
 		
-		(function() {
-			$('#sidebarOpenBtn').on('click', function(e) {
-					return false;
+		$(function() {
+				
+			$('#closeSidebarBtn').keydown(function(event) {
+					if (event.key == 'Enter') closeSidebar();
 				});
+			
 		});
+		
+		
 		
 		function displayAsActive(isActive, element) {
 			if (isActive) {
@@ -1624,6 +1564,71 @@ var imgData = [
 			applyFilterByCategory();
 			
 			applyTagsAndCategoryFilter();
+		}
+		
+		// toggle z-index on show and hide dropdown events, so the select options do not display behind other controls
+		(function() {
+				$('#tagsFilter').on('show.bs.select', function (e) {
+					toggleDisplaySidebarElementInForeground($('#tagsFilterContainer'), true);
+				});
+		
+				$('#tagsFilter').on('hide.bs.select', function (e) {
+					toggleDisplaySidebarElementInForeground($('#tagsFilterContainer'), false);
+					filterByTags();
+				});
+				
+				// close the select menue when pressing left key
+				// enter key (de)selects the focused element
+				$('#tagsFilter + button.btn.dropdown-toggle').keydown(function( event ) {
+					var selectWidget = $('#tagsFilter');
+					if (selectWidget.parent().hasClass('show')) {
+						if (event.key == 'ArrowLeft')
+							selectWidget.selectpicker('toggle');
+					} else {
+						if (event.key == 'Backspace') {
+							selectWidget.selectpicker('deselectAll');
+							filterByTags();
+						}
+					}
+				});
+				
+		}());
+		
+		// toggle z-index on show and hide dropdown events, so the select options do not display behind other controls
+		(function() {
+				$('#categoryFilter').on('show.bs.select', function (e) {
+					toggleDisplaySidebarElementInForeground($('#categoryFilterContainer'), true);
+				});
+		
+				$('#categoryFilter').on('hide.bs.select', function (e) {
+					toggleDisplaySidebarElementInForeground($('#categoryFilterContainer'), false);
+					filterByCategory();
+				});
+				
+				// close the select menue when pressing left key
+				$('#categoryFilter + button.btn.dropdown-toggle').keydown(function( event ) {
+					var selectWidget = $('#categoryFilter');
+					if (selectWidget.parent().hasClass('show')) {
+						if (event.key == 'ArrowLeft')
+							selectWidget.selectpicker('toggle');
+					} else {
+						if (event.key == 'Backspace' && selectWidget.val().length > 0) {
+							$('.bs-select-clear-selected').click();
+						}
+					}
+				});
+		}());
+		
+		function toggleDisplaySidebarElementInForeground(element, showInForeground) {
+			$('#sidebar-container > ul > div').each(function(index) {
+				if (showInForeground) {
+					if (!element.is($(this))) {
+						$(this).css('z-index', 0);
+					}
+				} else {
+					$(this).css('z-index', 2)
+				}
+			});
 		}
 		
 		
