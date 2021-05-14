@@ -969,6 +969,11 @@ var imgData = [
 		// debug
 		var numberOfPreviewImagesLoaded = 0; // currently displayed, resets when applying new filtering/sorting
 		var numberOfFullSizeImagesLoaded = 0; // loaded in this session without page refresh
+		
+		var sortByRating = false;
+		var sortByDateAsc = false;
+		var sortByDateDesc = false;
+		var sortByName = false;
 	
 		var filterByNameEnabled = false;
 		var filterByDateEnabled = false;
@@ -1146,10 +1151,6 @@ var imgData = [
 		
 		
 		// sorting
-		var sortByRating = false;
-		var sortByDateAsc = false;
-		var sortByDateDesc = false;
-		var sortByName = false;
 		
 		function sortImages(a, b) {
 			
@@ -1253,34 +1254,35 @@ var imgData = [
 		
 		function toggleSortByDateAsc() {
 			sortByDateAsc = !sortByDateAsc;
-			$('#sortByDateAscSwitch').prop('checked', sortByDateAsc);
 			sortByDateDesc = false;
 			sortByName = false;
 			refreshSortingUi();
+			persistSorting();
 			loadImages();
 		}
 		
 		function toggleSortByDateDesc() {
 			sortByDateDesc = !sortByDateDesc;
-			$('#sortByDateDescSwitch').prop('checked', sortByDateDesc);
 			sortByDateAsc = false;
 			sortByName = false;
 			refreshSortingUi();
+			persistSorting();
 			loadImages();
 		}
 		
 		function toggleSortByName() {
 			sortByName = !sortByName;
-			$('#sortByNameSwitch').prop('checked', sortByName);
 			sortByDateDesc = false;
 			sortByDateAsc = false;
 			refreshSortingUi();
+			persistSorting();
 			loadImages();
 		}
 		
 		function toggleSortByRating() {
 			sortByRating = !sortByRating;
 			$('#sortByRatingSwitch').prop('checked', sortByRating);
+			persistSorting();
 			loadImages();
 		}
 		
@@ -1289,6 +1291,13 @@ var imgData = [
 			$('#sortByDateDescSwitch').prop('checked', sortByDateDesc);
 			$('#sortByNameSwitch').prop('checked', sortByName);
 			$('#sortByRatingSwitch').prop('checked', sortByRating);
+		}
+		
+		function persistSorting() {
+			store('sortByRating', sortByRating);
+			store('sortByDateAsc', sortByDateAsc);
+			store('sortByDateDesc', sortByDateDesc);
+			store('sortByName', sortByName);
 		}
 		
 		
@@ -1534,6 +1543,13 @@ var imgData = [
 			var currentFilterByName = null;
 			
 			if (isLocalStorageAccepted()) {
+				// sorting
+				sortByRating = localStorage.getItem('sortByRating') == 'true';
+				sortByDateAsc = localStorage.getItem('sortByDateAsc') == 'true';
+				sortByDateDesc = localStorage.getItem('sortByDateDesc') == 'true';
+				sortByName = localStorage.getItem('sortByName') == 'true';
+			
+				// filters
 				filterByNameEnabled = localStorage.getItem('filterByNameEnabled') == 'true';
 				currentFilterByName = localStorage.getItem('currentFilterByName');
 				filterByDateEnabled = localStorage.getItem('filterByDateEnabled') == 'true';
@@ -1545,6 +1561,8 @@ var imgData = [
 				currentFilterCategory = localStorage.getItem('currentFilterCategory');
 				categoriesAndTags = localStorage.getItem('categoriesAndTags') == 'true';
 			}
+			
+			refreshSortingUi();
 			
 			$('#inputNameFilter').val(currentFilterByName);
 			applyFilterByName(currentFilterByName);

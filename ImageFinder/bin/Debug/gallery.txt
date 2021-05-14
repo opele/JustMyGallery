@@ -4,9 +4,6 @@ Gallery Website Dev Notes
 
 
 TODO:
-- save/load filter/sort settings in local storage
-- make sidebar open/close and input navigateable via keyboard only
-
 - modularize the JS
 - use minified JS
 - read img data from json file
