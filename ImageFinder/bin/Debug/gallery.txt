@@ -2,11 +2,8 @@ Gallery Website Dev Notes
 
 
 
-
 TODO:
-- modularize the JS
-- use minified JS
-- read img data from json file
+- use minified JS for img data (remove whitespace in c#), external libs and custom js
 - test in Edge/FF/Chrome on Mac and PC
 - readme
 	tags vs categories (see below)
@@ -21,6 +18,12 @@ TODO:
 	multiselect: https://developer.snapappointments.com/bootstrap-select/
 	sidebar: https://www.codeply.com/go/3e0RAjccRO/bootstrap-4-collapsing-sidebar-menu
 	local storage consent banner: https://github.com/Wruczek/Bootstrap-Cookie-Alert
+	
+	release process:
+	combine all custom JS scripts into a single file via combine.bat (Windows)
+	minify the result combined.js to combined.min.js using e.g. https://javascript-minifier.com/
+	change the scripts import in index.html to import combined.min.js
+	
 - add MIT license
 - create github page: https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site
 - multithreading c# app for previewimage generaion

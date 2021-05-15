@@ -16,7 +16,7 @@ namespace ImageFinder {
      */
     class Program {
 
-        private const string OUTPUT_FILE_NAME = "imageData.txt";
+        private const string OUTPUT_FILE_NAME = "imageData.js";
         private const string TAGS_INPUT_FILE_NAME = "tags.txt";
         private static string[] CATEGORY_NAMES_TO_IGNORE = { "images", "img", "pics", "pictures" };
         private const int MAX_DEPTH = 4;
