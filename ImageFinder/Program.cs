@@ -6,6 +6,7 @@ using System.IO;
 using System.IO.Pipes;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ImageFinder {
@@ -32,7 +33,8 @@ namespace ImageFinder {
             SetMaxDepth,
             SetRootImgDirName,
             SetDirectoryNameCategoryIdentifierSuffix,
-            SetConsiderParentDirectoriesForCategories
+            SetConsiderParentDirectoriesForCategories,
+            ToggleMinifyOutput,
         }
 
         static Dictionary<string, string> currentImgToTagsFromFile = new Dictionary<string, string>();
@@ -47,6 +49,7 @@ namespace ImageFinder {
         static string rootImgDirName;
         static string directoryNameCategoryIdentifierSuffix;
         static bool considerParentDirectoriesForCategories;
+        static bool minifyOutput;
 
         static void Main(string[] args) {
 
@@ -59,6 +62,7 @@ namespace ImageFinder {
             output = null;
             directoryNameCategoryIdentifierSuffix = null;
             considerParentDirectoriesForCategories = false;
+            minifyOutput = true;
             previewImgQuality = PREVIEW_IMG_QUALITY;
             maxDepth = MAX_DEPTH;
 
@@ -79,6 +83,7 @@ namespace ImageFinder {
                 Console.WriteLine("7. Set the optional directory name to search for image data ignoring all other directories placed on the same level as the executable (current value is " + rootImgDirName + ")");
                 Console.WriteLine("8. Set a directory suffix to identify which identifies the directory name as a category for all images it contains (current value is " + directoryNameCategoryIdentifierSuffix + ")");
                 Console.WriteLine("9. Set if all parent directories (up to app root) should be considered for categories (current value is " + considerParentDirectoriesForCategories + ")");
+                Console.WriteLine("0. Toggle if the output file is minified (current value is " + minifyOutput + ")");
 
                 switch (Console.ReadKey().Key) {
                     case ConsoleKey.D1: { option = Option.ListAndPrev; } break;
@@ -90,6 +95,7 @@ namespace ImageFinder {
                     case ConsoleKey.D7: { option = Option.SetRootImgDirName; }; break;
                     case ConsoleKey.D8: { option = Option.SetDirectoryNameCategoryIdentifierSuffix; }; break;
                     case ConsoleKey.D9: { option = Option.SetConsiderParentDirectoriesForCategories; }; break;
+                    case ConsoleKey.D0: { option = Option.ToggleMinifyOutput; }; break;
                 }
                 Console.WriteLine();
 
@@ -113,10 +119,8 @@ namespace ImageFinder {
 
                 if (option == Option.SetMaxDepth) {
                     Console.WriteLine("Type the number of the maximum depth of image directories to search and confirm with return: ");
-                    String input = Console.ReadLine();
-
-                    int inputMaxDepth = -1;
-                    bool success = int.TryParse(input, out inputMaxDepth);
+                    string input = Console.ReadLine();
+                    bool success = int.TryParse(input, out int inputMaxDepth);
 
                     if (!success || inputMaxDepth < 0 || inputMaxDepth > 100) {
                         Console.WriteLine();
@@ -149,6 +153,11 @@ namespace ImageFinder {
                         considerParentDirectoriesForCategories = result;
                     }
 
+                    option = null;
+                }
+
+                if (option == Option.ToggleMinifyOutput) {
+                    minifyOutput = !minifyOutput;
                     option = null;
                 }
             }
@@ -291,7 +300,7 @@ namespace ImageFinder {
                 categories = getCategories(outputPath);
             } catch (Exception e) { };
 
-            return $@"
+            string line = $@"
                     {{
                         thumb: '{ImageUtil.getPreviewPath(outputPath)}',
                         image: '{outputPath}',
@@ -301,6 +310,12 @@ namespace ImageFinder {
                         tags: '{tags ?? ""}',
                         categories: '{categories}'
                     }},";
+
+            if (minifyOutput) {
+                line = Regex.Replace(line, @"\s", string.Empty);
+            }
+
+            return line;
         }
 
         static string GetTagsFromFile(string imgPath) {
