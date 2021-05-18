@@ -3,77 +3,29 @@ Gallery Website Dev Notes
 
 
 TODO:
-- use minified JS for img data (remove whitespace in c#), external libs and custom js
-- test in Edge/FF/Chrome on Mac and PC
-- readme
-	tags vs categories (see below)
-	C# console app
+User defined tags
+- allow user to add tag images in addition to predefined tags
+must be able to remove when in detailed mode 
+need to refresh the displayed categories
+test with adding a tag that is already defined in imageData.js
+add tag list 'My Tags' allows to add or remove entries: Select2 (tags mode) of http://vitalets.github.io/x-editable/demo.html
 
-	resources used: 
-	Galleria: https://galleriajs.github.io/
-	Bootstrap: https://getbootstrap.com/
-	jQuery: https://jquery.com/
-	images: https://unsplash.com/ and https://nasa.gov
-	bootstrap theme: https://github.com/thomaspark/bootswatch (demos: https://bootswatch.com/superhero/)
-	multiselect: https://developer.snapappointments.com/bootstrap-select/
-	sidebar: https://www.codeply.com/go/3e0RAjccRO/bootstrap-4-collapsing-sidebar-menu
-	local storage consent banner: https://github.com/Wruczek/Bootstrap-Cookie-Alert
-	
-	release process:
-	combine all custom JS scripts into a single file via combine.bat (Windows)
-	minify the result combined.js to combined.min.js using e.g. https://javascript-minifier.com/
-	change the scripts import in index.html to import combined.min.js
-	
+- use minified JS for external libs
+- test in Edge/FF/Chrome on Mac and PC
 - add MIT license
 - create github page: https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site
 - multithreading c# app for previewimage generaion
 
 
-Requirements
-
-must:
-Image view:
-- easy to close single image (popup on list view) by clicking on background
-- when viewing image can navigate left or right to see next (navigateable with arrow keys or mouse click on arrow icon)
-- fav image (shortcut for a tag)
-List view:
-- sort and filter according to: date, tags
-- allow to combine tags with and/or logic
-- auto load when scrolling down
 
 
 
 
-nice to have:
-- allow user to add tag images in addition to predefined tags
-- categories (= grouping of tags?)
-- two modes: small and medium preview image list view
 
 
 
-ideas:
-- generate previewes?
- should be server side because (initial) loading would be extremly slow if sending over original and caching icon locally
-- use browser cache for storing custom tags
 
-tags
-	png does not support tags like jpeg
-		parse tags.txt file format:   
-			imageName1.jpeg:tag1,tag2
-			imageName2.png:tag1,tag2,tag3
-		must be placed in same directory as image
-	alternative: categories can be derived from the folder structure the image is placed in
-		easy to use, just need to move files into folders
-		then only makes sense to filter for single category
-		an image can have multiple categories if placed e.g. in nature > trees dir
-		so u could filter for nature (broader category) or specifically for trees
-		but falls short when also have category animals under nature and pic shows e.g. apes on a tree, should be in both categories: animals and trees
-		solution is to combine tags with categories: instead of just an AND filter also allow for OR filter, so image appears when it is tagged with 'tree' or when category is animal for instance
-			this way tags can be used for fine tuning categories, when an image belongs to multiple leaf categories
-		by default, parent categories are turned off and only the dir is used as a category the image is directly placed in
-		category suffix: allows to only create categories when the directory name ends with a specific suffix
-			by default no suffix set, so if the image is placed in a subdirectory, its name is used as a category
-			the suffix only marks the category and will not be part of the category name displayed for selection
+
 
 
 
