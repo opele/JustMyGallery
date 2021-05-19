@@ -130,6 +130,30 @@ function applyFilterByTags() {
 	displayAsActive(filterByTagsEnabled, $('#tagsFilterContainer').get(0));
 }
 
+function displayTags(imageTarget) {
+
+	var tagsEl = $('.galleria-info').find('#predefinedTags');
+	if (tagsEl.length === 0)
+		tagsEl = $('.galleria-info').append(tagsHtml).find('#predefinedTags');
+	else 
+		tagsEl.html("");
+	
+	var galleriaRef = Galleria.get(0);
+	var currentImgData = galleriaRef.getData(galleriaRef.getIndex());
+	if (currentImgData && currentImgData.tags) {
+		// padding does not work because it inlines the tags with the previous div
+		tagsEl.html("&nbsp;&nbsp;&nbsp;&nbsp;Tags: " + currentImgData.tags.replaceAll(',', ', '));
+	}
+	
+	//if (!isLocalStorageAccepted()) {
+		//return;
+	//}
+	//var item = JSON.parse(localStorage.getItem(imageTarget.getAttribute("src")));
+	//refreshRating(tagsEl, item == null ? null : item.rating);
+}
+
+var tagsHtml = '<div id="predefinedTags" class="predefined-tags"></div>';
+
 // category filter
 $(function() {
 		// this event triggers when clearing the selected value on a single select dropdown

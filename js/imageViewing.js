@@ -53,6 +53,7 @@ Galleria.on('image', function(e) {
 	var galleriaRef = this;
 	
 	displayRating(e.imageTarget);
+	displayTags(e.imageTarget);
 
 	// when selecting next or prev image, need to reset the full size image view as it does not display properly (scroll pane is still as large as previous image)
 	// to do so we set a custom id to mark the image we last viewed in full size, retrieving the current image from Galleria would not work because the full sized image may not be the current one anymore

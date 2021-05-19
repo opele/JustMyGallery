@@ -46,6 +46,7 @@ Local Storage consent banner: https://github.com/Wruczek/Bootstrap-Cookie-Alert
 ## Release Process
 This is the procedure to create a new release after changing javascript files.
 
-1. combine all custom JS scripts into a single file via combine.bat (Windows) in the 'js' directory
-2. minify the result 'combined.js' to 'combined.min.js' using e.g. https://javascript-minifier.com/
-3. change the scripts import in index.html to import combined.min.js
+1. any new JS scripts need to be added to the combine scripts in the 'js' directory
+2. combine all custom JS scripts into a single file by executing the combine.bat script
+3. minify the result 'combined.js' to 'combined.min.js' using e.g. https://javascript-minifier.com/
+4. change the scripts import in index.html to import combined.min.js
