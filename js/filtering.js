@@ -145,14 +145,39 @@ function displayTags(imageTarget) {
 		tagsEl.html("&nbsp;&nbsp;&nbsp;&nbsp;Tags: " + currentImgData.tags.replaceAll(',', ', '));
 	}
 	
-	//if (!isLocalStorageAccepted()) {
-		//return;
-	//}
-	//var item = JSON.parse(localStorage.getItem(imageTarget.getAttribute("src")));
-	//refreshRating(tagsEl, item == null ? null : item.rating);
+	
+	if (isLocalStorageAccepted()) {
+		// option to add custom tags
+		
+		var myTagsEl = $('.galleria-info').find('#myTags');
+		if (myTagsEl.length === 0)
+			myTagsEl = $('.galleria-info').append(myTagsHtml).find('#myTags');
+		
+		myTagsEl.html(myTagsPrefix);
+		
+		var emptyMyTag = myTagsEl.append(myTagEmptyHtml).find('.my-tag').last();
+		emptyMyTag.keypress(myTagKeypress);
+		
+		//var item = JSON.parse(localStorage.getItem(imageTarget.getAttribute("src")));
+		//refreshRating(myTagsEl, item == null ? null : item.rating);
+	}
+}
+
+function myTagKeypress(event) {
+	if (event.key == 'Enter') {
+		event.preventDefault();
+		event.target.textContent = event.target.textContent.trim() + ', ';
+		var newTagEl = $('#myTags').append(myTagEmptyHtml).find('.my-tag').last();
+		newTagEl.keypress(myTagKeypress);
+		newTagEl.focus();
+	}
 }
 
 var tagsHtml = '<div id="predefinedTags" class="predefined-tags"></div>';
+var myTagsHtml = '<div id="myTags" class="my-tags"></div>';
+var myTagsPrefix = '&nbsp;&nbsp;&nbsp;&nbsp;My Tags: ';
+var myTagEmptyHtml = '<span class="my-tag" contenteditable=true>&nbsp;&nbsp;&nbsp;&nbsp</span>';
+
 
 // category filter
 $(function() {
