@@ -8,6 +8,7 @@ User defined tags
 must be able to remove when in detailed mode 
 need to refresh the displayed categories
 test with adding a tag that is already defined in imageData.js
+test with removing a tag that is current being filtered
 add tag list 'My Tags' allows to add or remove entries: Select2 (tags mode) of http://vitalets.github.io/x-editable/demo.html
 alt: https://gist.github.com/iiic/f279174ef577da0ecb513c9b5fc3861d#file-tags-by-contenteditable-html
 

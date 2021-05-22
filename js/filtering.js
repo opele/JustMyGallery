@@ -157,6 +157,7 @@ function displayTags(imageTarget) {
 		
 		var emptyMyTag = myTagsEl.append(myTagEmptyHtml).find('.my-tag').last();
 		emptyMyTag.keypress(myTagKeypress);
+		emptyMyTag.keydown(myTagKeydown);
 		
 		//var item = JSON.parse(localStorage.getItem(imageTarget.getAttribute("src")));
 		//refreshRating(myTagsEl, item == null ? null : item.rating);
@@ -166,10 +167,25 @@ function displayTags(imageTarget) {
 function myTagKeypress(event) {
 	if (event.key == 'Enter') {
 		event.preventDefault();
+		// FIXME: refactor as a post check: add empty tag if it does not already exist, same for myTagKeydown
 		event.target.textContent = event.target.textContent.trim() + ', ';
 		var newTagEl = $('#myTags').append(myTagEmptyHtml).find('.my-tag').last();
 		newTagEl.keypress(myTagKeypress);
+		newTagEl.keydown(myTagKeydown);
 		newTagEl.focus();
+	}
+}
+
+function myTagKeydown(event) {
+	if (event.key == 'Backspace') {
+		if (window.getSelection) {
+			var text = window.getSelection().toString();
+			
+			if (text.length > 0 && text.trim() == event.target.textContent.trim().replace(',','')) {
+				event.preventDefault();
+				$(event.target).remove();
+			}
+		}
 	}
 }
 
