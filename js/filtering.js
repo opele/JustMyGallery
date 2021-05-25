@@ -167,8 +167,27 @@ function displayTags(imageTarget) {
 function myTagKeypress(event) {
 	if (event.key == 'Enter') {
 		event.preventDefault();
-		// FIXME: refactor as a post check: add empty tag if it does not already exist, same for myTagKeydown
-		event.target.textContent = event.target.textContent.trim() + ', ';
+		
+		let currentMyTagTxt = event.target.textContent.trim();
+		if (!currentMyTagTxt.length || currentMyTagTxt.length == 0) {
+			event.target.innerHtml = '&nbsp;&nbsp;&nbsp;&nbsp;';
+		} else {
+			event.target.innerHtml = currentMyTagTxt + '&nbsp';
+		}
+		event.target.blur();
+		addEmptyTagToEditIfRequired();
+	}
+}
+
+function addEmptyTagToEditIfRequired() {
+	let lastMyTag = $('#myTags').find('.my-tag').last();
+	let lastTagAbsent = lastMyTag == null || !lastMyTag.length;
+	let emptyTagRequired = lastTagAbsent || lastMyTag.text().trim().length > 0;
+	
+	if (emptyTagRequired) {
+		if (!lastTagAbsent && !lastMyTag.text().trim().endsWith(',')) {
+			lastMyTag.html(lastMyTag.text().trim() + ',&nbsp;');
+		}
 		var newTagEl = $('#myTags').append(myTagEmptyHtml).find('.my-tag').last();
 		newTagEl.keypress(myTagKeypress);
 		newTagEl.keydown(myTagKeydown);
@@ -181,7 +200,7 @@ function myTagKeydown(event) {
 		if (window.getSelection) {
 			var text = window.getSelection().toString();
 			
-			if (text.length > 0 && text.trim() == event.target.textContent.trim().replace(',','')) {
+			if (text.length > 0 && text.trim().length > 0 && text.trim() == event.target.textContent.trim().replace(',','')) {
 				event.preventDefault();
 				$(event.target).remove();
 			}
