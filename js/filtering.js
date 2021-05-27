@@ -176,6 +176,7 @@ function myTagKeypress(event) {
 		}
 		event.target.blur();
 		addEmptyTagToEditIfRequired();
+		
 	}
 }
 
@@ -205,6 +206,8 @@ function myTagKeydown(event) {
 				$(event.target).remove();
 			}
 		}
+	} else if (event.key == 'ArrowRight' || event.key == 'ArrowLeft') {
+		return false;
 	}
 }
 
