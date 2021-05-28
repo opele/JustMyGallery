@@ -158,6 +158,7 @@ function displayTags(imageTarget) {
 		var emptyMyTag = myTagsEl.append(myTagEmptyHtml).find('.my-tag').last();
 		emptyMyTag.keypress(myTagKeypress);
 		emptyMyTag.keydown(myTagKeydown);
+		emptyMyTag.blur(confirmedMyTag);
 		
 		//var item = JSON.parse(localStorage.getItem(imageTarget.getAttribute("src")));
 		//refreshRating(myTagsEl, item == null ? null : item.rating);
@@ -167,17 +168,21 @@ function displayTags(imageTarget) {
 function myTagKeypress(event) {
 	if (event.key == 'Enter') {
 		event.preventDefault();
-		
-		let currentMyTagTxt = event.target.textContent.trim();
-		if (!currentMyTagTxt.length || currentMyTagTxt.length == 0) {
-			event.target.innerHtml = '&nbsp;&nbsp;&nbsp;&nbsp;';
-		} else {
-			event.target.innerHtml = currentMyTagTxt + '&nbsp';
-		}
-		event.target.blur();
-		addEmptyTagToEditIfRequired();
-		
+		confirmedMyTag(event);
+	} else {
+		return isAlphanumeric(event.key) || '-' == event.key || '_' == event.key;
 	}
+}
+
+function confirmedMyTag(event) {
+	let currentMyTagTxt = event.target.textContent.trim();
+	if (!currentMyTagTxt.length || currentMyTagTxt.length == 0) {
+		event.target.innerHtml = '&nbsp;&nbsp;&nbsp;&nbsp;';
+	} else {
+		event.target.innerHtml = currentMyTagTxt.replace(/&nbsp;|\s/g,'') + '&nbsp';
+	}
+	event.target.blur();
+	addEmptyTagToEditIfRequired();
 }
 
 function addEmptyTagToEditIfRequired() {
@@ -187,11 +192,12 @@ function addEmptyTagToEditIfRequired() {
 	
 	if (emptyTagRequired) {
 		if (!lastTagAbsent && !lastMyTag.text().trim().endsWith(',')) {
-			lastMyTag.html(lastMyTag.text().trim() + ',&nbsp;');
+			lastMyTag.html(lastMyTag.text().trim().replace(/&nbsp;|\s/g,'') + ',&nbsp;');
 		}
 		var newTagEl = $('#myTags').append(myTagEmptyHtml).find('.my-tag').last();
 		newTagEl.keypress(myTagKeypress);
 		newTagEl.keydown(myTagKeydown);
+		newTagEl.blur(confirmedMyTag);
 		newTagEl.focus();
 	}
 }
@@ -207,13 +213,13 @@ function myTagKeydown(event) {
 			}
 		}
 	} else if (event.key == 'ArrowRight' || event.key == 'ArrowLeft') {
-		return false;
+		event.stopPropagation();
 	}
 }
 
 var tagsHtml = '<div id="predefinedTags" class="predefined-tags"></div>';
 var myTagsHtml = '<div id="myTags" class="my-tags"></div>';
-var myTagsPrefix = '&nbsp;&nbsp;&nbsp;&nbsp;My Tags: ';
+var myTagsPrefix = '&nbsp;&nbsp;&nbsp;&nbsp;My Tags:&nbsp;';
 var myTagEmptyHtml = '<span class="my-tag" contenteditable=true>&nbsp;&nbsp;&nbsp;&nbsp</span>';
 
 

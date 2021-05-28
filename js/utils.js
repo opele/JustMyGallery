@@ -2,6 +2,10 @@ function isBlank(str) {
 	return (!str || /^\s*$/.test(str));
 }
 
+function isAlphanumeric(inputTxt) {
+	return /^[a-z0-9]+$/.test(inputTxt);
+}
+
 function capitalise(str) {
 	return str.charAt(0).toUpperCase() + str.slice(1);
 }
