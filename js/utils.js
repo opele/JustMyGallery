@@ -44,7 +44,7 @@ function store(key, value) {
 function storeCurrentImgUserData(rating, customTags) {
 	let currentImg = getCurrentlyViewedImg();
 	
-	if (currentImg != null) {
+	if (currentImg != null && isLocalStorageAccepted()) {
 		let key = currentImg.getAttribute("src");
 		let existingData = localStorage.getItem(key);
 		let item = JSON.parse(existingData);
@@ -63,4 +63,21 @@ function storeCurrentImgUserData(rating, customTags) {
 		
 		localStorage.setItem(key, JSON.stringify(item));
 	}
+}
+
+function getCurrentImgUserData() {
+	let currentImg = getCurrentlyViewedImg();
+	let item = null;
+	
+	if (currentImg != null) {
+		let key = currentImg.getAttribute("src");
+		let existingData = localStorage.getItem(key);
+		item = JSON.parse(existingData);
+	}
+	
+	if (item == null) {
+		item = JSON.parse('{}');
+	}
+	
+	return item;
 }

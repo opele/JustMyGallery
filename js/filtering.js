@@ -154,11 +154,17 @@ function displayTags(imageTarget) {
 			myTagsEl = $('.galleria-info').append(myTagsHtml).find('#myTags');
 		
 		myTagsEl.html(myTagsPrefix);
+		let imgUserData = getCurrentImgUserData();
 		
-		var emptyMyTag = myTagsEl.append(myTagEmptyHtml).find('.my-tag').last();
-		emptyMyTag.keypress(myTagKeypress);
-		emptyMyTag.keydown(myTagKeydown);
-		emptyMyTag.blur(confirmedMyTag);
+		if (imgUserData.customTags && imgUserData.customTags.length > 0) {
+			imgUserData.customTags.split(',').forEach((tag) => {
+				let newMyTag = appendNewCustomTag(myTagEmptyHtml);
+				newMyTag.html(tag + ',&nbsp;');
+			});
+			
+		}
+		
+		let emptyMyTag = appendNewCustomTag(myTagEmptyHtml);
 	}
 }
 
@@ -212,12 +218,17 @@ function addEmptyTagToEditIfRequired() {
 		if (!lastTagAbsent && !lastMyTag.text().trim().endsWith(',')) {
 			lastMyTag.html(lastMyTag.text().trim().replace(/&nbsp;|\s/g,'') + ',&nbsp;');
 		}
-		var newTagEl = $('#myTags').append(myTagEmptyHtml).find('.my-tag').last();
-		newTagEl.keypress(myTagKeypress);
-		newTagEl.keydown(myTagKeydown);
-		newTagEl.blur(confirmedMyTag);
+		var newTagEl = appendNewCustomTag(myTagEmptyHtml);
 		newTagEl.focus();
 	}
+}
+
+function appendNewCustomTag(myTagEl) {
+	let newTagEl = $('#myTags').append(myTagEl).find('.my-tag').last();
+	newTagEl.keypress(myTagKeypress);
+	newTagEl.keydown(myTagKeydown);
+	newTagEl.blur(confirmedMyTag);
+	return newTagEl
 }
 
 function myTagKeydown(event) {
