@@ -159,9 +159,6 @@ function displayTags(imageTarget) {
 		emptyMyTag.keypress(myTagKeypress);
 		emptyMyTag.keydown(myTagKeydown);
 		emptyMyTag.blur(confirmedMyTag);
-		
-		//var item = JSON.parse(localStorage.getItem(imageTarget.getAttribute("src")));
-		//refreshRating(myTagsEl, item == null ? null : item.rating);
 	}
 }
 
@@ -183,6 +180,27 @@ function confirmedMyTag(event) {
 	}
 	event.target.blur();
 	addEmptyTagToEditIfRequired();
+	persistCustomTags($(event.target.parentElement));
+}
+
+function persistCustomTags(myTagsEl) {
+	if (myTagsEl != null) {
+		let myTags = null;
+		myTagsEl.children('.my-tag').each(function(i) {
+			let txt = $(this).html();
+			if (txt != null && txt.length) {
+				if (myTags == null) myTags = txt;
+				else myTags += txt;
+			}
+		});
+		myTags = myTags.replace(/&nbsp;|\s/g,'');
+		
+		if (myTags.endsWith(',')) {
+			myTags = myTags.slice(0,-1);
+		}
+		
+		storeCurrentImgUserData(null, myTags);
+	}
 }
 
 function addEmptyTagToEditIfRequired() {
@@ -209,7 +227,9 @@ function myTagKeydown(event) {
 			
 			if (text.length > 0 && text.trim().length > 0 && text.trim() == event.target.textContent.trim().replace(',','')) {
 				event.preventDefault();
+				let parentEl = event.target.parentElement;
 				$(event.target).remove();
+				persistCustomTags($(parentEl));
 			}
 		}
 	} else if (event.key == 'ArrowRight' || event.key == 'ArrowLeft') {

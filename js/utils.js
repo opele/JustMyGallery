@@ -20,6 +20,10 @@ function isViewingImage() {
 	return Galleria.get(0).getActiveImage() != null && $(Galleria.get(0).getActiveImage()).is(':visible');
 }
 
+function getCurrentlyViewedImg() {
+	if (isViewingImage()) return Galleria.get(0).getActiveImage();
+}
+
 function arraysEqual(a, b) {
   if (a === b) return true;
   if (a == null || b == null) return false;
@@ -34,5 +38,29 @@ function arraysEqual(a, b) {
 function store(key, value) {
 	if (isLocalStorageAccepted()) {
 		localStorage.setItem(key, value);
+	}
+}
+
+function storeCurrentImgUserData(rating, customTags) {
+	let currentImg = getCurrentlyViewedImg();
+	
+	if (currentImg != null) {
+		let key = currentImg.getAttribute("src");
+		let existingData = localStorage.getItem(key);
+		let item = JSON.parse(existingData);
+		
+		if (existingData == null || item == null) {
+			item = JSON.parse('{}');
+		}
+		
+		if (rating != null) {
+			item.rating = rating;
+		}
+		
+		if (customTags != null) {
+			item.customTags = customTags;
+		}
+		
+		localStorage.setItem(key, JSON.stringify(item));
 	}
 }

@@ -21,12 +21,7 @@ function rateImage(event, rating) {
 		return;
 	}
 
-	var galleriaRef = Galleria.get(0);
-	var currentImgData = galleriaRef.getData(galleriaRef.getIndex());
-	if (currentImgData) {
-		localStorage.setItem(currentImgData.image, '{"rating":' + rating + "}");
-	}
-	
+	storeCurrentImgUserData(rating, null);
 	refreshRating($(event.target.parentElement), rating);
 }
 
