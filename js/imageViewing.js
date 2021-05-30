@@ -31,6 +31,9 @@ $(window).on("mousewheel DOMMouseScroll", function(event){
 
 Galleria.on('fullscreen_exit', function(e) {
 	hideImageSizeRange();
+	if (customTagsDirty) {
+		refreshSelectableTags();
+	}
 });
 
 function hideImageSizeRange() {

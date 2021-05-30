@@ -121,7 +121,13 @@ function applyFilterByTags() {
 	
 	if (filterByTagsEnabled) {
 		tagsFilterFunc = function(dataItemToFilter) {
-				return dataItemToFilter.tags && findIntersection(dataItemToFilter.tags.split(","), currentFilterTags).length > 0;
+				let imgTags = dataItemToFilter.tags;
+				let customTags = getImgUserData(dataItemToFilter.image).customTags;
+				if (customTags && customTags.length) {
+					if (imgTags && imgTags.length) imgTags += ',' + customTags;
+					else imgTags = customTags;
+				}
+				return imgTags.length && findIntersection(imgTags.split(","), currentFilterTags).length > 0;
 			}
 	} else {
 		tagsFilterFunc = function(dataItemToFilter) {return true;};
@@ -206,6 +212,7 @@ function persistCustomTags(myTagsEl) {
 		}
 		
 		storeCurrentImgUserData(null, myTags);
+		customTagsDirty = true;
 	}
 }
 

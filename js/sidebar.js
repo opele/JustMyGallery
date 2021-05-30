@@ -44,7 +44,8 @@ function initSidebar() {
 		currentFromFilterDate = parseInt(localStorage.getItem('currentFromFilterDate'));
 		currentToFilterDate = parseInt(localStorage.getItem('currentToFilterDate'));
 		filterByTagsEnabled = localStorage.getItem('filterByTagsEnabled') == 'true';
-		currentFilterTags = localStorage.getItem('currentFilterTags');
+		if (localStorage.getItem('currentFilterTags'))
+			currentFilterTags = localStorage.getItem('currentFilterTags').split(',');
 		filterByCategoryEnabled = localStorage.getItem('filterByCategoryEnabled') == 'true';
 		currentFilterCategory = localStorage.getItem('currentFilterCategory');
 		categoriesAndTags = localStorage.getItem('categoriesAndTags') == 'true';
@@ -60,7 +61,7 @@ function initSidebar() {
 	applyFilterByDateRange();
 	
 	if (currentFilterTags != null && currentFilterTags.length > 0) {
-		$('#tagsFilter').selectpicker('val', currentFilterTags.split(","));
+		$('#tagsFilter').selectpicker('val', currentFilterTags);
 	}
 	applyFilterByTags();
 	
@@ -140,10 +141,17 @@ function toggleDisplaySidebarElementInForeground(element, showInForeground) {
  // initialising selections
  // tags
  function refreshSelectableTags() {
+	customTagsDirty = false;
 	var allTagsSet = new Set();
 	imgData.forEach(function(imgDataItem) {
 		if (imgDataItem.tags) {
 			imgDataItem.tags.split(',').forEach(t => allTagsSet.add(t));
+			
+			// add user defined tags
+			item = JSON.parse(localStorage.getItem(imgDataItem.image));
+			if (item != null && item.customTags && item.customTags.length) {
+				item.customTags.split(',').forEach(t => allTagsSet.add(t));
+			}
 		}
 	});
 	
@@ -151,6 +159,12 @@ function toggleDisplaySidebarElementInForeground(element, showInForeground) {
 	allTagsSet.forEach(function(tag) {
 		$('#tagsFilter').append('<option value="' + tag + '">' + tag + '</option>');
 	});
+	
+	$('#tagsFilter').selectpicker('refresh');
+	
+	if (currentFilterTags != null && currentFilterTags.length > 0) {
+		$('#tagsFilter').selectpicker('val', currentFilterTags);
+	}
 	
 	$('#tagsFilter').selectpicker('refresh');
  }

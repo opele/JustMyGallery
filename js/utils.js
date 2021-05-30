@@ -67,11 +67,16 @@ function storeCurrentImgUserData(rating, customTags) {
 
 function getCurrentImgUserData() {
 	let currentImg = getCurrentlyViewedImg();
-	let item = null;
 	
 	if (currentImg != null) {
-		let key = currentImg.getAttribute("src");
-		let existingData = localStorage.getItem(key);
+			return getImgUserData(currentImg.getAttribute("src"));
+	} else 	return JSON.parse('{}');
+}
+
+function getImgUserData(src) {
+	let item = null;
+	if (src != null) {
+		let existingData = localStorage.getItem(src);
 		item = JSON.parse(existingData);
 	}
 	
@@ -81,3 +86,5 @@ function getCurrentImgUserData() {
 	
 	return item;
 }
+
+
