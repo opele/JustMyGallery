@@ -47,13 +47,6 @@ function hideImageSizeRange() {
 Galleria.on('image', function(e) {
 
 	++numberOfFullSizeImagesLoaded;
-		
-	// move the info box to the left from center
-	// actually moves presumably because the folio theme sets the style -webkit-transition: all 100ms;
-	$('.galleria-info').css("left", "0px");
-
-	// TODO: remove, can be retireved statically
-	var galleriaRef = this;
 	
 	displayRating(e.imageTarget);
 	displayTags(e.imageTarget);
@@ -61,7 +54,7 @@ Galleria.on('image', function(e) {
 	// when selecting next or prev image, need to reset the full size image view as it does not display properly (scroll pane is still as large as previous image)
 	// to do so we set a custom id to mark the image we last viewed in full size, retrieving the current image from Galleria would not work because the full sized image may not be the current one anymore
 	if ($("#fullSizeImage").length) {
-		resetFullSizeView(e, galleriaRef)
+		resetFullSizeView(e)
 	}
 
 	// show original image size when clicking on the image
@@ -127,7 +120,7 @@ Galleria.on('image', function(e) {
 			applyScaleToImg(range.val(), currentImg);
 			
 		} else {
-			resetFullSizeView(e, galleriaRef);
+			resetFullSizeView(e);
 		}
 	}
 });
@@ -142,7 +135,7 @@ function applyScaleToImg(scale, currentImg) {
 }
 
 // TODO: no need to pass in the galleria ref, can be retirved statically
-function resetFullSizeView(e, galleriaRef) {
+function resetFullSizeView(e) {
 	// Fitting image to screen size
 	
 	var currentImg = $("#fullSizeImage").get(0);
@@ -173,5 +166,5 @@ function resetFullSizeView(e, galleriaRef) {
 	
 	// TODO: if the window is resized while viewing full image, the image is rescaled to fit the screen, above code to reset the style should be triggered on the rescale callback
 	//galleriaRef.resize({width:'100%', height:'100%'});
-	galleriaRef.refreshImage();
+	Galleria.get(0).refreshImage();
 }
