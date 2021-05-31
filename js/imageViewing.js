@@ -34,6 +34,12 @@ Galleria.on('fullscreen_exit', function(e) {
 	if (customTagsDirty) {
 		refreshSelectableTags();
 	}
+	$('.container').css('display','block');
+});
+
+Galleria.on('fullscreen_enter', function(e) {
+	// hide the header, otherwise it flickers into view for a short moment when opening / closing an image
+	$('.container').css('display','none');
 });
 
 function hideImageSizeRange() {
