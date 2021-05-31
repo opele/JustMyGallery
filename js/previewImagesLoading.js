@@ -77,6 +77,8 @@ function loadImages() {
 		imagesToLoad = filterFunction(imagesToLoad);
 	}
 	
+	$('#filteredImgNumberInfo').html(imagesToLoad.length + ' images to show.');
+	
 	imagesToLoad.sort(sortImages);
 
 	Galleria.run('.galleria', {
