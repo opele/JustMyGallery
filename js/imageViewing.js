@@ -33,14 +33,36 @@ Galleria.on('fullscreen_exit', function(e) {
 	hideImageSizeRange();
 	if (customTagsDirty) {
 		refreshSelectableTags();
+		setTimeout(maybeRemovePreviewImg, 3000);
 	}
 	$('.container').css('display','block');
+	
+	
 });
 
 Galleria.on('fullscreen_enter', function(e) {
 	// hide the header, otherwise it flickers into view for a short moment when opening / closing an image
 	$('.container').css('display','none');
 });
+
+// if a tag was removed, the image may not pass the currently selected filter criteria anymore
+function maybeRemovePreviewImg() {
+	// this is a nice to have self contained functionality, so an error should have no impact
+	try {
+		let galRef = Galleria.get(0);
+		let currImgInx = galRef.getIndex();
+		let currImgData = imagesToLoad[currImgInx];
+		// double check we got the right image
+		if (currImgData.image === galRef.getActiveImage().getAttribute("src")) {
+			if (!filterFunction([currImgData]).length) {
+				galRef.splice(currImgInx, 1);
+			}
+		}
+	} catch (e) {
+		console.error('Failed to remove preview image after deleting a tag:');
+		console.error(e, e.stack);
+	}
+}
 
 function hideImageSizeRange() {
 	var range = $("#imageSizeRange");

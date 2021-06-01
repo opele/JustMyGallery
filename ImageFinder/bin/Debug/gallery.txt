@@ -3,14 +3,19 @@ Gallery Website Dev Notes
 
 
 TODO:
-User defined tags
-- allow user to add tag images in addition to predefined tags
-must be able to remove when in detailed mode 
-need to refresh the displayed categories
-test with adding a tag that is already defined in imageData.js
-test with removing a tag that is current being filtered
-add tag list 'My Tags' allows to add or remove entries: Select2 (tags mode) of http://vitalets.github.io/x-editable/demo.html
-alt: https://gist.github.com/iiic/f279174ef577da0ecb513c9b5fc3861d#file-tags-by-contenteditable-html
+
+
+remove an image when a tag was removed which is filtered for when closing the details view
+	appy filter function on previously opened image
+	fullscreen_exit: 
+
+refreshSelectableTags -> fix adding custom tags only when there are predefined tags
+lower 3sec delay for deferred function that removes the image
+
+
+bug: when reloading and opening tags filter without changing any, then blur, reloads the images
+
+issue: when going forward in details view need to add lazy loading
 
 - use minified JS for external libs
 - test in Edge/FF/Chrome on Mac and PC
@@ -18,6 +23,35 @@ alt: https://gist.github.com/iiic/f279174ef577da0ecb513c9b5fc3861d#file-tags-by-
 - create github page: https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site
 - multithreading c# app for previewimage generaion
 
+
+bookmarks
+usecase: comic uploaded with 500 pages and user wants continue on page 300 without scrolling down loading all the 300 preview images
+add another 'sidebar' button with a bookmarks icon
+opens a sidebar with preview images which have been bookmarked
+the list is filtered by the currently selected filter criteria
+otherwise displays: "no bookmarks found for selected filters"
+allows to clear a bookmark directly in the sidebar but displays a confirmation dialogue
+when a bookmark is selected, loads the img top left corner in the gallery view (first image)
+previous imgs are loaded when scrolled up, next images are lazy loaded as currently
+add bookmark toggle button on image details view
+
+impl:
+loading bookmark and onwards: 
+add prevImgOffset = 0; to tryLoadNextChunk();
+add tryLoadPreviousChunk();
+goes from offset to 0
+
+filtering and sorting both call loadImages();
+this also needs to refresh the bookmarks list with an offset each 
+the bookmark consists of a simple offset which is an index of the imagesToLoad array
+
+add 
+function loadBookmark(bookmarkIndex) {
+	loadImages(bookmarkIndex); // sets prevImgOffset = bookmarkIndex;
+}
+
+loading earlier images on scrollup:
+Galleria.get(0).splice(0,0, ...imagesToLoad.slice(start, end));
 
 
 

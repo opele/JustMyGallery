@@ -163,7 +163,10 @@ function toggleDisplaySidebarElementInForeground(element, showInForeground) {
 	$('#tagsFilter').selectpicker('refresh');
 	
 	if (currentFilterTags != null && currentFilterTags.length > 0) {
-		$('#tagsFilter').selectpicker('val', currentFilterTags);
+		currentFilterTags = findIntersection(currentFilterTags, allTagsSet);
+		if (currentFilterTags != null && currentFilterTags.length > 0) {
+			$('#tagsFilter').selectpicker('val', currentFilterTags);
+		}
 	}
 	
 	$('#tagsFilter').selectpicker('refresh');
