@@ -33,14 +33,14 @@ imageName1.jpeg:tag1,tag2
 imageName2.png:tag1,tag2,tag3
 
 ## Resources Used
-Galleria: https://galleriajs.github.io/
-Bootstrap: https://getbootstrap.com/
-jQuery: https://jquery.com/
-Images used: https://unsplash.com/ and https://nasa.gov
-Bootstrap theme: https://github.com/thomaspark/bootswatch (demos: https://bootswatch.com/superhero/)
-Multiselect: https://developer.snapappointments.com/bootstrap-select/
-Sidebar: https://www.codeply.com/go/3e0RAjccRO/bootstrap-4-collapsing-sidebar-menu
-Local Storage consent banner: https://github.com/Wruczek/Bootstrap-Cookie-Alert
+- Galleria: https://galleriajs.github.io/
+- Bootstrap: https://getbootstrap.com/
+- jQuery: https://jquery.com/
+- Images used: https://unsplash.com/ and https://nasa.gov
+- Bootstrap theme: https://github.com/thomaspark/bootswatch (demos: https://bootswatch.com/superhero/)
+- Multiselect: https://developer.snapappointments.com/bootstrap-select/
+- Sidebar: https://www.codeply.com/go/3e0RAjccRO/bootstrap-4-collapsing-sidebar-menu
+- Local Storage consent banner: https://github.com/Wruczek/Bootstrap-Cookie-Alert
 	
 
 ## Release Process
