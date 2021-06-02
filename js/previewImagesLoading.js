@@ -77,7 +77,7 @@ function loadImages() {
 		imagesToLoad = filterFunction(imagesToLoad);
 	}
 	
-	$('#filteredImgNumberInfo').html(imagesToLoad.length + ' images to show.');
+	updateImgCountDisplay();
 	
 	imagesToLoad.sort(sortImages);
 
@@ -101,6 +101,10 @@ function loadImages() {
 	
 	// navigate to top
 	window.scrollTo(0, 0);
+}
+
+function updateImgCountDisplay() {
+	$('#filteredImgNumberInfo').html(imagesToLoad.length + ' images to show.');
 }
 
 
