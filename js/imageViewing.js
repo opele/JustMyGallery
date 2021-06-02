@@ -33,6 +33,7 @@ Galleria.on('fullscreen_exit', function(e) {
 	hideImageSizeRange();
 	if (customTagsDirty) {
 		refreshSelectableTags();
+		// issue: shows a white background with a loading animation instead of the preview image of the remaining pictures
 		setTimeout(maybeRemovePreviewImg, 3000);
 	}
 	$('.container').css('display','block');
@@ -53,9 +54,11 @@ function maybeRemovePreviewImg() {
 		let currImgInx = galRef.getIndex();
 		let currImgData = imagesToLoad[currImgInx];
 		// double check we got the right image
-		if (currImgData.image === galRef.getActiveImage().getAttribute("src")) {
+		if (currImgData && currImgData.image === galRef.getActiveImage().getAttribute("src")) {
 			if (!filterFunction([currImgData]).length) {
 				galRef.splice(currImgInx, 1);
+				imagesToLoad.splice(currImgInx, 1);
+				updateImgCountDisplay();
 			}
 		}
 	} catch (e) {
