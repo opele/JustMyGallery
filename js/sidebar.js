@@ -144,14 +144,15 @@ function toggleDisplaySidebarElementInForeground(element, showInForeground) {
 	customTagsDirty = false;
 	var allTagsSet = new Set();
 	imgData.forEach(function(imgDataItem) {
+		
 		if (imgDataItem.tags) {
 			imgDataItem.tags.split(',').forEach(t => allTagsSet.add(t));
-			
-			// add user defined tags
-			item = JSON.parse(localStorage.getItem(imgDataItem.image));
-			if (item != null && item.customTags && item.customTags.length) {
-				item.customTags.split(',').forEach(t => allTagsSet.add(t));
-			}
+		}
+		
+		// add user defined tags
+		item = JSON.parse(localStorage.getItem(imgDataItem.image));
+		if (item != null && item.customTags && item.customTags.length) {
+			item.customTags.split(',').forEach(t => allTagsSet.add(t));
 		}
 	});
 	
@@ -162,10 +163,30 @@ function toggleDisplaySidebarElementInForeground(element, showInForeground) {
 	
 	$('#tagsFilter').selectpicker('refresh');
 	
-	if (currentFilterTags != null && currentFilterTags.length > 0) {
-		currentFilterTags = findIntersection(currentFilterTags, allTagsSet);
+	if (filterByTagsEnabled && currentFilterTags != null && currentFilterTags.length > 0) {
+		// remove currently selected tag if it was only set on the single image
+		currentFilterTags = findIntersection(currentFilterTags, Array.from(allTagsSet));
+		
+		// if we still have tags then just set to the tag widget
 		if (currentFilterTags != null && currentFilterTags.length > 0) {
 			$('#tagsFilter').selectpicker('val', currentFilterTags);
+		} else {
+			$('#tagsFilter').selectpicker('val', null);
+			filterByTagsEnabled = false;
+			store('filterByTagsEnabled', filterByTagsEnabled);
+			// show tag filter as inactive
+			applyFilterByTags();
+		}
+		store('currentFilterTags', currentFilterTags);
+		
+		// if the gallery displays a single image ...
+		if (imagesToLoad.length == 1 || Galleria.get(0).getDataLength() == 1) {
+			// ...and we removed the tag filter
+			if (!filterByTagsEnabled) {
+				// ...then this image was the last image with that tag, and we should re-apply the remaining filters (if any)
+				// it should not be possible to remove the tag filter when there is more than one image to display
+				loadImages();
+			}
 		}
 	}
 	
