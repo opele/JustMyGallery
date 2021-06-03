@@ -17,6 +17,9 @@ In essence, it creates preview images by downscaling the originals and stores th
 In addition, it adds metadata like tags, categories, dates to the output file, which the website allows to filter and sort by.
 When new pictures are added, the app generates the missing preview images only and adds them to the file which then needs to be uploaded to the webserver to replace the old file.
 
+## Use of Local Storage
+The gallery template persists image rating, filter / search settings and user defined tags in the local storage of the browser after the user has given consent.
+
 ## Tags and Categories
 Each image allows to be grouped by multiple tags and categories which can be filtered by.
 Even though multiple categories can be added to a single image in imageData.js, the sidebar only allows to select a single category for filtering.
