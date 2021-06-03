@@ -9,7 +9,7 @@ The images are defined in a JSON file imageData.js loaded by index.html as a scr
 Start by replacing the images referenced in imageData.js with your own images. The format is defined by Galleria with a few custom elements.
 TODO: document format
 	
-## C# console app
+## C# Console App
 The imageData.js file can be created by a C# app which parses all sub-directories for images from the directory the executable was placed in.
 The supported image formats are jpeg and png. 
 Detailed instructions appear when starting the console app.
