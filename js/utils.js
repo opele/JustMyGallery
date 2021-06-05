@@ -26,7 +26,9 @@ function getCurrentlyViewedImg() {
 
 function arraysEqual(a, b) {
   if (a === b) return true;
-  if (a == null || b == null) return false;
+  if (a == null) return b == null || !b.length;
+  if (b == null) return a == null || !a.length;
+  
   if (a.length !== b.length) return false;
 
   for (var i = 0; i < a.length; ++i) {
