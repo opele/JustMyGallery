@@ -7,13 +7,6 @@ TODO:
 
 remove an image when a tag was removed which is filtered for when closing the details view
 	appy filter function on previously opened image
-	fullscreen_exit: 
-
-refreshSelectableTags -> fix adding custom tags only when there are predefined tags
-lower 3sec delay for deferred function that removes the image
-
-
-bug: when reloading and opening tags filter without changing any, then blur, reloads the images
 
 issue: when going forward in details view need to add lazy loading
 
