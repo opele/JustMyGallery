@@ -147,6 +147,7 @@
 	#sentinel {
       width: 1px;
       height: 1px;
+	  position: absolute;
     }
 
   </style>
@@ -303,7 +304,7 @@
   <!-- for dev -->
   <script src="js/utils.js"></script>
   <script src="js/gallery.js"></script>
- <!-- <script src="js/previewImagesLoading.js"></script> -->
+  <script src="js/previewImagesLoading.js"></script>
   <script src="js/globalEvents.js"></script>
   <script src="js/sorting.js"></script>
   <script src="js/userDefinedTags.js"></script>
@@ -317,15 +318,6 @@
 
   <script>
     $(function () { $('[data-toggle="tooltip"]').tooltip() })
-  </script>
-
-  <script>
-    var gallery = new Gallery({
-      container: '.gallery-container',
-      images: imgData,
-      columnWidth: 230,
-      spacing: 10
-    });
   </script>
 
 </body>

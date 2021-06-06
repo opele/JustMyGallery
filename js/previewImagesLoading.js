@@ -1,5 +1,5 @@
-// debug
-var numberOfPreviewImagesLoaded = 0; // currently displayed, resets when applying new filtering/sorting
+
+var numberOfPreviewImagesLoaded = 0; // currently displayed and loaded images, resets when applying new filtering/sorting
 var numberOfFullSizeImagesLoaded = 0; // loaded in this session without page refresh
 
 var customTagsDirty = false; // when true, tags need to be refreshed
@@ -44,30 +44,31 @@ var filterFunction = function(arr) {
 			});
 	};
 
+var gallery;
+var imagesToLoad;
+var chunkSize = 15;
+var scrolledToEnd = false;
+var lastChunkLoaded = false;
+
+
 $(function(){
 	refreshSelectableTags();
 	refreshSelectableCategories();
 });
 
 $(function() {
-
-	Galleria.loadTheme('lib/folio/galleria.folio.min.js');
-	
-	// causes cors error with local files in FF, first param must be an URL, https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS/Errors/CORSRequestNotHttp
-	//$.getJSON('imageData.json', function( data ) {
-	//	Galleria.run('.galleria', {
-	//	dataSource: data});
 	
 	initSidebar();
 	
 	loadImages();
 	
+	scrolledToEnd = false;
+	lastChunkLoaded = false;
+	addLazyLoadSentinel();
+	
 });
 
 
-var imagesToLoad;
-var scrolledToEnd = false;
-var lastChunkLoaded = false;
 function loadImages() {
 
 	numberOfPreviewImagesLoaded = 0;
@@ -80,23 +81,12 @@ function loadImages() {
 	updateImgCountDisplay();
 	
 	imagesToLoad.sort(sortImages);
-
-	Galleria.run('.galleria', {
-		dataSource: imagesToLoad.slice(0,30),
-		transition: 'pulse',
-		thumbCrop: 'width',
-		imageCrop: false,
-		carousel: false,
-		show: false,
-		easing: 'galleriaOut',
-		fullscreenDoubleTap: false,
-		// Shows navigation as cursor for webkit
-		_webkitCursor: true,
-		// Animates the thumbnails: when a new image is pushed they fly into place
-		// unfortunately bugged: the images keep loading for around 5sec even though they are actually loaded (even on local)
-		_animate: false,
-		// Centers the thumbnails inside it’s container
-		_center: true
+	
+	gallery = new Gallery({
+	  container: '.gallery-container',
+	  images: imagesToLoad.slice(0,30),
+	  columnWidth: 230,
+	  spacing: 10
 	});
 	
 	// navigate to top
@@ -107,18 +97,9 @@ function updateImgCountDisplay() {
 	$('#filteredImgNumberInfo').html(imagesToLoad.length + ' images to show.');
 }
 
-
-Galleria.ready(function(options) {
-	scrolledToEnd = false;
-	lastChunkLoaded = false;
-	updateLazyLoadSentinel();
-});
-
-function updateLazyLoadSentinel() {
-	var galleriaRef = Galleria.get(0);
-	var thumbsContainer = $('.galleria-thumbnails');
-	thumbsContainer.append('<div id="sentinel"></div>');
-	var sentinel = $('#sentinel').get(0);
+function addLazyLoadSentinel() {
+	gallery.columnsContainer.append('<div id="sentinel"></div>');
+	var sentinel = $('#sentinel');
 	
 	var callback = (entries, observer) => {
 	  entries.forEach(entry => {
@@ -132,12 +113,15 @@ function updateLazyLoadSentinel() {
 	};
 	
 	var observer = new IntersectionObserver(callback);
-	observer.observe(sentinel);
+	observer.observe(sentinel.get(0));
 	
-	galleriaRef.bind("thumbnail", function(e) {
+	gallery.bind("previewImgLoaded", function(e, imageData, imgEl) {
 		++numberOfPreviewImagesLoaded;
-		thumbsContainer.get(0).appendChild(sentinel);
-		if (e.index == galleriaRef.getDataLength() - 1) {
+		
+		if (sentinel.css("top") < imageData.thumbnail.css("top"))
+			sentinel.css({top: imageData.thumbnail.css("top"), left: imageData.thumbnail.css("left"), position:'absolute'});
+		
+		if (numberOfPreviewImagesLoaded == gallery.getDataLength() - 1) {
 			lastChunkLoaded = true;
 			tryLoadNextChunk();
 		}
@@ -146,8 +130,6 @@ function updateLazyLoadSentinel() {
 
 function tryLoadNextChunk() {
 
-	var gallery = Galleria.get(0);
-	var chunkSize = 15;
 	var currentLoadSize = gallery.getDataLength();
 	
 	if (lastChunkLoaded && scrolledToEnd && currentLoadSize < imagesToLoad.length) {
@@ -157,7 +139,7 @@ function tryLoadNextChunk() {
 			nextLoadSize = imagesToLoad.length;
 		}
 		
-		gallery.push(imagesToLoad.slice(currentLoadSize, nextLoadSize));
+		gallery.pushAll(imagesToLoad.slice(currentLoadSize, nextLoadSize));
 		
 		lastChunkLoaded = false;
 	}

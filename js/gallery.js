@@ -1,20 +1,5 @@
 
-/*
-options = {
-    container: '.galleria',
-    images: imgData,
-    columnWidth: 230,
-    spacing: 10
-};
 
-*/
-
-/*
-image = {
-    thumb: string,
-    title: string
-};
-*/
 
 function Gallery(options) {
     var self = this;
@@ -27,6 +12,7 @@ function Gallery(options) {
 
     self.images = [];
 
+	self.options.container.empty();
     self.columnsContainer = $('<div>');
     self.columnsContainer.hide();
     self.columnsContainer.addClass('gallery-columns');
@@ -43,6 +29,14 @@ function Gallery(options) {
 
         self.resize();
     };
+	
+	self.bind = function (evtName, callback) {
+		options.container.bind(evtName, callback);
+	}
+	
+	self.getDataLength = function () {
+		return self.images.length;
+	}
 
     self.lastLoaded = function () {
         for (var i = self.images.length - 1; i >= 0; --i) {
@@ -52,6 +46,12 @@ function Gallery(options) {
 
         return null;
     };
+	
+	self.pushAll = function (images) {
+		for (var image of images) {
+			self.push(image, true);
+		}
+	}
 
     self.push = function (image, init) {
         image = {
@@ -91,6 +91,8 @@ function Gallery(options) {
             image.loaded = true;
 
             self.position(image);
+			
+			options.container.trigger('previewImgLoaded', [image, img]);
         };
 
         img.src = image.thumb;
@@ -153,9 +155,7 @@ function Gallery(options) {
         return options.spacing + column * options.columnWidth + column * options.spacing;
     };
 
-    for (var image of options.images) {
-        self.push(image, true);
-    }
+	self.pushAll(options.images);
 
     self.columnsContainer.show();
 
