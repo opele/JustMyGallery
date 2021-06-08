@@ -70,7 +70,7 @@ function Gallery(options) {
             });
         }
 
-        if (!init)
+        //if (!init)
             image.column = image.index % self.columns;
 
         image.thumbnail.addClass('gallery-thumb');
