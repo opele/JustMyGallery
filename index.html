@@ -30,7 +30,11 @@
       left: 0px;
       top: 0px;
       transition: all 0.5s;
+	  cursor: pointer;
     }
+	
+	.gallery-thumb:hover {opacity: 0.7;}
+	
 
     .image-size-range {
       width: 150px;
@@ -149,6 +153,93 @@
       height: 1px;
 	  position: absolute;
     }
+
+
+
+	/* The Modal (background) */
+	.modal {
+	  display: none; /* Hidden by default */
+	  position: fixed; /* Stay in place */
+	  z-index: 1; /* Sit on top */
+	  padding-top: 100px; /* Location of the box */
+	  left: 0;
+	  top: 0;
+	  width: 100%; /* Full width */
+	  height: 100%; /* Full height */
+	  overflow: auto; /* Enable scroll if needed */
+	  background-color: rgb(0,0,0); /* Fallback color */
+	  background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+	}
+
+	/* Modal Content (image) */
+	.modal-content {
+	  margin: auto;
+	  display: block;
+	  width: 80%;
+	  max-width: 700px;
+	}
+
+	/* Caption of Modal Image */
+	#caption {
+	  margin: auto;
+	  display: block;
+	  width: 80%;
+	  max-width: 700px;
+	  text-align: center;
+	  color: #ccc;
+	  padding: 10px 0;
+	  height: 150px;
+	}
+
+	/* Add Animation */
+	.modal-content, #caption {  
+	  -webkit-animation-name: zoom;
+	  -webkit-animation-duration: 0.6s;
+	  animation-name: zoom;
+	  animation-duration: 0.6s;
+	}
+
+	@-webkit-keyframes zoom {
+	  from {-webkit-transform:scale(0)} 
+	  to {-webkit-transform:scale(1)}
+	}
+
+	@keyframes zoom {
+	  from {transform:scale(0)} 
+	  to {transform:scale(1)}
+	}
+
+	/* Navigate to previous or next image */
+	.next, .previous {
+	  position: fixed;
+	  top: 50%;
+	  left: 85%;
+	  color: #f1f1f1;
+	  font-size: 40px;
+	  font-weight: bold;
+	  transition: 0.3s;
+	}
+
+	.previous {
+		left: 15%;
+	}
+
+	.next, .previous:hover,
+	.next, .previous:focus {
+	  color: #bbb;
+	  text-decoration: none;
+	  cursor: pointer;
+	}
+
+
+
+	/* 100% Image Width on Smaller Screens */
+	@media only screen and (max-width: 700px){
+	  .modal-content {
+		width: 100%;
+	  }
+	}
+
 
   </style>
 </head>
@@ -283,6 +374,13 @@
 
   <div class="gallery-container"></div>
 
+	<!-- The Modal Popup for the Image Detail View -->
+	<div id="myModal" class="modal" onclick="closeModal()">
+	  <span class="next" onclick="navigateToNext(event)">&rarr;</span>
+	  <span class="previous" onclick="navigateToPrevious(event)">&larr;</span>
+	  <img class="modal-content" id="modalImg">
+	  <div id="caption"></div>
+	</div>
 
 
 
@@ -317,6 +415,76 @@
   <script src="js/combined.min.js"></script> -->
 
   <script>
+  
+  var currentImageIndex = 0;
+var modal;
+
+// Get the image and insert it inside the modal - use its "alt" text as a caption
+var listImgs;
+var modalImg;
+var next;
+var previous;
+var captionText;
+
+
+function navigateToPrevious(event) {
+    if (event) event.stopPropagation();
+    
+    if (currentImageIndex > 0) {
+        currentImageIndex -= 1;
+        modalImg.src = imgPaths[currentImageIndex];
+        captionText.innerHTML = imgPaths[currentImageIndex];
+    }
+}
+
+window.addEventListener("keydown", event => {
+    if (event.key == "ArrowLeft") {
+      navigateToPrevious(null);
+    }
+  });
+
+
+function navigateToNext(event) {
+    if (event) event.stopPropagation();
+    
+    if (currentImageIndex < imgPaths.length - 1) {
+        currentImageIndex += 1;
+        modalImg.src = imgPaths[currentImageIndex];
+        captionText.innerHTML = imgPaths[currentImageIndex];
+    }
+}
+
+window.addEventListener("keydown", event => {
+    if (event.key == "ArrowRight") {
+      navigateToNext(null);
+    }
+  });
+
+
+
+function closeModal() {
+    modal.style.display = "none";
+}
+
+window.addEventListener("keydown", event => {
+    if (event.key == "Escape") {
+      closeModal();
+    }
+  });
+
+
+window.addEventListener("keydown", event => {
+    if (event.key == "ArrowDown") {
+        modal.scrollTop += 20;
+    }
+  });
+
+window.addEventListener("keydown", event => {
+    if (event.key == "ArrowUp") {
+        modal.scrollTop -= 20;
+    }
+  });
+  
     $(function () { $('[data-toggle="tooltip"]').tooltip() })
   </script>
 

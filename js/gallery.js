@@ -96,6 +96,8 @@ function Gallery(options) {
 
             self.position(image);
 			
+			self.addModalViewOnClick(image);
+			
 			++self.loadedImages;
 			
 			options.container.trigger('previewImgLoaded', [image, img]);
@@ -140,6 +142,20 @@ function Gallery(options) {
            // });
         }
     };
+	
+	self.addModalViewOnClick = function (imageData) {
+		
+		modal = document.getElementById("myModal");
+		modalImg = document.getElementById("modalImg");
+		captionText = document.getElementById("caption");
+		
+		imageData.thumbnail.get(0).onclick = function(){
+				modal.style.display = "block";
+				modalImg.src = imageData.image;
+				captionText.innerHTML = imageData.title;
+				currentImageIndex = imageData.index;
+			}
+	};
 
     self.resize = function () {
         var containerWidth = self.columnsContainer.width();
