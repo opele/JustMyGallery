@@ -11,6 +11,7 @@ function Gallery(options) {
     }
 
     self.images = [];
+	self.loadedImages = 0;
 
 	self.options.container.empty();
     self.columnsContainer = $('<div>');
@@ -38,6 +39,7 @@ function Gallery(options) {
 		return self.images.length;
 	}
 
+	// finds the last loaded image data
     self.lastLoaded = function () {
         for (var i = self.images.length - 1; i >= 0; --i) {
             if (self.images[i].loaded)
@@ -63,6 +65,7 @@ function Gallery(options) {
 
         var lastLoaded = self.lastLoaded();
 
+		// set the initial position (before the image is fully loaded) at the last loaded image
         if (lastLoaded) {
             image.thumbnail.css({
                 left: lastLoaded.left + 'px',
@@ -70,6 +73,7 @@ function Gallery(options) {
             });
         }
 
+		// FIXME: is the init parameter needed?
         //if (!init)
             image.column = image.index % self.columns;
 
@@ -92,6 +96,8 @@ function Gallery(options) {
 
             self.position(image);
 			
+			++self.loadedImages;
+			
 			options.container.trigger('previewImgLoaded', [image, img]);
         };
 
@@ -101,11 +107,14 @@ function Gallery(options) {
 
         self.columnsContainer.append(image.thumbnail);
     };
+	
+	self.allImgsLoaded = function () { return self.loadedImages == self.getDataLength(); }
 
     self.position = function (image) {
         var l = self.getColumnLeft(image.column);
         var t = 0;
 
+		// calculate the top position only if the image is not placed on the very top of a column
         if (image.index >= self.columns) {
             var prevImageInColumn = self.images[image.index - self.columns];
 
@@ -124,10 +133,11 @@ function Gallery(options) {
 
         var nextImage = self.images[image.index + 1];
 
+		// reposition the images after this one in case it was inserted or finished loading after the next image
         if (nextImage && nextImage.loaded) {
-            setTimeout(() => {
+            //setTimeout(() => {
                 self.position(nextImage);
-            });
+           // });
         }
     };
 
@@ -154,6 +164,9 @@ function Gallery(options) {
     self.getColumnLeft = function (column) {
         return options.spacing + column * options.columnWidth + column * options.spacing;
     };
+	
+	if (options.imageOnLoadCallback)
+		self.bind("previewImgLoaded", options.imageOnLoadCallback);
 
 	self.pushAll(options.images);
 

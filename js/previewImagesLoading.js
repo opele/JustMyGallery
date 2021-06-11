@@ -1,5 +1,4 @@
 
-var numberOfPreviewImagesLoaded = 0; // currently displayed and loaded images, resets when applying new filtering/sorting
 var numberOfFullSizeImagesLoaded = 0; // loaded in this session without page refresh
 
 var customTagsDirty = false; // when true, tags need to be refreshed
@@ -48,7 +47,6 @@ var gallery;
 var imagesToLoad;
 var chunkSize = 15;
 var scrolledToEnd = false;
-var lastChunkLoaded = false;
 
 
 $(function(){
@@ -61,17 +59,12 @@ $(function() {
 	initSidebar();
 	
 	loadImages();
-	
-	scrolledToEnd = false;
-	lastChunkLoaded = false;
-	addLazyLoadSentinel();
-	
 });
 
 
 function loadImages() {
-
-	numberOfPreviewImagesLoaded = 0;
+	
+	scrolledToEnd = false;
 
 	imagesToLoad = imgData;
 	if (typeof filterFunction === 'function') {
@@ -86,22 +79,47 @@ function loadImages() {
 	  container: '.gallery-container',
 	  images: imagesToLoad.slice(0,30),
 	  columnWidth: 230,
-	  spacing: 10
+	  spacing: 10,
+	  imageOnLoadCallback: updateLazyLoadSentinel
 	});
 	
 	// navigate to top
 	window.scrollTo(0, 0);
 }
 
-function updateImgCountDisplay() {
-	$('#filteredImgNumberInfo').html(imagesToLoad.length + ' images to show.');
+// Add or update LazyLoadSentinel when an image loads. Passed into Gallery constructor.
+// This event may only fire for one image if the whole chunk is loaded from cache. 
+// imageData then points to a random image and can have top = 0 but gallery.loadedImages is incremented by the chunk size (all images loaded = true).
+// Therefore, can't use imageData to position the sentinel. Retrieve the last loaded image after which the sentinel should be positioned.
+function updateLazyLoadSentinel(e, imageData, imgEl) {
+		
+	// TODO: when image fails loading, we never get past this
+	if (!gallery.allImgsLoaded()) return;
+	
+	let lastLoadedImgData = gallery.lastLoaded();
+	
+	var sentinel = $('#sentinel');
+	let isNew = false;
+	
+	if (sentinel == null || !sentinel.length) {
+		isNew = true;
+		gallery.columnsContainer.append('<div id="sentinel"></div>');
+		sentinel = $('#sentinel');
+	}
+	
+	if (!sentinel.position() || sentinel.position().top < lastLoadedImgData.top)
+		sentinel.css({top: lastLoadedImgData.top, left: lastLoadedImgData.left, position:'absolute'});
+	
+	if (isNew) {
+		registerIntersectionCallback();
+	} else {
+		tryLoadNextChunk();
+	}
 }
 
-function addLazyLoadSentinel() {
-	gallery.columnsContainer.append('<div id="sentinel"></div>');
-	var sentinel = $('#sentinel');
-	
-	var callback = (entries, observer) => {
+var observer;
+function registerIntersectionCallback() {
+	let intersectionCallback = (entries, observer) => {
 	  entries.forEach(entry => {
 		  if (entry.isIntersecting) {
 			scrolledToEnd = true;
@@ -112,35 +130,26 @@ function addLazyLoadSentinel() {
 	  });
 	};
 	
-	var observer = new IntersectionObserver(callback);
-	observer.observe(sentinel.get(0));
-	
-	gallery.bind("previewImgLoaded", function(e, imageData, imgEl) {
-		++numberOfPreviewImagesLoaded;
-		
-		if (sentinel.css("top") < imageData.thumbnail.css("top"))
-			sentinel.css({top: imageData.thumbnail.css("top"), left: imageData.thumbnail.css("left"), position:'absolute'});
-		
-		if (numberOfPreviewImagesLoaded == gallery.getDataLength() - 1) {
-			lastChunkLoaded = true;
-			tryLoadNextChunk();
-		}
-	});
+	observer = new IntersectionObserver(intersectionCallback);
+	observer.observe($('#sentinel').get(0));
 }
 
 function tryLoadNextChunk() {
 
 	var currentLoadSize = gallery.getDataLength();
 	
-	if (lastChunkLoaded && scrolledToEnd && currentLoadSize < imagesToLoad.length) {
+	if (gallery.lastLoaded() && scrolledToEnd && currentLoadSize < imagesToLoad.length) {
 		
 		var nextLoadSize = currentLoadSize + chunkSize;
 		if (nextLoadSize > imagesToLoad.length) {
 			nextLoadSize = imagesToLoad.length;
 		}
-		
 		gallery.pushAll(imagesToLoad.slice(currentLoadSize, nextLoadSize));
 		
 		lastChunkLoaded = false;
 	}
+}
+
+function updateImgCountDisplay() {
+	$('#filteredImgNumberInfo').html(imagesToLoad.length + ' images to show.');
 }
