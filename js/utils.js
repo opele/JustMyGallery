@@ -17,11 +17,11 @@ function findIntersection(arr1, arr2) {
 }
 
 function isViewingImage() {
-	return Galleria.get(0).getActiveImage() != null && $(Galleria.get(0).getActiveImage()).is(':visible');
+	return modal.style.display != "none";
 }
 
 function getCurrentlyViewedImg() {
-	if (isViewingImage()) return Galleria.get(0).getActiveImage();
+	if (isViewingImage()) return imagesToLoad[currentImageIndex];
 }
 
 function arraysEqual(a, b) {
