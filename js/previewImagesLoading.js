@@ -1,6 +1,4 @@
 
-var numberOfFullSizeImagesLoaded = 0; // loaded in this session without page refresh
-
 var customTagsDirty = false; // when true, tags need to be refreshed
 
 var sortByRating = false;

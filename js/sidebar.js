@@ -8,6 +8,10 @@ function closeSidebar() {
   $('#sidebarOpenBtn').show(500);
 }
 
+function isSidebarVisible() {
+	return $("#sidebar-container").position().left >= 0;
+}
+
 $(function() {
 		
 	$('#closeSidebarBtn').keydown(function(event) {

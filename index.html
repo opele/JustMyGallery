@@ -466,6 +466,9 @@ window.addEventListener("keydown", event => {
 
 function closeModal() {
     modal.style.display = "none";
+	
+	if (!isSidebarVisible())
+		$('#sidebarOpenBtn').show();
 }
 
 window.addEventListener("keydown", event => {

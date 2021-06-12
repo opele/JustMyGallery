@@ -151,6 +151,7 @@ function Gallery(options) {
 		
 		imageData.thumbnail.get(0).onclick = function(){
 				modal.style.display = "block";
+				$('#sidebarOpenBtn').hide();
 				modalImg.src = imageData.image;
 				captionText.innerHTML = imageData.title;
 				currentImageIndex = imageData.index;
