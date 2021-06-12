@@ -432,8 +432,9 @@ function navigateToPrevious(event) {
     
     if (currentImageIndex > 0) {
         currentImageIndex -= 1;
-        modalImg.src = imgPaths[currentImageIndex];
-        captionText.innerHTML = imgPaths[currentImageIndex];
+		let prevImgData = imagesToLoad[currentImageIndex];
+        modalImg.src = prevImgData.image;
+        captionText.innerHTML = prevImgData.title;
     }
 }
 
@@ -447,10 +448,11 @@ window.addEventListener("keydown", event => {
 function navigateToNext(event) {
     if (event) event.stopPropagation();
     
-    if (currentImageIndex < imgPaths.length - 1) {
+    if (currentImageIndex < imagesToLoad.length - 1) {
         currentImageIndex += 1;
-        modalImg.src = imgPaths[currentImageIndex];
-        captionText.innerHTML = imgPaths[currentImageIndex];
+		let nextImgData = imagesToLoad[currentImageIndex];
+        modalImg.src = nextImgData.image;
+        captionText.innerHTML = nextImgData.title;
     }
 }
 
