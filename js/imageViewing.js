@@ -3,31 +3,22 @@
 // allow scrolling with mousewheel
 var scrollDistance = 170;
 
-$(window).on("mousewheel DOMMouseScroll", function(event){
-	// is viewing image in original size / custom resize mode on
-	/*
-	if ($("#fullSizeImage").length && $("#fullSizeImage").get(0).style.display != "none") {
-		var target = $(".galleria-images").get(0);
+// TODO
+function resizeImage(event) {
 
-		event.preventDefault();
-		
-		if (event.shiftKey) {
-			// change image size
-			var range = $("#imageSizeRange");
-			if (range.length) {
-				var delta = event.originalEvent.wheelDelta/120 || -event.originalEvent.detail/3;
-				range.val(range.val() - delta*0.04);
-				range.change();
-			}
-			
-		} else {
-			// scroll the view
+	//event.preventDefault();
+	
+	if (event.shiftKey) {
+		// change image size
+		var range = $("#imageSizeRange");
+		if (range.length) {
 			var delta = event.originalEvent.wheelDelta/120 || -event.originalEvent.detail/3;
-			target.scrollTop -= parseInt(delta*scrollDistance);
+			range.val(range.val() - delta*0.04);
+			range.change();
 		}
 		
-	}*/
-});
+	}
+}
 
 
 function navigateToPrevious(event) {
@@ -58,6 +49,8 @@ function closeModal() {
 	
 	if (!isSidebarVisible())
 		$('#sidebarOpenBtn').show();
+	
+	$('body').css('overflow', 'auto');
 }
 
 /*

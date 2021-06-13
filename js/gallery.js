@@ -150,8 +150,11 @@ function Gallery(options) {
 		captionText = document.getElementById("caption");
 		
 		imageData.thumbnail.get(0).onclick = function(){
-				modal.style.display = "block";
+				
 				$('#sidebarOpenBtn').hide();
+				$('body').css('overflow', 'hidden');
+				
+				modal.style.display = "block";
 				modalImg.src = imageData.image;
 				captionText.innerHTML = imageData.title;
 				currentImageIndex = imageData.index;

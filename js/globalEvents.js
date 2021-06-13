@@ -35,6 +35,14 @@
 			}
 				
 		});
+		
+		// TODO
+		$(window).on("mousewheel DOMMouseScroll", function(event) {
+			if (isViewingImage() && !isEditingTags()) {
+				resizeImage(event);
+				// return false; // causes warning as listerner is registered as passive
+			}
+		});
  });
  
   function isEditingTags() {
