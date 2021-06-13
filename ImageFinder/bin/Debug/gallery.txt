@@ -8,7 +8,9 @@ TODO:
 remove an image when a tag was removed which is filtered for when closing the details view
 	appy filter function on previously opened image
 
-issue: when going forward in details view need to add lazy loading
+issue: when going forward in details view need to add loading for preview images
+
+preload the next and previous x full sized images when in detailed view
 
 - use minified JS for external libs
 - test in Edge/FF/Chrome on Mac and PC

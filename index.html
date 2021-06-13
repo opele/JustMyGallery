@@ -409,87 +409,12 @@
   <script src="js/filtering.js"></script>
   <script src="js/sidebar.js"></script>
   <script src="js/rating.js"></script>
-  <!-- <script src="js/imageViewing.js"></script> -->
+  <script src="js/imageViewing.js"></script>
 
   <!-- for prod
   <script src="js/combined.min.js"></script> -->
 
   <script>
-  
-  var currentImageIndex = 0;
-var modal;
-
-// Get the image and insert it inside the modal - use its "alt" text as a caption
-var listImgs;
-var modalImg;
-var next;
-var previous;
-var captionText;
-
-
-function navigateToPrevious(event) {
-    if (event) event.stopPropagation();
-    
-    if (currentImageIndex > 0) {
-        currentImageIndex -= 1;
-		let prevImgData = imagesToLoad[currentImageIndex];
-        modalImg.src = prevImgData.image;
-        captionText.innerHTML = prevImgData.title;
-    }
-}
-
-window.addEventListener("keydown", event => {
-    if (event.key == "ArrowLeft") {
-      navigateToPrevious(null);
-    }
-  });
-
-
-function navigateToNext(event) {
-    if (event) event.stopPropagation();
-    
-    if (currentImageIndex < imagesToLoad.length - 1) {
-        currentImageIndex += 1;
-		let nextImgData = imagesToLoad[currentImageIndex];
-        modalImg.src = nextImgData.image;
-        captionText.innerHTML = nextImgData.title;
-    }
-}
-
-window.addEventListener("keydown", event => {
-    if (event.key == "ArrowRight") {
-      navigateToNext(null);
-    }
-  });
-
-
-
-function closeModal() {
-    modal.style.display = "none";
-	
-	if (!isSidebarVisible())
-		$('#sidebarOpenBtn').show();
-}
-
-window.addEventListener("keydown", event => {
-    if (event.key == "Escape") {
-      closeModal();
-    }
-  });
-
-
-window.addEventListener("keydown", event => {
-    if (event.key == "ArrowDown") {
-        modal.scrollTop += 20;
-    }
-  });
-
-window.addEventListener("keydown", event => {
-    if (event.key == "ArrowUp") {
-        modal.scrollTop -= 20;
-    }
-  });
-  
     $(function () { $('[data-toggle="tooltip"]').tooltip() })
   </script>
 

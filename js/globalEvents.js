@@ -8,7 +8,23 @@
 				// enable rating with number keys 1 to 5
 				processKeyEvtForRating(event);
 				
-			} else { // displaying gallery with preview images
+				if (event.key == "ArrowLeft") {
+				  navigateToPrevious(null);
+				  
+				} else if (event.key == "ArrowRight") {
+				  navigateToNext(null);
+				  
+				} else if (event.key == "Escape") {
+				  closeModal();
+				  
+				} else if (event.key == "ArrowUp") {
+					modal.scrollTop -= 20;
+					
+				} else if (event.key == "ArrowDown") {
+					modal.scrollTop += 20;
+				}
+				
+			} else if (!isViewingImage()) { // displaying gallery with preview images
 			
 				if (event.key == 'Escape') {
 					closeSidebar();

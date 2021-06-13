@@ -5,6 +5,7 @@ var scrollDistance = 170;
 
 $(window).on("mousewheel DOMMouseScroll", function(event){
 	// is viewing image in original size / custom resize mode on
+	/*
 	if ($("#fullSizeImage").length && $("#fullSizeImage").get(0).style.display != "none") {
 		var target = $(".galleria-images").get(0);
 
@@ -25,10 +26,41 @@ $(window).on("mousewheel DOMMouseScroll", function(event){
 			target.scrollTop -= parseInt(delta*scrollDistance);
 		}
 		
-	}
+	}*/
 });
 
 
+function navigateToPrevious(event) {
+    if (event) event.stopPropagation();
+    
+    if (currentImageIndex > 0) {
+        currentImageIndex -= 1;
+		let prevImgData = imagesToLoad[currentImageIndex];
+        modalImg.src = prevImgData.image;
+        captionText.innerHTML = prevImgData.title;
+    }
+}
+
+
+function navigateToNext(event) {
+    if (event) event.stopPropagation();
+    
+    if (currentImageIndex < imagesToLoad.length - 1) {
+        currentImageIndex += 1;
+		let nextImgData = imagesToLoad[currentImageIndex];
+        modalImg.src = nextImgData.image;
+        captionText.innerHTML = nextImgData.title;
+    }
+}
+
+function closeModal() {
+    modal.style.display = "none";
+	
+	if (!isSidebarVisible())
+		$('#sidebarOpenBtn').show();
+}
+
+/*
 Galleria.on('fullscreen_exit', function(e) {
 	hideImageSizeRange();
 	if (customTagsDirty) {
@@ -45,6 +77,7 @@ Galleria.on('fullscreen_enter', function(e) {
 	// hide the header, otherwise it flickers into view for a short moment when opening / closing an image
 	$('.container').css('display','none');
 });
+*/
 
 // if a tag was removed, the image may not pass the currently selected filter criteria anymore
 function maybeRemovePreviewImg() {
@@ -74,7 +107,7 @@ function hideImageSizeRange() {
 	}
 }
 
-// galleria event callback when an preview image has been selected and is displayed in the lightbox 
+/* galleria event callback when an preview image has been selected and is displayed in the lightbox 
 Galleria.on('image', function(e) {
 
 	++numberOfFullSizeImagesLoaded;
@@ -154,7 +187,7 @@ Galleria.on('image', function(e) {
 			resetFullSizeView(e);
 		}
 	}
-});
+});*/
 
 function applyScaleToImg(scale, currentImg) {
 	var newHeight = currentImg.naturalHeight * scale + 'px';

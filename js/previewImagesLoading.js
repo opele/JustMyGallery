@@ -46,6 +46,14 @@ var imagesToLoad;
 var chunkSize = 15;
 var scrolledToEnd = false;
 
+// detail image view
+var currentImageIndex = 0; // index of the currently or last opened image
+var modal;
+var modalImg;
+var next;
+var previous;
+var captionText;
+
 
 $(function(){
 	refreshSelectableTags();
