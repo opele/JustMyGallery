@@ -12,13 +12,17 @@ function Gallery(options) {
 
     self.images = [];
 	self.loadedImages = 0;
-
-	self.options.container.empty();
-    self.columnsContainer = $('<div>');
-    self.columnsContainer.hide();
-    self.columnsContainer.addClass('gallery-columns');
-
-    options.container.append(self.columnsContainer);
+	
+	self.columnsContainer = $('.gallery-columns');
+	
+	if (!self.columnsContainer.length) {
+		self.columnsContainer = $('<div>');
+		//self.columnsContainer.hide();
+		self.columnsContainer.addClass('gallery-columns');
+		options.container.append(self.columnsContainer);
+	} else {
+		self.columnsContainer.empty();
+	}
 
     self.remove = function (index, count) {
         var removed = self.images.splice(index, count);
@@ -190,7 +194,7 @@ function Gallery(options) {
 
 	self.pushAll(options.images);
 
-    self.columnsContainer.show();
+    //self.columnsContainer.show();
 
     setTimeout(() => {
         self.resize();
