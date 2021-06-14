@@ -162,6 +162,11 @@ function Gallery(options) {
 				modalImg.src = imageData.image;
 				captionText.innerHTML = imageData.title;
 				currentImageIndex = imageData.index;
+				
+				modalImg.onload = function() {
+					// we need the width and height loaded before sizing the image
+					showImageSizeRange();
+				}
 			}
 	};
 

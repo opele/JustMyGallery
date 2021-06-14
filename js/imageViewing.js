@@ -3,7 +3,6 @@
 // allow scrolling with mousewheel
 var scrollDistance = 170;
 
-// TODO
 function resizeImage(event) {
 
 	//event.preventDefault();
@@ -46,6 +45,8 @@ function navigateToNext(event) {
 
 function closeModal() {
     modal.style.display = "none";
+	
+	hideImageSizeRange();
 	
 	if (!isSidebarVisible())
 		$('#sidebarOpenBtn').show();
@@ -98,6 +99,44 @@ function hideImageSizeRange() {
 	if (range.length) {
 		range.css('display','none');
 	}
+}
+
+function showImageSizeRange() {
+	
+	let currentImg = modalImg;
+	// custom resize
+	let optimalWidthRatio = 0.80;
+	let maxScale = 1.5;
+	let screenWidth = document.documentElement.clientWidth;
+	let optimalWidth = optimalWidthRatio * screenWidth;
+	let optimalScale = optimalWidth / currentImg.naturalWidth;
+	if (optimalScale > maxScale) {
+		optimalScale = maxScale;
+	}
+	
+	var range = $("#imageSizeRange");
+	if (!range.length) {
+		var rangeHtml = '<input type="range" class="form-range image-size-range" min="0.1" max="' + maxScale + '" step="0.01" id="imageSizeRange" data-toggle="tooltip" data-placement="bottom" title="Use Shift + Mousewheel">';
+		gallery.options.container.append(rangeHtml);
+		range = $("#imageSizeRange");
+	}
+	
+	range.css("display", "block");
+	range.on("input change", function() {
+		applyScaleToImg(range.val(), currentImg);
+	});
+	
+	range.val(optimalScale);
+	applyScaleToImg(range.val(), currentImg);
+}
+
+function applyScaleToImg(scale, currentImg) {
+	var newHeight = currentImg.naturalHeight * scale;
+	var newWidth = currentImg.naturalWidth * scale;
+	currentImg.style.height = newHeight + 'px';
+	currentImg.style.width = newWidth + 'px';
+	currentImg.width = newWidth;
+	currentImg.height = newHeight;
 }
 
 /* galleria event callback when an preview image has been selected and is displayed in the lightbox 
@@ -181,15 +220,6 @@ Galleria.on('image', function(e) {
 		}
 	}
 });*/
-
-function applyScaleToImg(scale, currentImg) {
-	var newHeight = currentImg.naturalHeight * scale + 'px';
-	var newWidth = currentImg.naturalWidth * scale + 'px';
-	currentImg.style.height = newHeight;
-	currentImg.style.width = newWidth;
-	currentImg.width = newWidth;
-	currentImg.height = newHeight;
-}
 
 // TODO: no need to pass in the galleria ref, can be retirved statically
 function resetFullSizeView(e) {

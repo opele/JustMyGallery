@@ -12,6 +12,9 @@ issue: when going forward in details view need to add loading for preview images
 
 preload the next and previous x full sized images when in detailed view
 
+when opening details image need a loading animation instead of showing the previous image
+	requires testing with non cached images which load with a latency
+
 - use minified JS for external libs
 - test in Edge/FF/Chrome on Mac and PC
 - add MIT license
