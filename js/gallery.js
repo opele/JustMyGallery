@@ -149,10 +149,6 @@ function Gallery(options) {
 	
 	self.addModalViewOnClick = function (imageData) {
 		
-		modal = document.getElementById("myModal");
-		modalImg = document.getElementById("modalImg");
-		captionText = document.getElementById("caption");
-		
 		imageData.thumbnail.get(0).onclick = function(){
 				
 				$('#sidebarOpenBtn').hide();
