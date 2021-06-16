@@ -35,127 +35,8 @@
 	
 	.gallery-thumb:hover {opacity: 0.7;}
 	
-
-    .image-size-range {
-      width: 150px;
-      position: absolute;
-      z-index: 5;
-    }
-
-
-	/* rating */
-    .rate {
-      float: left;
-      height: 22px;
-      padding: 0 12px;
-    }
-
-    .checked {
-      color: #ffc700;
-      font-size: 20px;
-    }
-
-    .unchecked {
-      color: #ccc;
-      font-size: 20px;
-    }
-
-    .checked:hover,
-    .unchecked:hover {
-        font-size: 25px;
-    }
-
-
-	/* tags */
-    .predefined-tags {
-      color: rgba(255,255,255,0.6);
-      width: max-content;
-    }
-
-    .my-tags {
-      color: rgba(255,255,255,0.6);
-      display: flex;
-      width: 100%;
-    }
-
-    .my-tag {
-      color: rgba(255,255,255,0.6);
-      text-decoration: underline dotted;
-    }
-
-
-    /* Sidebar Start */
-    .sidebar {
-      opacity: 0.85;
-      min-height: 100vh;
-      height: 100%;
-      width: 250px;
-      padding: 0;
-      position: fixed;
-      z-index: 1;
-      top: 0;
-      left: -250px;
-      overflow-x: hidden;
-      transition: 0.5s;
-      padding-top: 60px;
-    }
-
-    .sidebar-input-box {
-      background-color: #a5b6c3;
-      position: absolute;
-      right: 5px;
-      width: 158px;
-    }
-
-    .sidebar-open-button {
-      font-size: 30px;
-      cursor: pointer;
-      position: fixed;
-      left: 10px;
-      top: 50px;
-      z-index: 5;
-    }
-
-    .sidebar-close {
-      cursor: default;
-    }
-
-    /* for smaller screens */
-    @media screen and (max-height: 450px) {
-      .sidebar {
-        padding-top: 15px;
-      }
-    }
-
-    /* Separators */
-    .sidebar-separator-title {
-      height: 35px;
-      background-color: #6c5a5a;
-      font-weight: 900;
-      font-size: 150%;
-      cursor: default;
-    }
-
-    .sidebar-separator {
-      height: 25px;
-      background-color: #6c5a5a;
-    }
-
-    .logo-separator {
-      height: 60px;
-    }
-
-    /* Sidebar End */
 	
 	
-	#sentinel {
-      width: 1px;
-      height: 1px;
-	  position: absolute;
-    }
-
-
-
 	/* The Modal (background) */
 	.modal {
 	  display: none; /* Hidden by default */
@@ -233,13 +114,136 @@
 	}
 
 
-
 	/* 100% Image Width on Smaller Screens */
 	@media only screen and (max-width: 700px){
 	  .modal-content {
 		width: 100%;
 	  }
 	}
+	
+	
+	/* modal components */
+
+    .image-size-range {
+      top: 5%;
+	  left: 1%;
+      width: 145px;
+      position: fixed;
+      z-index: 5;
+    }
+
+
+	/* rating */
+    .rate {
+      float: left;
+      height: 22px;
+      padding: 0 12px;
+    }
+
+    .checked {
+      color: #ffc700;
+      font-size: 20px;
+    }
+
+    .unchecked {
+      color: #ccc;
+      font-size: 20px;
+    }
+
+    .checked:hover,
+    .unchecked:hover {
+        font-size: 25px;
+    }
+
+
+	/* tags */
+    .predefined-tags {
+      color: rgba(255,255,255,0.6);
+      width: max-content;
+    }
+
+    .my-tags {
+      color: rgba(255,255,255,0.6);
+      display: flex;
+      width: 100%;
+    }
+
+    .my-tag {
+      color: rgba(255,255,255,0.6);
+      text-decoration: underline dotted;
+    }
+
+    
+
+    /* Sidebar Start */
+    .sidebar {
+      opacity: 0.85;
+      min-height: 100vh;
+      height: 100%;
+      width: 250px;
+      padding: 0;
+      position: fixed;
+      z-index: 1;
+      top: 0;
+      left: -250px;
+      overflow-x: hidden;
+      transition: 0.5s;
+      padding-top: 60px;
+    }
+
+    .sidebar-input-box {
+      background-color: #a5b6c3;
+      position: absolute;
+      right: 5px;
+      width: 158px;
+    }
+
+    .sidebar-open-button {
+      font-size: 30px;
+      cursor: pointer;
+      position: fixed;
+      left: 10px;
+      top: 50px;
+      z-index: 5;
+    }
+
+    .sidebar-close {
+      cursor: default;
+    }
+
+    /* for smaller screens */
+    @media screen and (max-height: 450px) {
+      .sidebar {
+        padding-top: 15px;
+      }
+    }
+
+    /* Separators */
+    .sidebar-separator-title {
+      height: 35px;
+      background-color: #6c5a5a;
+      font-weight: 900;
+      font-size: 150%;
+      cursor: default;
+    }
+
+    .sidebar-separator {
+      height: 25px;
+      background-color: #6c5a5a;
+    }
+
+    .logo-separator {
+      height: 60px;
+    }
+
+    /* Sidebar End */
+	
+	
+	#sentinel {
+      width: 1px;
+      height: 1px;
+	  position: absolute;
+    }
 
 
   </style>
