@@ -61,6 +61,10 @@ $(function(){
 });
 
 $(function() {
+
+	modal = document.getElementById("myModal");
+	modalImg = document.getElementById("modalImg");
+	captionText = document.getElementById("caption");
 	
 	initSidebar();
 	
