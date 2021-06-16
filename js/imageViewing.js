@@ -105,7 +105,7 @@ function showImageSizeRange() {
 	
 	let currentImg = modalImg;
 	// custom resize
-	let optimalWidthRatio = 0.80;
+	let optimalWidthRatio = 0.75;
 	let maxScale = 1.5;
 	let screenWidth = document.documentElement.clientWidth;
 	let optimalWidth = optimalWidthRatio * screenWidth;
