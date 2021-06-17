@@ -75,16 +75,14 @@ Galleria.on('fullscreen_enter', function(e) {
 
 // if a tag was removed, the image may not pass the currently selected filter criteria anymore
 function maybeRemovePreviewImg() {
-	// this is a nice to have self contained functionality, so an error should have no impact
+	// this is a nice to have self contained functionality, so an error should not impact other features
 	try {
-		let galRef = Galleria.get(0);
-		let currImgInx = galRef.getIndex();
-		let currImgData = imagesToLoad[currImgInx];
+		let currImgData = imagesToLoad[currentImageIndex];
 		// double check we got the right image
-		if (currImgData && currImgData.image === galRef.getActiveImage().getAttribute("src")) {
+		if (currImgData && gallery.images[currentImageIndex] && currImgData.image === gallery.images[currentImageIndex].image) {
 			if (!filterFunction([currImgData]).length) {
-				galRef.splice(currImgInx, 1);
-				imagesToLoad.splice(currImgInx, 1);
+				gallery.remove(currentImageIndex, 1);
+				imagesToLoad.splice(currentImageIndex, 1);
 				updateImgCountDisplay();
 			}
 		}
