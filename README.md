@@ -40,7 +40,6 @@ imageName1.jpeg:tag1,tag2
 imageName2.png:tag1,tag2,tag3
 
 ## Resources Used
-- Galleria: https://galleriajs.github.io/
 - Bootstrap: https://getbootstrap.com/
 - jQuery: https://jquery.com/
 - Images used: https://unsplash.com/ and https://nasa.gov
