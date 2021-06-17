@@ -103,6 +103,9 @@ function hideImageSizeRange() {
 
 function showImageSizeRange() {
 	
+	// when scrolled to the bottom and navigating to the next image, we want to show the top again
+	modal.scrollTop = 0;
+	
 	let currentImg = modalImg;
 	// custom resize
 	let optimalWidthRatio = 0.75;
