@@ -21,6 +21,10 @@ function isViewingImage() {
 }
 
 function getCurrentlyViewedImg() {
+	if (isViewingImage()) return modalImg;
+}
+
+function getCurrentlyViewedImgData() {
 	if (isViewingImage()) return imagesToLoad[currentImageIndex];
 }
 
