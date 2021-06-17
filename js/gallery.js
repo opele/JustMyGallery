@@ -24,11 +24,12 @@ function Gallery(options) {
 		self.columnsContainer.empty();
 	}
 
-    self.remove = function (index, count) {
-        var removed = self.images.splice(index, count);
+    self.remove = function (startIndex, count) {
+    	// removes a range of images in place and also returns the removed images
+        var removed = self.images.splice(startIndex, count);
 
         for (var image of removed) {
-            image.removed = true;
+            //image.removed = true;
             image.thumbnail.remove();
         }
 
@@ -91,8 +92,8 @@ function Gallery(options) {
         $(img).addClass('gallery-thumb-img');
 
         img.onload = function () {
-            if (image.removed)
-                return;
+            //if (image.removed)
+             //   return;
 
             image.thumbnail.css({ 'visibility': 'visible' });
 
