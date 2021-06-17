@@ -53,6 +53,7 @@ var modalImg;
 var next;
 var previous;
 var captionText;
+var ratingEl;
 
 
 $(function(){
@@ -65,6 +66,7 @@ $(function() {
 	modal = document.getElementById("myModal");
 	modalImg = document.getElementById("modalImg");
 	captionText = document.getElementById("caption");
+	ratingEl = document.getElementById("rating");
 	
 	initSidebar();
 	
