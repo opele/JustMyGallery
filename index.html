@@ -69,7 +69,7 @@
 	  text-align: center;
 	  color: #ccc;
 	  padding: 10px 0;
-	  height: 150px;
+	  height: 35px;
 	}
 
 	/* Add Animation */
@@ -135,9 +135,10 @@
 
 	/* rating */
     .rate {
-      float: left;
       height: 22px;
       padding: 0 12px;
+	  display: block;
+	  text-align: center;
     }
 
     .checked {
@@ -387,6 +388,13 @@
 	  <span class="previous" onclick="navigateToPrevious(event)">&larr;</span>
 	  <img class="modal-content" id="modalImg">
 	  <div id="caption"></div>
+	  <div id="rating" class="rate">
+		<span class = "fa fa-star unchecked" onclick='rateImage(event, 1)'></span>
+		<span class = "fa fa-star unchecked" onclick='rateImage(event, 2)'></span>
+		<span class = "fa fa-star unchecked" onclick='rateImage(event, 3)'></span>
+		<span class = "fa fa-star unchecked" onclick='rateImage(event, 4)'></span>
+		<span class = "fa fa-star unchecked" onclick='rateImage(event, 5)'></span>
+	  </div>
 	</div>
 
 
