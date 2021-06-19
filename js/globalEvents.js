@@ -15,7 +15,7 @@
 				  navigateToNext(null);
 				  
 				} else if (event.key == "Escape") {
-				  closeModal();
+				  closeModal(true);
 				  
 				} else if (event.key == "ArrowUp") {
 					modal.scrollTop -= 20;
@@ -44,9 +44,3 @@
 			}
 		});
  });
- 
-  function isEditingTags() {
-	return document.activeElement != null &&
-	  document.activeElement.className != null && 
-	  document.activeElement.className.includes('my-tag');
-  }

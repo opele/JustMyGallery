@@ -54,6 +54,8 @@ var next;
 var previous;
 var captionText;
 var ratingEl;
+var predefinedTagsEl;
+var userDefinedTagsEl;
 
 
 $(function(){
@@ -67,6 +69,8 @@ $(function() {
 	modalImg = document.getElementById("modalImg");
 	captionText = document.getElementById("caption");
 	ratingEl = document.getElementById("rating");
+	predefinedTagsEl = document.getElementById("predefinedTags");
+	userDefinedTagsEl = document.getElementById("myTags");
 	
 	initSidebar();
 	

@@ -43,10 +43,17 @@ function navigateToNext(event) {
     }
 }
 
-function closeModal() {
+function closeModal(forceClose) {
+	
+	if (!forceClose && isEditingTags()) return;
+	
     modal.style.display = "none";
 	
 	hideImageSizeRange();
+	if (customTagsDirty) {
+		refreshSelectableTags();
+		maybeRemovePreviewImg();
+	}
 	
 	if (!isSidebarVisible())
 		$('#sidebarOpenBtn').show();

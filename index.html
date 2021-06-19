@@ -160,13 +160,13 @@
 	/* tags */
     .predefined-tags {
       color: rgba(255,255,255,0.6);
-      width: max-content;
+	  text-align: center;
     }
 
     .my-tags {
       color: rgba(255,255,255,0.6);
-      display: flex;
-      width: 100%;
+      display: block;
+	  text-align: center;
     }
 
     .my-tag {
@@ -395,6 +395,8 @@
 		<span class = "fa fa-star unchecked" onclick='rateImage(event, 4)'></span>
 		<span class = "fa fa-star unchecked" onclick='rateImage(event, 5)'></span>
 	  </div>
+	  <div id="predefinedTags" class="predefined-tags"></div>
+	  <div id="myTags" class="my-tags"></div>
 	</div>
 
 

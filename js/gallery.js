@@ -161,6 +161,7 @@ function Gallery(options) {
 				currentImageIndex = imageData.index;
 				
 				displayRating(imageData.image);
+				displayTags(imageData);
 				
 				modalImg.onload = function() {
 					// we need the width and height loaded before sizing the image

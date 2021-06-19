@@ -1,31 +1,22 @@
 
-var tagsHtml = '<div id="predefinedTags" class="predefined-tags"></div>';
-var myTagsHtml = '<div id="myTags" class="my-tags"></div>';
+
 var myTagsPrefix = '&nbsp;&nbsp;&nbsp;&nbsp;My Tags:&nbsp;';
 var myTagEmptyHtml = '<span class="my-tag" contenteditable=true>&nbsp;&nbsp;&nbsp;&nbsp</span>';
 
-function displayTags(imageTarget) {
+function displayTags(currentImgData) {
 
-	var tagsEl = $('.galleria-info').find('#predefinedTags');
-	if (tagsEl.length === 0)
-		tagsEl = $('.galleria-info').append(tagsHtml).find('#predefinedTags');
-	else 
-		tagsEl.html("");
+	var tagsEl = $(predefinedTagsEl);
+	tagsEl.html("");
 	
-	var galleriaRef = Galleria.get(0);
-	var currentImgData = galleriaRef.getData(galleriaRef.getIndex());
 	if (currentImgData && currentImgData.tags) {
 		// padding does not work because it inlines the tags with the previous div
 		tagsEl.html("&nbsp;&nbsp;&nbsp;&nbsp;Tags: " + currentImgData.tags.replaceAll(',', ', '));
 	}
 	
-	
 	if (isLocalStorageAccepted()) {
 		// option to add custom tags
 		
-		var myTagsEl = $('.galleria-info').find('#myTags');
-		if (myTagsEl.length === 0)
-			myTagsEl = $('.galleria-info').append(myTagsHtml).find('#myTags');
+		var myTagsEl = $(userDefinedTagsEl);
 		
 		myTagsEl.html(myTagsPrefix);
 		let imgUserData = getCurrentImgUserData();
@@ -85,7 +76,7 @@ function persistCustomTags(myTagsEl) {
 }
 
 function addEmptyTagToEditIfRequired() {
-	let lastMyTag = $('#myTags').find('.my-tag').last();
+	let lastMyTag = $(userDefinedTagsEl).find('.my-tag').last();
 	let lastTagAbsent = lastMyTag == null || !lastMyTag.length;
 	let emptyTagRequired = lastTagAbsent || lastMyTag.text().trim().length > 0;
 	
@@ -99,7 +90,7 @@ function addEmptyTagToEditIfRequired() {
 }
 
 function appendNewCustomTag(myTagEl) {
-	let newTagEl = $('#myTags').append(myTagEl).find('.my-tag').last();
+	let newTagEl = $(userDefinedTagsEl).append(myTagEl).find('.my-tag').last();
 	newTagEl.keypress(myTagKeypress);
 	newTagEl.keydown(myTagKeydown);
 	newTagEl.blur(confirmedMyTag);
@@ -121,4 +112,10 @@ function myTagKeydown(event) {
 	} else if (event.key == 'ArrowRight' || event.key == 'ArrowLeft') {
 		event.stopPropagation();
 	}
+}
+
+function isEditingTags() {
+	return document.activeElement != null &&
+	  document.activeElement.className != null && 
+	  document.activeElement.className.includes('my-tag');
 }
