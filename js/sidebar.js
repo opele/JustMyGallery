@@ -184,7 +184,7 @@ function toggleDisplaySidebarElementInForeground(element, showInForeground) {
 		store('currentFilterTags', currentFilterTags);
 		
 		// if the gallery displays a single image ...
-		if (imagesToLoad.length == 1 || Galleria.get(0).getDataLength() == 1) {
+		if (imagesToLoad.length == 1 || gallery.images.length == 1) {
 			// ...and we removed the tag filter
 			if (!filterByTagsEnabled) {
 				// ...then this image was the last image with that tag, and we should re-apply the remaining filters (if any)
