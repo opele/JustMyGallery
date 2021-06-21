@@ -166,6 +166,7 @@ function Gallery(options) {
 				modalImg.onload = function() {
 					// we need the width and height loaded before sizing the image
 					showImageSizeRange();
+					preloadImages();
 				}
 			}
 	};

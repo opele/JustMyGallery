@@ -1,7 +1,6 @@
+
 /* SHOW IMAGE IN ORIGINAL SIZE */
 
-// allow scrolling with mousewheel
-var scrollDistance = 170;
 
 function resizeImage(event) {
 
@@ -147,7 +146,40 @@ function applyScaleToImg(scale, currentImg) {
 	currentImg.height = newHeight;
 }
 
+function preloadImages() {
+	preloadNextImages();
+	preloadPreviousImages();
+}
+
+function preloadNextImages() {
+	for (let i = 0; i < numberOfNextImgsToPreload; i++) {
+		
+		let nextImgInx = currentImageIndex + 1 + i;
+		if (nextImgInx >= imagesToLoad.length) break;
+		
+        preloadedImages[i] = new Image();
+        preloadedImages[i].src = imagesToLoad[nextImgInx].image;
+    }
+}
+
+function preloadPreviousImages() {
+
+	if (preloadedImages.length > 30) preloadedImages = [];
+	let start = preloadedImages.length;
+	
+	for (let i = 0; i < numberOfPrevImgsToPreload; i++) {
+		
+		let prevImgInx = currentImageIndex - 1 - i;
+		if (prevImgInx < 0) break;
+		
+        preloadedImages[start + i] = new Image();
+        preloadedImages[start + i].src = imagesToLoad[prevImgInx].image;
+    }
+}
+
 /* galleria event callback when an preview image has been selected and is displayed in the lightbox 
+// allow scrolling with mousewheel
+var scrollDistance = 170;
 Galleria.on('image', function(e) {
 
 	++numberOfFullSizeImagesLoaded;

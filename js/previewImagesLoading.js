@@ -57,6 +57,9 @@ var ratingEl;
 var predefinedTagsEl;
 var userDefinedTagsEl;
 
+var preloadedImages = [];
+var numberOfPrevImgsToPreload = 1;
+var numberOfNextImgsToPreload = 2;
 
 $(function(){
 	refreshSelectableTags();
