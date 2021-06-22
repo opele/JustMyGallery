@@ -35,7 +35,7 @@ function refreshRating(rateEl, rating) {
  
  function processKeyEvtForRating(event) {
 	
-	var rateEl = $('.galleria-info').find('#rating');
+	var rateEl = $(ratingEl);
 	
 	// enable rating with number keys
 	// 1 to 5, works with both: numpad or number keys under F-keys
