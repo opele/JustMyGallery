@@ -57,7 +57,7 @@ Galleria.get(0).splice(0,0, ...imagesToLoad.slice(start, end));
 settings:
 -- for image details view --
 
-3 mutually exclusive view options: automatic toggle each other 
+4 mutually exclusive view options: automatic toggle each other 
 
 Display image in optimal width: boolean
 Setting for optimal width with lower and upper bound: integer
@@ -69,9 +69,20 @@ Fit the image to the screen when too small: boolean
 
 Always display the image in original size: boolean
 
+Automatically switch between fitting width/height of the image and width only depending on ration between image and screen height: float
+Example: if set to 1.5 the image is fully fit to the screen when it is at most 50% longer than the screen. Otherwise only the width is fitted and the image length adjusted in proportion.
+-> the ratio applies AFTER scaling down to optimal width
+-> this also enables the 'fit if too small option'
+
+
+Other setting:
+
 Show image title
 Show rating
 Show 'My Tags'
+
+
+
 
 experimental: 
 preview image width?
