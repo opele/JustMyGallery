@@ -54,9 +54,29 @@ Galleria.get(0).splice(0,0, ...imagesToLoad.slice(start, end));
 
 
 
+settings:
+-- for image details view --
 
+3 mutually exclusive view options: automatic toggle each other 
 
+Display image in optimal width: boolean
+Setting for optimal width with lower and upper bound: integer
+-> greyed out if first option is toggled off
 
+Fit the image to the screen when too big: boolean
+Fit the image to the screen when too small: boolean
+-> greyed out if above option is not selected
+
+Always display the image in original size: boolean
+
+Show image title
+Show rating
+Show 'My Tags'
+
+experimental: 
+preview image width?
+would need to change the app to allow a different width
+-> should not be changed by user because the user would not be able to change the actual image size (avoid scaling for perfromance)
 
 
 
