@@ -88,16 +88,31 @@ function hideImageSizeRange() {
 
 function showImageSizeRange() {
 	
-	// when scrolled to the bottom and navigating to the next image, we want to show the top again
+	// when scrolled to the bottom and navigating to the next image, we want to start from the top again
 	modal.scrollTop = 0;
 	
 	let currentImg = modalImg;
-	// custom resize
 	let optimalWidthRatio = 0.75;
+	let optimalHeightRatio = 0.95;
 	let maxScale = 1.5;
+	
 	let screenWidth = document.documentElement.clientWidth;
 	let optimalWidth = optimalWidthRatio * screenWidth;
-	let optimalScale = optimalWidth / currentImg.naturalWidth;
+	let optimalScaleWidth = optimalWidth / currentImg.naturalWidth;
+	
+	let screenHeight = document.documentElement.clientHeight;
+	let optimalHeight = optimalHeightRatio * screenHeight;
+	let optimalScaleHeight = optimalHeight / currentImg.naturalHeight;
+	
+	let optimalScale = 1.0;
+	if (scaleImageHeight && scaleImageWidth) {
+		optimalScale = Math.min(optimalScaleHeight, optimalScaleWidth);
+	} else if (scaleImageHeight) {
+		optimalScale = optimalScaleHeight;
+	} else if (scaleImageWidth) {
+		optimalScale = optimalScaleWidth;
+	}
+	 
 	if (optimalScale > maxScale) {
 		optimalScale = maxScale;
 	}
