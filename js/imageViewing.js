@@ -94,6 +94,8 @@ function showImageSizeRange() {
 	let currentImg = modalImg;
 	let optimalWidthRatio = 0.75;
 	let optimalHeightRatio = 0.95;
+	// when image width is scaled down to fit the screen, the image must be more than twice as long to NOT scale height
+	let scaleHeightRatioThreshold = 2;
 	let maxScale = 1.5;
 	
 	let screenWidth = document.documentElement.clientWidth;
@@ -104,10 +106,23 @@ function showImageSizeRange() {
 	let optimalHeight = optimalHeightRatio * screenHeight;
 	let optimalScaleHeight = optimalHeight / currentImg.naturalHeight;
 	
+	// determine if the height should be fitted to the window size
+	let scaleHeight = false;
+	// check if enabled in options
+	if (scaleImageHeight) {
+		// evaluate if we should scale height at all, we don't want to shrink down very long images like webcomics
+		// 1. get the length of the image but AFTER we scaled to optimal width
+		let heightWithOptimalWidth = optimalScaleWidth * currentImg.naturalHeight;
+		// 2. get the ratio between this height to the screen height
+		let heightWithOptimalWidthWindowHeightRatio = heightWithOptimalWidth / screenHeight;
+		// 3. only scale height if we don't exceed our threshold
+		scaleHeight = scaleHeightRatioThreshold > heightWithOptimalWidthWindowHeightRatio;
+	}
+	
 	let optimalScale = 1.0;
-	if (scaleImageHeight && scaleImageWidth) {
+	if (scaleHeight && scaleImageWidth) {
 		optimalScale = Math.min(optimalScaleHeight, optimalScaleWidth);
-	} else if (scaleImageHeight) {
+	} else if (scaleHeight) {
 		optimalScale = optimalScaleHeight;
 	} else if (scaleImageWidth) {
 		optimalScale = optimalScaleWidth;
