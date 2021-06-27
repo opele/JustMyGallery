@@ -17,7 +17,7 @@ function findIntersection(arr1, arr2) {
 }
 
 function isViewingImage() {
-	return modal.style.display != "none";
+	return modal.style.display == "block";
 }
 
 function getCurrentlyViewedImg() {
