@@ -71,7 +71,7 @@ $(function(){
 
 $(function() {
 
-	modal = document.getElementById("myModal");
+	modal = document.getElementById("imageModal");
 	modalImg = document.getElementById("modalImg");
 	captionText = document.getElementById("caption");
 	ratingEl = document.getElementById("rating");
