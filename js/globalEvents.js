@@ -30,7 +30,9 @@
 					closeSidebar();
 				
 				} else if (event.key == '1') {
-					openSidebar();
+					openSearchSidebar();
+				} else if (event.key == '2') {
+					openSettingsSidebar();
 				}
 			}
 				

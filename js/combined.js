@@ -555,13 +555,13 @@ function applyTagsAndCategoryFilter() {
 		$('#toggleTagsAndCategoryFilterBtn').html("Tags OR Category");
 	}
 }function openSidebar() {
-  $('#sidebarOpenBtn').hide();
+  $('#searchSidebarOpenBtn').hide();
   document.getElementById("sidebar-container").style.left = "0px";
 }
 
 function closeSidebar() {
   document.getElementById("sidebar-container").style.left = "-250px";
-  $('#sidebarOpenBtn').show(500);
+  $('#searchSidebarOpenBtn').show(500);
 }
 
 $(function() {

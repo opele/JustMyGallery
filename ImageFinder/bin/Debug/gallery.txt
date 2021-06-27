@@ -57,17 +57,30 @@ Galleria.get(0).splice(0,0, ...imagesToLoad.slice(start, end));
 settings:
 -- for image details view --
 
-4 mutually exclusive view options: automatic toggle each other 
-
-Display image in optimal width: boolean
+Initial Image Width Scale
 Setting for optimal width with lower and upper bound: integer
--> greyed out if first option is toggled off
 
-Fit the image to the screen when too big: boolean
+Initial Image Height Scale
+- lower and upper bound
+
+
+Scale Up Image Width
 Fit the image to the screen when too small: boolean
--> greyed out if above option is not selected
+Fit the image to the screen when too big
+
+Scale Down Image Width
+Display image in optimal width when too big: boolean
+Fit the image to the screen when too big
+
+Scale Down Threshold
+If the image width is bigger than X times the browser window width, then don't scale it down to fit the screen. For instance, webcomics read from left to right would be unreadable if scaled down too much.
+
+Repeat above 3 options for the Height
+
+
 
 Always display the image in original size: boolean
+-> not needed be because if all else is unselected this is the logical consequence and no scaling is applied
 
 Automatically switch between fitting width/height of the image and width only depending on ration between image and screen height: float
 Example: if set to 1.5 the image is fully fit to the screen when it is at most 50% longer than the screen. Otherwise only the width is fitted and the image length adjusted in proportion.

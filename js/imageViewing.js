@@ -55,7 +55,7 @@ function closeModal(forceClose) {
 	}
 	
 	if (!isSidebarVisible())
-		$('#sidebarOpenBtn').show();
+		$('.sidebar-open-button').show();
 	
 	$('body').css('overflow', 'auto');
 }

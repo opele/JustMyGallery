@@ -1,11 +1,14 @@
-function openSidebar() {
-  $('#sidebarOpenBtn').hide();
+
+function openSearchSidebar() {
+  $('.sidebar-open-button').hide();
+  $('#settingsSidebar').hide();
+  $('#searchAndFilterSidebar').show();
   document.getElementById("sidebar-container").style.left = "0px";
 }
 
 function closeSidebar() {
   document.getElementById("sidebar-container").style.left = "-250px";
-  $('#sidebarOpenBtn').show(500);
+  $('.sidebar-open-button').show(500);
 }
 
 function isSidebarVisible() {

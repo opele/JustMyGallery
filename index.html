@@ -197,10 +197,13 @@
 
     .sidebar-input-box {
       background-color: #a5b6c3;
-      position: absolute;
-      right: 5px;
-      width: 158px;
+      position: static;
+	  width:158px;
     }
+	
+	.sidebar-label {
+		margin-bottom: 0px;
+	}
 
     .sidebar-open-button {
       font-size: 30px;
@@ -256,7 +259,7 @@
 <body>
 
   <div id="sidebar-container" class="sidebar d-none d-md-block">
-    <ul class="list-group">
+    <ul id="searchAndFilterSidebar" class="list-group">
 
       <li class="list-group-item sidebar-separator-title text-muted d-flex align-items-center menu-collapsed">
         <small>Sorting</small>
@@ -265,7 +268,7 @@
         <div class="d-flex w-100 justify-content-start align-items-center">
           <div class="custom-control custom-switch">
             <input type="checkbox" class="custom-control-input" id="sortByDateDescSwitch">
-            <label class="custom-control-label" for="sortByDateDescSwitch">Newest first</label>
+            <label class="custom-control-label sidebar-label" for="sortByDateDescSwitch">Newest first</label>
           </div>
         </div>
       </a>
@@ -274,7 +277,7 @@
         <div class="d-flex w-100 justify-content-start align-items-center">
           <div class="custom-control custom-switch">
             <input type="checkbox" class="custom-control-input" id="sortByDateAscSwitch">
-            <label class="custom-control-label" for="sortByDateAscSwitch">Oldest first</label>
+            <label class="custom-control-label sidebar-label" for="sortByDateAscSwitch">Oldest first</label>
           </div>
         </div>
       </a>
@@ -283,7 +286,7 @@
         <div class="d-flex w-100 justify-content-start align-items-center">
           <div class="custom-control custom-switch">
             <input type="checkbox" class="custom-control-input" id="sortByNameSwitch">
-            <label class="custom-control-label" for="sortByNameSwitch">Alphabetical by Title</label>
+            <label class="custom-control-label sidebar-label" for="sortByNameSwitch">Alphabetical by Title</label>
           </div>
         </div>
       </a>
@@ -291,7 +294,7 @@
       <a id="sortByRatingButton" class="list-group-item list-group-item-action flex-column align-items-start bg-dark">
         <div class="d-flex w-100 justify-content-start align-items-center">
           <div class="custom-control custom-switch">
-            <input type="checkbox" class="custom-control-input" id="sortByRatingSwitch">
+            <input type="checkbox" class="custom-control-input sidebar-label" id="sortByRatingSwitch">
             <label class="custom-control-label" for="sortByRatingSwitch">Rated first</label>
           </div>
         </div>
@@ -304,27 +307,28 @@
       <!-- Title Filter -->
       <div class="list-group-item bg-dark" id="nameFilterContainer">
         <div class="d-flex w-100 justify-content-start align-items-center">
-          <label for="inputNameFilter">Title: </label>
-          <input type="text" id="inputNameFilter" class="sidebar-input-box" style='margin-left: 10px' data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='focus' title="Press Return Key to confirm">
+          <label for="inputNameFilter" class='sidebar-label' style="margin-right:33px">Title: </label>
+          <input type="text" id="inputNameFilter" class="sidebar-input-box"
+		  data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='focus' title="Press Return Key to confirm">
         </div>
       </div>
 
       <!-- Date Filter -->
       <div class="list-group-item bg-dark" id="dateFilterContainer">
         <div class="d-flex w-100 justify-content-start align-items-center">
-          <label for="inputDateFromFilter">From: </label>
-          <input type="date" id="inputDateFromFilter" class="sidebar-input-box" style='margin-left: 10px' onblur='filterByDateRange()' onchange='filterFromDateChanged()'>
+          <label for="inputDateFromFilter" class='sidebar-label' style="margin-right:30px">From: </label>
+          <input type="date" id="inputDateFromFilter" class="sidebar-input-box" onblur='filterByDateRange()' onchange='filterFromDateChanged()'>
         </div>
         <div class="d-flex w-100 justify-content-start align-items-center">
-          <label for="inputDateToFilter">To: </label>
-          <input type="date" id="inputDateToFilter" class="sidebar-input-box" style='margin-left: 28px' onblur='filterByDateRange()' onchange='filterToDateChanged()'>
+          <label for="inputDateToFilter" class='sidebar-label' style="margin-right:48px">To: </label>
+          <input type="date" id="inputDateToFilter" class="sidebar-input-box" onblur='filterByDateRange()' onchange='filterToDateChanged()'>
         </div>
       </div>
 
       <!-- Tags Filter -->
       <div class="list-group-item bg-dark" id="tagsFilterContainer">
         <div class="d-flex w-100 justify-content-start align-items-center">
-          <label for="tagsFilter" style='margin-right: 35px'>Tags: </label>
+          <label for="tagsFilter" class='sidebar-label' style='margin-right: 35px'>Tags: </label>
           <select id="tagsFilter" class="!sidebar-input-box selectpicker" multiple data-selected-text-format="count > 2" title="Nothing selected"></select>
         </div>
       </div>
@@ -332,7 +336,7 @@
       <!-- Category Filter -->
       <div class="list-group-item bg-dark" id="categoryFilterContainer">
         <div class="d-flex w-100 justify-content-start align-items-center">
-          <label for="categoryFilter" style='margin-right: 5px'>Category: </label>
+          <label for="categoryFilter" class='sidebar-label' style='margin-right: 5px'>Category: </label>
           <select id="categoryFilter" class="!sidebar-input-box selectpicker" title="Nothing selected" data-allow-clear="true"></select>
         </div>
       </div>
@@ -362,6 +366,92 @@
         </div>
       </a>
     </ul>
+	
+	<ul id="settingsSidebar" class="list-group">
+		<li class="list-group-item sidebar-separator-title text-muted d-flex align-items-center menu-collapsed">
+			<small>Image Width Options</small>
+		</li>
+		
+		 <div class="list-group-item bg-dark" id="imgWindowWidthRatioContainer">
+			<div class="d-flex w-100 justify-content-start align-items-center">
+			  <label class="sidebar-label" for="imgWindowWidthRatio">Image to Window Width: </label>
+			  <input type="text" id="imgWindowWidthRatio" class="sidebar-input-box" style='margin-left: 5px; width: 40px;' 
+				data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='focus' 
+				title="The initial scale of the image width in relation to the total browser window width, when entering full screen view">
+			</div>
+		</div>
+		
+		<a id="scaleUpImgWidthButton" class="list-group-item list-group-item-action flex-column align-items-start bg-dark">
+			<div class="d-flex w-100 justify-content-start align-items-center">
+			  <div class="custom-control custom-switch">
+				<label class="custom-control-label sidebar-label" for="scaleUpImgWidthSwitch">Scale Up Image Width</label>
+				<input type="checkbox" class="custom-control-input" id="scaleUpImgWidthSwitch" 
+				data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='focus' 
+				title="Allow to fit the image width to the browser window when the image is smaller than the screen">
+			  </div>
+			</div>
+		</a>
+		
+		<a id="scaleDownImgWidthButton" class="list-group-item list-group-item-action flex-column align-items-start bg-dark">
+			<div class="d-flex w-100 justify-content-start align-items-center">
+			  <div class="custom-control custom-switch">
+				<label class="custom-control-label sidebar-label" for="scaleDownImgWidthSwitch">Scale Down Image Width</label>
+				<input type="checkbox" class="custom-control-input" id="scaleDownImgWidthSwitch" 
+				data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='focus' 
+				title="Allow to fit the image width to the browser window when the image is larger than the screen">
+			  </div>
+			</div>
+		</a>
+		
+		
+		<li class="list-group-item sidebar-separator-title text-muted d-flex align-items-center menu-collapsed">
+			<small>Image Height Options</small>
+		</li>
+		
+		 <div class="list-group-item bg-dark" id="imgWindowHeightRatioContainer">
+			<div class="d-flex w-100 justify-content-start align-items-center">
+			  <label class="sidebar-label" for="imgWindowHeightRatio">Image to Window Height: </label>
+			  <input type="text" id="imgWindowHeightRatio" class="sidebar-input-box" style='margin-left: 5px; width: 40px;' 
+				data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='focus' 
+				title="The initial scale of the image height in relation to the total browser window height, when entering full screen view">
+			</div>
+		</div>
+		
+		<a id="scaleUpImgHeightButton" class="list-group-item list-group-item-action flex-column align-items-start bg-dark">
+			<div class="d-flex w-100 justify-content-start align-items-center">
+			  <div class="custom-control custom-switch">
+				<label class="custom-control-label sidebar-label" for="scaleUpImgHeightSwitch">Scale Up Image Height</label>
+				<input type="checkbox" class="custom-control-input" id="scaleUpImgHeightSwitch" 
+				data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='focus' 
+				title="Allow to fit the image height to the browser window when the image is smaller than the screen">
+			  </div>
+			</div>
+		</a>
+		
+		<a id="scaleDownImgHeightButton" class="list-group-item list-group-item-action flex-column align-items-start bg-dark">
+			<div class="d-flex w-100 justify-content-start align-items-center">
+			  <div class="custom-control custom-switch">
+				<label class="custom-control-label sidebar-label" for="scaleDownImgHeightSwitch">Scale Down Image Height</label>
+				<input type="checkbox" class="custom-control-input" id="scaleDownImgHeightSwitch" 
+				data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='focus' 
+				title="Allow to fit the image height to the browser window when the image is larger than the screen">
+			  </div>
+			</div>
+		</a>
+		
+		<li class="list-group-item sidebar-separator"></li>
+		<a id='closeSidebarBtn' onclick="closeSidebar()" tabindex="0"
+		 class="bg-dark list-group-item list-group-item-action d-flex align-items-center"
+		 data-toggle="tooltip" data-placement="bottom" data-delay='{"show":1500, "hide":200}'
+		 data-trigger='hover' title="Also closes with ESC key">
+
+			<div class="d-flex w-100 justify-content-start align-items-center">
+			  <span id="collapse-icon" class="fa fa-times mr-3"></span>
+			  <span id="collapse-text" class="sidebar-close">Close</span>
+			</div>
+		</a>
+	</ul>
+	
   </div><!-- sidebar-container END -->
 
   <div class="container">
@@ -379,11 +469,17 @@
     </div>
   </div>
 
-  <span id="sidebarOpenBtn" class="sidebar-open-button" onclick="openSidebar()"
+	<span id="searchSidebarOpenBtn" class="sidebar-open-button fa fa-search" onclick="openSearchSidebar()"
         data-toggle="tooltip" data-placement="right" data-delay='{"show":500, "hide":200}'
-        data-trigger='hover' title="Click to show sidebar or press the 1 key">&#9776;</span>
+        data-trigger='hover' title="Click to show search or press the 1 key"></span>  
+		
+		
+	<span id="settingsSidebarOpenBtn" class="sidebar-open-button fa fa-cog" style="top:100px" onclick="openSettingsSidebar()"
+        data-toggle="tooltip" data-placement="right" data-delay='{"show":500, "hide":200}'
+        data-trigger='hover' title="Click to show settings or press the 2 key"></span>
+  
 
-  <div class="gallery-container"></div>
+	<div class="gallery-container"></div>
 
 	<!-- The Modal Popup for the Image Detail View -->
 	<div id="myModal" class="modal" onclick="closeModal()">
@@ -427,7 +523,8 @@
   <script src="js/sorting.js"></script>
   <script src="js/userDefinedTags.js"></script>
   <script src="js/filtering.js"></script>
-  <script src="js/sidebar.js"></script>
+  <script src="js/searchAndFilterSidebar.js"></script>
+  <script src="js/settingsSidebar.js"></script>
   <script src="js/rating.js"></script>
   <script src="js/imageViewing.js"></script>
 

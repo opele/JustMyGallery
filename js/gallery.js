@@ -152,7 +152,7 @@ function Gallery(options) {
 		
 		imageData.thumbnail.get(0).onclick = function(){
 				
-				$('#sidebarOpenBtn').hide();
+				$('.sidebar-open-button').hide();
 				$('body').css('overflow', 'hidden');
 				
 				modal.style.display = "block";
