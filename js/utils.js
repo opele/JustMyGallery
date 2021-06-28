@@ -6,6 +6,10 @@ function isAlphanumeric(inputTxt) {
 	return /^[a-z0-9]+$/.test(inputTxt);
 }
 
+function isNumber(value) {
+  return typeof value === 'number' && isFinite(value);
+}
+
 function capitalise(str) {
 	return str.charAt(0).toUpperCase() + str.slice(1);
 }

@@ -57,8 +57,18 @@ var ratingEl;
 var predefinedTagsEl;
 var userDefinedTagsEl;
 
-var scaleImageHeight = true;
-var scaleImageWidth = true;
+var scaleUpImageHeight = true;
+var scaleUpImageWidth = true;
+var scaleDownImageWidth = true;
+var scaleDownImageHeight = true;
+// the image width is scaled to 75% of the screen width
+var optimalWidthRatio = 0.75;
+// the image height is scaled to 95% of the screen height
+var optimalHeightRatio = 0.95;
+// when image width is scaled down to fit the screen, the image must be more than twice as long to NOT scale height
+var scaleHeightRatioThreshold = 2;
+// only allow to scale up to 1.5x the original size
+var maxScale = 1.5;
 
 var preloadedImages = [];
 var numberOfPrevImgsToPreload = 1;
@@ -78,7 +88,8 @@ $(function() {
 	predefinedTagsEl = document.getElementById("predefinedTags");
 	userDefinedTagsEl = document.getElementById("myTags");
 	
-	initSidebar();
+	initSearchSidebar();
+	initSettingsSidebar();
 	
 	loadImages();
 });

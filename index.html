@@ -292,8 +292,8 @@
       <a id="sortByRatingButton" class="list-group-item list-group-item-action flex-column align-items-start bg-dark">
         <div class="d-flex w-100 justify-content-start align-items-center">
           <div class="custom-control custom-switch">
-            <input type="checkbox" class="custom-control-input sidebar-label" id="sortByRatingSwitch">
-            <label class="custom-control-label" for="sortByRatingSwitch">Rated first</label>
+            <input type="checkbox" class="custom-control-input" id="sortByRatingSwitch">
+            <label class="custom-control-label sidebar-label" for="sortByRatingSwitch">Rated first</label>
           </div>
         </div>
       </a>
@@ -373,30 +373,31 @@
 		 <div class="list-group-item bg-dark" id="imgWindowWidthRatioContainer">
 			<div class="d-flex w-100 justify-content-start align-items-center">
 			  <label class="sidebar-label" for="imgWindowWidthRatio">Image to Window Width: </label>
-			  <input type="text" id="imgWindowWidthRatio" class="sidebar-input-box" style='margin-left: 5px; width: 40px;' 
+			  <input type="text" id="imgWindowWidthRatio" onblur="updateOptimalWidthRatio()"
+				class="sidebar-input-box" style='margin-left: 5px; width: 40px;' 
 				data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='focus' 
 				title="The initial scale of the image width in relation to the total browser window width, when entering full screen view">
 			</div>
 		</div>
 		
-		<a id="scaleUpImgWidthButton" class="list-group-item list-group-item-action flex-column align-items-start bg-dark">
+		<a id="scaleUpImgWidthButton" class="list-group-item list-group-item-action flex-column align-items-start bg-dark" 
+					data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='hover' 
+					title="Allow to fit the image width to the browser window when the image is smaller than the screen">
 			<div class="d-flex w-100 justify-content-start align-items-center">
 			  <div class="custom-control custom-switch">
+				<input type="checkbox" class="custom-control-input" id="scaleUpImgWidthSwitch">
 				<label class="custom-control-label sidebar-label" for="scaleUpImgWidthSwitch">Scale Up Image Width</label>
-				<input type="checkbox" class="custom-control-input" id="scaleUpImgWidthSwitch" 
-				data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='focus' 
-				title="Allow to fit the image width to the browser window when the image is smaller than the screen">
 			  </div>
 			</div>
 		</a>
 		
-		<a id="scaleDownImgWidthButton" class="list-group-item list-group-item-action flex-column align-items-start bg-dark">
+		<a id="scaleDownImgWidthButton" class="list-group-item list-group-item-action flex-column align-items-start bg-dark" 
+					data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='hover' 
+					title="Allow to fit the image width to the browser window when the image is larger than the screen">
 			<div class="d-flex w-100 justify-content-start align-items-center">
 			  <div class="custom-control custom-switch">
+				<input type="checkbox" class="custom-control-input" id="scaleDownImgWidthSwitch">
 				<label class="custom-control-label sidebar-label" for="scaleDownImgWidthSwitch">Scale Down Image Width</label>
-				<input type="checkbox" class="custom-control-input" id="scaleDownImgWidthSwitch" 
-				data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='focus' 
-				title="Allow to fit the image width to the browser window when the image is larger than the screen">
 			  </div>
 			</div>
 		</a>
@@ -408,31 +409,32 @@
 		
 		 <div class="list-group-item bg-dark" id="imgWindowHeightRatioContainer">
 			<div class="d-flex w-100 justify-content-start align-items-center">
-			  <label class="sidebar-label" for="imgWindowHeightRatio">Image to Window Height: </label>
-			  <input type="text" id="imgWindowHeightRatio" class="sidebar-input-box" style='margin-left: 5px; width: 40px;' 
-				data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='focus' 
-				title="The initial scale of the image height in relation to the total browser window height, when entering full screen view">
+				<label class="sidebar-label" for="imgWindowHeightRatio">Image to Window Height: </label>
+				<input type="text" id="imgWindowHeightRatio" onblur="updateOptimalHeightRatio()"
+					class="sidebar-input-box" style='margin-left: 5px; width: 40px;' 
+					data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='focus' 
+					title="The initial scale of the image height in relation to the total browser window height, when entering full screen view">
 			</div>
 		</div>
 		
-		<a id="scaleUpImgHeightButton" class="list-group-item list-group-item-action flex-column align-items-start bg-dark">
+		<a id="scaleUpImgHeightButton" class="list-group-item list-group-item-action flex-column align-items-start bg-dark" 
+					data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='hover' 
+					title="Allow to fit the image height to the browser window when the image is smaller than the screen">
 			<div class="d-flex w-100 justify-content-start align-items-center">
 			  <div class="custom-control custom-switch">
+				<input type="checkbox" class="custom-control-input" id="scaleUpImgHeightSwitch">
 				<label class="custom-control-label sidebar-label" for="scaleUpImgHeightSwitch">Scale Up Image Height</label>
-				<input type="checkbox" class="custom-control-input" id="scaleUpImgHeightSwitch" 
-				data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='focus' 
-				title="Allow to fit the image height to the browser window when the image is smaller than the screen">
 			  </div>
 			</div>
 		</a>
 		
-		<a id="scaleDownImgHeightButton" class="list-group-item list-group-item-action flex-column align-items-start bg-dark">
+		<a id="scaleDownImgHeightButton" class="list-group-item list-group-item-action flex-column align-items-start bg-dark"
+					data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='hover' 
+					title="Allow to fit the image height to the browser window when the image is larger than the screen">
 			<div class="d-flex w-100 justify-content-start align-items-center">
 			  <div class="custom-control custom-switch">
+				<input type="checkbox" class="custom-control-input" id="scaleDownImgHeightSwitch">
 				<label class="custom-control-label sidebar-label" for="scaleDownImgHeightSwitch">Scale Down Image Height</label>
-				<input type="checkbox" class="custom-control-input" id="scaleDownImgHeightSwitch" 
-				data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='focus' 
-				title="Allow to fit the image height to the browser window when the image is larger than the screen">
 			  </div>
 			</div>
 		</a>

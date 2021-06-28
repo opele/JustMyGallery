@@ -33,7 +33,7 @@ function displayAsActive(isActive, element) {
 	}
 }
 
-function initSidebar() {
+function initSearchSidebar() {
 	
 	var currentFilterByName = null;
 	
