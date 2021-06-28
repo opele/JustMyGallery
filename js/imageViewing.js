@@ -92,33 +92,89 @@ function showImageSizeRange() {
 	modal.scrollTop = 0;
 	
 	let currentImg = modalImg;
+	let imgHeightExceedsWidth = currentImg.naturalHeight > currentImg.naturalWidth;
+	
 	let screenWidth = document.documentElement.clientWidth;
 	let optimalWidth = optimalWidthRatio * screenWidth;
 	let optimalScaleWidth = optimalWidth / currentImg.naturalWidth;
+	let imgWidthExceedsOptimal = optimalScaleWidth < 1;
+	let attemptScaleUpWidth = scaleUpImageWidth && !imgWidthExceedsOptimal;
+	let attemptScaleDownWidth = scaleDownImageWidth && imgWidthExceedsOptimal;
+	let attemptScaleWidth = attemptScaleUpWidth || attemptScaleDownWidth;
 	
 	let screenHeight = document.documentElement.clientHeight;
 	let optimalHeight = optimalHeightRatio * screenHeight;
 	let optimalScaleHeight = optimalHeight / currentImg.naturalHeight;
+	let imgHeightExceedsOptimal = optimalScaleHeight < 1;
+	let attemptScaleUpHeight = scaleUpImageHeight && !imgHeightExceedsOptimal;
+	let attemptScaleDownHeight = scaleDownImageHeight && imgHeightExceedsOptimal;
+	let attemptScaleHeight = attemptScaleUpHeight || attemptScaleDownHeight;
 	
-	// determine if the height should be fitted to the window size
+	// attempt to scale the image according to its longer side, meaning the other side falls into place since we are scaling uniformly
+	let scalingLongerSide = false;
 	let scaleHeight = false;
-	// check if enabled in options
-	if (scaleUpImageHeight) {
-		// evaluate if we should scale height at all, we don't want to shrink down very long images like webcomics
-		// 1. get the length of the image but AFTER we scaled to optimal width
-		let heightWithOptimalWidth = optimalScaleWidth * currentImg.naturalHeight;
-		// 2. get the ratio between this height to the screen height
-		let heightWithOptimalWidthWindowHeightRatio = heightWithOptimalWidth / screenHeight;
-		// 3. only scale height if we don't exceed our threshold
-		scaleHeight = scaleHeightRatioThreshold > heightWithOptimalWidthWindowHeightRatio;
+	let scaleWidth = false;
+	if (imgHeightExceedsWidth) {
+		if (attemptScaleHeight) {
+			// For comparing if the image height exceeds the configured height threshold,
+			// first factor out the width, so when the image is also wide we still scale down to perfect fit.
+			// However, fallback to the original height when width scaling is turned off.
+			let heightToCompare = currentImg.naturalHeight;
+			if (attemptScaleDownWidth) {
+				heightToCompare *= optimalScaleWidth;
+			}
+			// get the ratio between this image height to the screen height
+			let heightWindowRatio = heightToCompare / screenHeight;
+			// only scale height if we don't exceed our threshold
+			scaleHeight = scaleHeightRatioThreshold > heightWindowRatio;
+			scalingLongerSide = scaleHeight;
+		}
+	} else {
+		// the image is wider than high
+		if (attemptScaleWidth) {
+			// For comparing if the image width exceeds the configured width threshold,
+			// first factor out the height, so when the image is also tall we still scale down to perfect fit.
+			// However, fallback to the original width when height scaling is turned off.
+			let widthToCompare = currentImg.naturalWidth;
+			if (attemptScaleDownHeight) {
+				widthToCompare *= optimalScaleHeight;
+			}
+			// get the ratio between this image width to the screen width
+			let widthWindowRatio = widthToCompare / screenWidth;
+			// only scale width if we don't exceed our threshold
+			scaleWidth = scaleWidthRatioThreshold > widthWindowRatio;
+			scalingLongerSide = scaleWidth;
+		}
+	}
+	
+	if (!scalingLongerSide) {
+		// fallback scaling according to shorter side, so at least this side is fit to the screen size
+		if (imgHeightExceedsWidth) {
+			// attempt to scale width
+			if (attemptScaleWidth) {
+				let widthToCompare = currentImg.naturalWidth;
+				// get the ratio between this image width to the screen width
+				let widthWindowRatio = widthToCompare / screenWidth;
+				// only scale width if we don't exceed our threshold
+				scaleWidth = scaleWidthRatioThreshold > widthWindowRatio;
+			}
+			
+		} else {
+			// the image is wider than high
+			if (attemptScaleHeight) {
+				let heightToCompare = currentImg.naturalHeight;
+				// get the ratio between this image height to the screen height
+				let heightWindowRatio = heightToCompare / screenHeight;
+				// only scale height if we don't exceed our threshold
+				scaleHeight = scaleHeightRatioThreshold > heightWindowRatio;
+			}
+		}
 	}
 	
 	let optimalScale = 1.0;
-	if (scaleHeight && scaleUpImageWidth) {
-		optimalScale = Math.min(optimalScaleHeight, optimalScaleWidth);
-	} else if (scaleHeight) {
+	if (scaleHeight) {
 		optimalScale = optimalScaleHeight;
-	} else if (scaleUpImageWidth) {
+	} else if (scaleWidth) {
 		optimalScale = optimalScaleWidth;
 	}
 	 

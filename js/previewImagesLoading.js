@@ -61,14 +61,16 @@ var scaleUpImageHeight = true;
 var scaleUpImageWidth = true;
 var scaleDownImageWidth = true;
 var scaleDownImageHeight = true;
-// the image width is scaled to 75% of the screen width
-var optimalWidthRatio = 0.75;
+// the image width is scaled to 70% of the screen width
+var optimalWidthRatio = 0.7;
 // the image height is scaled to 95% of the screen height
 var optimalHeightRatio = 0.95;
-// when image width is scaled down to fit the screen, the image must be more than twice as long to NOT scale height
-var scaleHeightRatioThreshold = 2;
-// only allow to scale up to 1.5x the original size
-var maxScale = 1.5;
+// when image width is scaled down to fit the screen, the image must be more than 3x as tall than the screen to NOT scale height
+var scaleHeightRatioThreshold = 3;
+// when image height is scaled down to fit the screen, the image must be more than 3x as wide than the screen to NOT scale width
+var scaleWidthRatioThreshold = 3;
+// only allow to scale up to twice the original size (original size = slider in the middle)
+var maxScale = 2;
 
 var preloadedImages = [];
 var numberOfPrevImgsToPreload = 1;
