@@ -12,3 +12,13 @@ C:\Users\Elko\Documents\gallery\ImageFinder\obj\Debug\ImageFinder.csprojAssembly
 C:\Users\Elko\Documents\gallery\ImageFinder\obj\Debug\ImageFinder.csproj.CoreCompileInputs.cache
 C:\Users\Elko\Documents\gallery\ImageFinder\obj\Debug\ImageFinder.exe
 C:\Users\Elko\Documents\gallery\ImageFinder\obj\Debug\ImageFinder.pdb
+C:\Users\elko-\Documents\GitHub\Gallery\ImageFinder\bin\Debug\ImageFinder.exe.config
+C:\Users\elko-\Documents\GitHub\Gallery\ImageFinder\bin\Debug\ImageFinder.exe
+C:\Users\elko-\Documents\GitHub\Gallery\ImageFinder\bin\Debug\ImageFinder.pdb
+C:\Users\elko-\Documents\GitHub\Gallery\ImageFinder\obj\Debug\ImageFinder.csproj.AssemblyReference.cache
+C:\Users\elko-\Documents\GitHub\Gallery\ImageFinder\obj\Debug\ImageFinder.csproj.CoreCompileInputs.cache
+C:\Users\elko-\Documents\GitHub\Gallery\ImageFinder\obj\Debug\ImageFinder.exe
+C:\Users\elko-\Documents\GitHub\Gallery\ImageFinder\obj\Debug\ImageFinder.pdb
+C:\Users\elko-\Documents\GitHub\Gallery\ImageFinder\bin\Debug\Newtonsoft.Json.dll
+C:\Users\elko-\Documents\GitHub\Gallery\ImageFinder\bin\Debug\Newtonsoft.Json.xml
+C:\Users\elko-\Documents\GitHub\Gallery\ImageFinder\obj\Debug\ImageFinder.csproj.CopyComplete

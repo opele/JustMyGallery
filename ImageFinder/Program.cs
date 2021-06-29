@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -300,22 +301,20 @@ namespace ImageFinder {
                 categories = getCategories(outputPath);
             } catch (Exception e) { };
 
-            string line = $@"
-                    {{
-                        thumb: '{ImageUtil.getPreviewPath(outputPath)}',
-                        image: '{outputPath}',
-                        title: '{Path.GetFileName(outputPath)}',
-                        timestamp: '{ (long) createdAt.Subtract(new DateTime(1970, 1, 1, 0, 0, 0)).TotalMilliseconds}',
-                        creationDate: '{createdAt:G}',
-                        tags: '{tags ?? ""}',
-                        categories: '{categories}'
-                    }},";
+            Formatting format = minifyOutput ? Formatting.None : Formatting.Indented;
 
-            if (minifyOutput) {
-                line = Regex.Replace(line, @"\s", string.Empty);
-            }
+            string line = JsonConvert.SerializeObject(new
+            {
+                thumb = ImageUtil.getPreviewPath(outputPath),
+                image = outputPath,
+                title = Path.GetFileName(outputPath),
+                timestamp = new DateTimeOffset(createdAt).ToUnixTimeMilliseconds(),
+                createdDate = createdAt.ToString("G"),
+                tags = tags ?? "",
+                categories = categories
+            }, format);
 
-            return line;
+            return line + ",";
         }
 
         static string GetTagsFromFile(string imgPath) {
