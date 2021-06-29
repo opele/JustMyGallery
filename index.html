@@ -380,6 +380,16 @@
 			</div>
 		</div>
 		
+		<div class="list-group-item bg-dark" id="imgWidthRatioThresholdContainer">
+			<div class="d-flex w-100 justify-content-start align-items-center">
+			  <label class="sidebar-label" for="imgWidthRatioThreshold" style="margin-right:10px">Width Scale Threshold: </label>
+			  <input type="text" id="imgWidthRatioThreshold" onblur="updateWidthRatioThreshold()"
+				class="sidebar-input-box" style='margin-left: 5px; width: 40px;' 
+				data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='focus' 
+				title="If the image width exceeds the browser window width by this factor, do not scale it down">
+			</div>
+		</div>
+		
 		<a id="scaleUpImgWidthButton" class="list-group-item list-group-item-action flex-column align-items-start bg-dark" 
 					data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='hover' 
 					title="Allow the image width to determine the initial image scale when the image is smaller than the screen">
@@ -414,6 +424,16 @@
 					class="sidebar-input-box" style='margin-left: 5px; width: 40px;' 
 					data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='focus' 
 					title="The initial scale of the image height in relation to the total browser window height, when entering full screen view">
+			</div>
+		</div>
+		
+		<div class="list-group-item bg-dark" id="imgHeightRatioThresholdContainer">
+			<div class="d-flex w-100 justify-content-start align-items-center">
+			  <label class="sidebar-label" for="imgHeightRatioThreshold" style="margin-right:10px">Height Scale Threshold: </label>
+			  <input type="text" id="imgHeightRatioThreshold" onblur="updateHeightRatioThreshold()"
+				class="sidebar-input-box" style='margin-left: 5px; width: 40px;' 
+				data-toggle="tooltip" data-placement="bottom" data-delay='{"show":500, "hide":500}' data-trigger='focus' 
+				title="If the image height exceeds the browser window height by this factor, do not scale it down">
 			</div>
 		</div>
 		

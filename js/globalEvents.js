@@ -29,9 +29,11 @@
 				if (event.key == 'Escape') {
 					closeSidebar();
 				
-				} else if (event.key == '1') {
+				} else if (event.key == '1' && !isSidebarVisible()) {
+					// when the sidebar is already visible, this prevents switching between the different sidebars
+					// this is a problem when typing numbers into an input field
 					openSearchSidebar();
-				} else if (event.key == '2') {
+				} else if (event.key == '2' && !isSidebarVisible()) {
 					openSettingsSidebar();
 				}
 			}
