@@ -45,6 +45,17 @@ function arraysEqual(a, b) {
   return true;
 }
 
+function activeElementHasClass(clsName) {
+	return document.activeElement != null &&
+	  document.activeElement.className != null && 
+	  document.activeElement.className.includes(clsName);
+}
+
+function activeElementHasId(id) {
+	return document.activeElement != null &&
+	  document.activeElement.id == id;
+}
+
 function store(key, value) {
 	if (isLocalStorageAccepted()) {
 		localStorage.setItem(key, value);

@@ -151,23 +151,8 @@ function Gallery(options) {
 	self.addModalViewOnClick = function (imageData) {
 		
 		imageData.thumbnail.get(0).onclick = function(){
-				
-				$('.sidebar-open-button').hide();
-				$('body').css('overflow', 'hidden');
-				
-				modal.style.display = "block";
-				modalImg.src = imageData.image;
-				captionText.innerHTML = imageData.title;
-				currentImageIndex = imageData.index;
-				
-				displayRating(imageData.image);
-				displayTags(imageData);
-				
-				modalImg.onload = function() {
-					// we need the width and height loaded before sizing the image
-					showImageSizeRange();
-					preloadImages();
-				}
+			
+				openImgDetailsView(imageData.index);
 			}
 	};
 

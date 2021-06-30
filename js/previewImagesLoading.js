@@ -56,6 +56,8 @@ var captionText;
 var ratingEl;
 var predefinedTagsEl;
 var userDefinedTagsEl;
+var modalNavCurrentEl;
+var modalNavMaxEl;
 
 var scaleUpImageHeight = true;
 var scaleUpImageWidth = true;
@@ -89,6 +91,8 @@ $(function() {
 	ratingEl = document.getElementById("rating");
 	predefinedTagsEl = document.getElementById("predefinedTags");
 	userDefinedTagsEl = document.getElementById("myTags");
+	modalNavCurrentEl = document.getElementById("modalNavCurrent");
+	modalNavMaxEl = document.getElementById("modalNavMax");
 	
 	initSearchSidebar();
 	initSettingsSidebar();

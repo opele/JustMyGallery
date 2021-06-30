@@ -1,3 +1,4 @@
+
 function displayRating(imageSrc) {
 
 	var rateEl = $(ratingEl);

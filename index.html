@@ -126,6 +126,19 @@
 	
 	
 	/* modal components */
+	
+	#modalNav {
+		top: 5%;
+		right: 5%;
+		position: fixed;
+		z-index: 5;
+		mix-blend-mode: luminosity;
+	}
+	
+	#modalNavCurrent {
+		width:40px;
+		opacity:45%;
+	}
 
     .image-size-range {
       top: 5%;
@@ -503,6 +516,12 @@
 
 	<!-- The Modal Popup for the Image Detail View -->
 	<div id="imageModal" class="modal" onclick="closeModal()">
+	  <div id="modalNav">
+		<label for="modalNavCurrent">Showing </label>
+		<input id="modalNavCurrent" type="text"/>
+		<span> of </span>
+		<span id="modalNavMax"></span>
+	  </div>
 	  <span class="next" onclick="navigateToNext(event)">&rarr;</span>
 	  <span class="previous" onclick="navigateToPrevious(event)">&larr;</span>
 	  <img class="modal-content" id="modalImg">

@@ -4,14 +4,6 @@ Gallery Website Dev Notes
 
 TODO:
 
-
-remove an image when a tag was removed which is filtered for when closing the details view
-	appy filter function on previously opened image
-
-issue: when going forward in details view need to add loading for preview images
-
-preload the next and previous x full sized images when in detailed view
-
 when opening details image need a loading animation instead of showing the previous image
 	requires testing with non cached images which load with a latency
 
@@ -24,6 +16,7 @@ center small images if scaling down or scaling is disabled
 - multithreading c# app for previewimage generaion
 
 
+---
 bookmarks
 usecase: comic uploaded with 500 pages and user wants continue on page 300 without scrolling down loading all the 300 preview images
 add another 'sidebar' button with a bookmarks icon
@@ -56,59 +49,20 @@ Galleria.get(0).splice(0,0, ...imagesToLoad.slice(start, end));
 
 
 
-settings:
--- for image details view --
 
-Initial Image Width Scale
-Setting for optimal width with lower and upper bound: integer
+----
+to consider:
 
-Initial Image Height Scale
-- lower and upper bound
+when going forward in details view, add loading for preview images
+- adjust scroll position, i.e. programatically trigger scrolling
+- add a flag that toggles this behaviour (add to settings?)
+- usecase?
 
-
-Scale Up Image Width
-Fit the image to the screen when too small: boolean
-Fit the image to the screen when too big
-
-Scale Down Image Width
-Display image in optimal width when too big: boolean
-Fit the image to the screen when too big
-
-Scale Down Threshold
-If the image width is bigger than X times the browser window width, then don't scale it down to fit the screen. For instance, webcomics read from left to right would be unreadable if scaled down too much.
-
-Repeat above 3 options for the Height
-
-
-
-Always display the image in original size: boolean
--> not needed be because if all else is unselected this is the logical consequence and no scaling is applied
-
-Automatically switch between fitting width/height of the image and width only depending on ration between image and screen height: float
-Example: if set to 1.5 the image is fully fit to the screen when it is at most 50% longer than the screen. Otherwise only the width is fitted and the image length adjusted in proportion.
--> the ratio applies AFTER scaling down to optimal width
--> this also enables the 'fit if too small option'
-
-
-Other setting:
+Settings:
 
 Show image title
 Show rating
 Show 'My Tags'
-
-
-
-
-experimental: 
-preview image width?
-would need to change the app to allow a different width
--> should not be changed by user because the user would not be able to change the actual image size (avoid scaling for perfromance)
-
-
-
-
-
-
 
 
 

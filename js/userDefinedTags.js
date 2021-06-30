@@ -3,14 +3,14 @@
 var myTagsPrefix = '&nbsp;&nbsp;&nbsp;&nbsp;My Tags:&nbsp;';
 var myTagEmptyHtml = '<span class="my-tag" contenteditable=true>&nbsp;&nbsp;&nbsp;&nbsp</span>';
 
-function displayTags(currentImgData) {
+function displayTags(tags) {
 
 	var tagsEl = $(predefinedTagsEl);
 	tagsEl.html("");
 	
-	if (currentImgData && currentImgData.tags) {
+	if (tags) {
 		// padding does not work because it inlines the tags with the previous div
-		tagsEl.html("&nbsp;&nbsp;&nbsp;&nbsp;Tags: " + currentImgData.tags.replaceAll(',', ', '));
+		tagsEl.html("&nbsp;&nbsp;&nbsp;&nbsp;Tags: " + tags.replaceAll(',', ', '));
 	}
 	
 	if (isLocalStorageAccepted()) {
@@ -115,7 +115,5 @@ function myTagKeydown(event) {
 }
 
 function isEditingTags() {
-	return document.activeElement != null &&
-	  document.activeElement.className != null && 
-	  document.activeElement.className.includes('my-tag');
+	return activeElementHasClass('my-tag');
 }

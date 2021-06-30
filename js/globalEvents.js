@@ -4,7 +4,7 @@
 		 // use keydown instead of keypress which also catches non-printing keys such as Shift, Esc...
 		$(window).keydown(function( event ) {
 		
-			if (isViewingImage() && !isEditingTags()) { // single image mode
+			if (isViewingImage() && !isEditingModalComponent()) { // single image mode
 				// enable rating with number keys 1 to 5
 				processKeyEvtForRating(event);
 				
@@ -42,7 +42,7 @@
 		
 		// TODO
 		$(window).on("mousewheel DOMMouseScroll", function(event) {
-			if (isViewingImage() && !isEditingTags()) {
+			if (isViewingImage() && !isEditingModalComponent()) {
 				resizeImage(event);
 				// return false; // causes warning as listerner is registered as passive
 			}

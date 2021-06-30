@@ -1,20 +1,26 @@
 
 /* SHOW IMAGE IN ORIGINAL SIZE */
 
-
-function resizeImage(event) {
-
-	//event.preventDefault();
+function openImgDetailsView(imgIndex) {
 	
-	if (event.shiftKey) {
-		// change image size
-		var range = $("#imageSizeRange");
-		if (range.length) {
-			var delta = event.originalEvent.wheelDelta/120 || -event.originalEvent.detail/3;
-			range.val(range.val() - delta*0.04);
-			range.change();
-		}
-		
+	$('.sidebar-open-button').hide();
+	$('body').css('overflow', 'hidden');
+	
+	let imageData = imagesToLoad[imgIndex];
+	modal.style.display = "block";
+	modalImg.src = imageData.image;
+	captionText.innerHTML = imageData.title;
+	currentImageIndex = imgIndex;
+	
+	displayRating(imageData.image);
+	displayTags(imageData.tags);
+	updateModalNav();
+	
+	// this callback actually only needs to be set once
+	modalImg.onload = function() {
+		// we need the width and height loaded before sizing the image
+		showImageSizeRange();
+		preloadImages();
 	}
 }
 
@@ -23,67 +29,21 @@ function navigateToPrevious(event) {
     if (event) event.stopPropagation();
     
     if (currentImageIndex > 0) {
-        currentImageIndex -= 1;
-		let prevImgData = imagesToLoad[currentImageIndex];
-        modalImg.src = prevImgData.image;
-        captionText.innerHTML = prevImgData.title;
+		openImgDetailsView(currentImageIndex - 1);
     }
 }
-
 
 function navigateToNext(event) {
     if (event) event.stopPropagation();
     
     if (currentImageIndex < imagesToLoad.length - 1) {
-        currentImageIndex += 1;
-		let nextImgData = imagesToLoad[currentImageIndex];
-        modalImg.src = nextImgData.image;
-        captionText.innerHTML = nextImgData.title;
+		openImgDetailsView(currentImageIndex + 1);
     }
 }
 
-function closeModal(forceClose) {
-	
-	if (!forceClose && isEditingTags()) return;
-	
-    modal.style.display = "none";
-	
-	hideImageSizeRange();
-	if (customTagsDirty) {
-		refreshSelectableTags();
-		maybeRemovePreviewImg();
-	}
-	
-	if (!isSidebarVisible())
-		$('.sidebar-open-button').show();
-	
-	$('body').css('overflow', 'auto');
-}
-
-// if a tag was removed, the image may not pass the currently selected filter criteria anymore
-function maybeRemovePreviewImg() {
-	// this is a nice to have self contained functionality, so an error should not impact other features
-	try {
-		let currImgData = imagesToLoad[currentImageIndex];
-		// double check we got the right image
-		if (currImgData && gallery.images[currentImageIndex] && currImgData.image === gallery.images[currentImageIndex].image) {
-			if (!filterFunction([currImgData]).length) {
-				gallery.remove(currentImageIndex, 1);
-				imagesToLoad.splice(currentImageIndex, 1);
-				updateImgCountDisplay();
-			}
-		}
-	} catch (e) {
-		console.error('Failed to remove preview image after deleting a tag:');
-		console.error(e, e.stack);
-	}
-}
-
-function hideImageSizeRange() {
-	var range = $("#imageSizeRange");
-	if (range.length) {
-		range.css('display','none');
-	}
+function updateModalNav() {
+	modalNavCurrentEl.value = currentImageIndex + 1;
+	modalNavMaxEl.textContent = imagesToLoad.length;
 }
 
 function showImageSizeRange() {
@@ -207,6 +167,22 @@ function applyScaleToImg(scale, currentImg) {
 	currentImg.height = newHeight;
 }
 
+function resizeImage(event) {
+
+	//event.preventDefault();
+	
+	if (event.shiftKey) {
+		// change image size
+		var range = $("#imageSizeRange");
+		if (range.length) {
+			var delta = event.originalEvent.wheelDelta/120 || -event.originalEvent.detail/3;
+			range.val(range.val() - delta*0.04);
+			range.change();
+		}
+		
+	}
+}
+
 function preloadImages() {
 	preloadNextImages();
 	preloadPreviousImages();
@@ -236,4 +212,70 @@ function preloadPreviousImages() {
         preloadedImages[start + i] = new Image();
         preloadedImages[start + i].src = imagesToLoad[prevImgInx].image;
     }
+}
+
+$(function() {
+	$(modalNavCurrentEl).on('keydown', function(e) {
+	  if (event.key == 'Enter') {
+		event.preventDefault();
+		let newImgInx = Number(modalNavCurrentEl.value);
+		if (isNumber(newImgInx) && Number.isInteger(newImgInx) && newImgInx > 0 && newImgInx <= imagesToLoad.length) {
+			openImgDetailsView(--newImgInx);
+		}
+		e.target.blur();
+	  }
+	});
+})
+
+
+function closeModal(forceClose) {
+	
+	if (!forceClose && isEditingModalComponent()) return;
+	
+    modal.style.display = "none";
+	
+	hideImageSizeRange();
+	if (customTagsDirty) {
+		refreshSelectableTags();
+		maybeRemovePreviewImg();
+	}
+	
+	if (!isSidebarVisible())
+		$('.sidebar-open-button').show();
+	
+	$('body').css('overflow', 'auto');
+}
+
+function isEditingModalComponent() {
+	return isEditingNav() || isEditingTags();
+}
+
+function isEditingNav() {
+	return activeElementHasId('modalNavCurrent');
+}
+
+// if a tag was removed, the image may not pass the currently selected filter criteria anymore
+function maybeRemovePreviewImg() {
+	// this is a nice to have self contained functionality, so an error should not impact other features
+	try {
+		let currImgData = imagesToLoad[currentImageIndex];
+		// double check we got the right image
+		if (currImgData && gallery.images[currentImageIndex] && currImgData.image === gallery.images[currentImageIndex].image) {
+			if (!filterFunction([currImgData]).length) {
+				gallery.remove(currentImageIndex, 1);
+				imagesToLoad.splice(currentImageIndex, 1);
+				updateImgCountDisplay();
+			}
+		}
+	} catch (e) {
+		console.error('Failed to remove preview image after deleting a tag:');
+		console.error(e, e.stack);
+	}
+}
+
+function hideImageSizeRange() {
+	var range = $("#imageSizeRange");
+	if (range.length) {
+		range.css('display','none');
+	}
 }
