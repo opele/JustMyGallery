@@ -178,8 +178,12 @@ function loadSettingsFromStorage() {
 	if (isNumber(storedNumber) && storedNumber > 0) {
 		scaleWidthRatioThreshold = storedNumber;
 	}
-	scaleUpImageWidth = localStorage.getItem('scaleUpImageWidth') == 'true';
-	scaleDownImageWidth = localStorage.getItem('scaleDownImageWidth') == 'true';
+	if (localStorage.getItem('scaleUpImageWidth') !== null) {
+		scaleUpImageWidth = localStorage.getItem('scaleUpImageWidth') == 'true';
+	}
+	if (localStorage.getItem('scaleDownImageWidth') !== null) {
+		scaleDownImageWidth = localStorage.getItem('scaleDownImageWidth') == 'true';
+	}
 	
 	storedNumber = Number(localStorage.getItem('optimalHeightRatio'));
 	if (isNumber(storedNumber) && storedNumber > 0) {
@@ -189,7 +193,11 @@ function loadSettingsFromStorage() {
 	if (isNumber(storedNumber) && storedNumber > 0) {
 		scaleHeightRatioThreshold = storedNumber;
 	}
-	scaleUpImageHeight = localStorage.getItem('scaleUpImageHeight') == 'true';
-	scaleDownImageHeight = localStorage.getItem('scaleDownImageHeight') == 'true';
+	if (localStorage.getItem('scaleUpImageHeight') !== null) {
+		scaleUpImageHeight = localStorage.getItem('scaleUpImageHeight') == 'true';
+	}
+	if (localStorage.getItem('scaleDownImageHeight') !== null) {
+		scaleDownImageHeight = localStorage.getItem('scaleDownImageHeight') == 'true';
+	}
 }
 
