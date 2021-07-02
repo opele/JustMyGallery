@@ -37,12 +37,70 @@
 	.gallery-thumb:hover {opacity: 0.7;}
 	
 	
+	/* The Bookmarks List Modal */
+	#bookmarksHeader {
+		text-align: center;
+		margin: auto;
+	    display: block;
+	    width: 80%;
+	}
+	
+	.bookmarks-row {
+	  margin: auto;
+	  width: 80%;
+	  /* border: 3px solid green; */
+	  padding: 10px;
+	  display: flex;
+	  flex-wrap: wrap;
+	  padding: 0 4px;
+	}
+	
+	.bookmarks-column {
+	  flex: 16%;
+	  max-width: 16%;
+	  padding: 0 8px;
+	}
+	
+	.bookmarks-column img {
+	  margin-top: 20px;
+	  vertical-align: middle;
+	  width: 100%;
+	  transition: all 0.5s;
+	  cursor: pointer;
+	}
+	
+	.bookmarks-column img:hover {opacity: 0.7; transform: scale(1.1);}
+	
+	/* Responsive layout - makes a four column-layout instead of six columns */
+	@media screen and (max-width: 1200px) {
+		.bookmarks-column {
+			flex: 25%;
+			max-width: 25%;
+		}
+	}
+	
+	/* Responsive layout - makes a two column-layout instead of four columns */
+	@media screen and (max-width: 800px) {
+		.bookmarks-column {
+			flex: 50%;
+			max-width: 50%;
+		}
+	}
+	
+	/* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
+	@media screen and (max-width: 600px) {
+	  .bookmarks-column {
+		flex: 100%;
+		max-width: 100%;
+	  }
+	}
+	
 	
 	/* The Modal (background) */
 	.modal {
 	  display: none; /* Hidden by default */
 	  position: fixed; /* Stay in place */
-	  z-index: 1; /* Sit on top */
+	  z-index: 2; /* Sit on top */
 	  padding-top: 10px; /* Location of the box */
 	  left: 0;
 	  top: 0;
@@ -101,7 +159,7 @@
 	  font-size: 40px;
 	  font-weight: bold;
 	  transition: 0.3s;
-	  z-index: 2;
+	  z-index: 3;
 	}
 
 	.previous {
@@ -222,7 +280,7 @@
       position: fixed;
       left: 10px;
       top: 50px;
-      z-index: 5;
+      z-index: 1;
     }
 
     .sidebar-close {
@@ -506,7 +564,7 @@
         data-toggle="tooltip" data-placement="right" data-delay='{"show":500, "hide":200}'
         data-trigger='hover' title="Click to show search or press the 1 key"></span>  
 	
-	<span id="bookmarksOpenBtn" class="sidebar-open-button fa fa-bookmark" style="top:100px" onclick=""
+	<span id="bookmarksOpenBtn" class="sidebar-open-button fa fa-bookmark" style="top:100px" onclick="openBookmarksModal()"
         data-toggle="tooltip" data-placement="right" data-delay='{"show":500, "hide":200}'
         data-trigger='hover' title="Click to show bookmarks or press the 2 key"></span>
 	
@@ -518,7 +576,7 @@
 	<div class="gallery-container"></div>
 
 	<!-- The Modal Popup for the Image Detail View -->
-	<div id="imageModal" class="modal" onclick="closeModal()">
+	<div id="imageModal" class="modal" onclick="closeImageView()">
 	  <div id="modalNav">
 		<label for="modalNavCurrent">Showing </label>
 		<input id="modalNavCurrent" type="text"/>
@@ -538,6 +596,63 @@
 	  </div>
 	  <div id="predefinedTags" class="predefined-tags"></div>
 	  <div id="myTags" class="my-tags"></div>
+	</div>
+	
+	<!-- The Modal Popup for the Bookmarks List View -->
+	<div id="bookmarksModal" class="modal" onclick="closeBookmarksModal()">
+		<h1 id="bookmarksHeader" class="display-3">Bookmarks</h1>
+		<div class="bookmarks-row">
+		  <div class="bookmarks-column">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+		  </div>
+		  <div class="bookmarks-column">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+		  </div>  
+		  <div class="bookmarks-column">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+		  </div>
+		  <div class="bookmarks-column">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+		  </div>
+		  <div class="bookmarks-column">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+		  </div>
+		  <div class="bookmarks-column">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+			<img src="images/jeremy-bishop-PmQb16W6KRc-unsplashPreview230px.jpg" style="width:100%">
+		  </div>
+		</div>
 	</div>
 
 
@@ -569,6 +684,7 @@
   <script src="js/settingsSidebar.js"></script>
   <script src="js/rating.js"></script>
   <script src="js/imageViewing.js"></script>
+  <script src="js/bookmarks.js"></script>
 
   <!-- for prod
   <script src="js/combined.min.js"></script> -->

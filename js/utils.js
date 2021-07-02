@@ -24,6 +24,10 @@ function isViewingImage() {
 	return modal.style.display == "block";
 }
 
+function isViewingBookmarks() {
+	return bookmarksModalEl.style.display == "block";
+}
+
 function getCurrentlyViewedImg() {
 	if (isViewingImage()) return modalImg;
 }

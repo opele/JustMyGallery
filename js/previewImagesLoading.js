@@ -59,6 +59,8 @@ var userDefinedTagsEl;
 var modalNavCurrentEl;
 var modalNavMaxEl;
 
+var bookmarksModalEl;
+
 var scaleUpImageHeight = true;
 var scaleUpImageWidth = true;
 var scaleDownImageWidth = true;
@@ -93,6 +95,8 @@ $(function() {
 	userDefinedTagsEl = document.getElementById("myTags");
 	modalNavCurrentEl = document.getElementById("modalNavCurrent");
 	modalNavMaxEl = document.getElementById("modalNavMax");
+	
+	bookmarksModalEl = document.getElementById("bookmarksModal");
 	
 	initSearchSidebar();
 	initSettingsSidebar();

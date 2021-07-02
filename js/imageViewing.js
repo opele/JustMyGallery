@@ -228,7 +228,7 @@ $(function() {
 })
 
 
-function closeModal(forceClose) {
+function closeImageView(forceClose) {
 	
 	if (!forceClose && isEditingModalComponent()) return;
 	

@@ -15,7 +15,7 @@
 				  navigateToNext(null);
 				  
 				} else if (event.key == "Escape") {
-				  closeModal(true);
+				  closeImageView(true);
 				  
 				} else if (event.key == "ArrowUp") {
 					modal.scrollTop -= 20;
@@ -27,7 +27,11 @@
 			} else if (!isViewingImage()) { // displaying gallery with preview images
 			
 				if (event.key == 'Escape') {
-					closeSidebar();
+					if (isViewingBookmarks()) {
+						closeBookmarksModal();
+					} else {
+						closeSidebar();
+					}
 				
 				} else if (event.key == '1' && !isSidebarVisible()) {
 					// when the sidebar is already visible, this prevents switching between the different sidebars
