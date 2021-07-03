@@ -219,7 +219,7 @@ $(function() {
 	  if (event.key == 'Enter') {
 		event.preventDefault();
 		let newImgInx = Number(modalNavCurrentEl.value);
-		if (isNumber(newImgInx) && Number.isInteger(newImgInx) && newImgInx > 0 && newImgInx <= imagesToLoad.length) {
+		if (isNumber(newImgInx) && Number.isInteger(newImgInx) && newImgInx > 0 && newImgInx <= imagesToLoad.length && (newImgInx - 1) != currentImageIndex) {
 			openImgDetailsView(--newImgInx);
 		}
 		e.target.blur();

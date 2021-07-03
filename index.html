@@ -95,6 +95,15 @@
 	  }
 	}
 	
+	#addBookmark {
+		top: 2%;
+		right: 1.5%;
+		position: fixed;
+		z-index: 5;
+	}
+	
+	#addBookmark:hover {opacity: 0.7; transform: scale(1.1);}
+	
 	
 	/* The Modal (background) */
 	.modal {
@@ -186,8 +195,8 @@
 	/* modal components */
 	
 	#modalNav {
-		top: 5%;
-		right: 5%;
+		bottom: 2%;
+		right: 3%;
 		position: fixed;
 		z-index: 5;
 		mix-blend-mode: luminosity;
@@ -583,6 +592,7 @@
 		<span> of </span>
 		<span id="modalNavMax"></span>
 	  </div>
+	  <span id="addBookmark" class="fa fa-bookmark-o fa-2x" onclick="addBookmark(event)"></span>
 	  <span class="next" onclick="navigateToNext(event)">&rarr;</span>
 	  <span class="previous" onclick="navigateToPrevious(event)">&larr;</span>
 	  <img class="modal-content" id="modalImg">

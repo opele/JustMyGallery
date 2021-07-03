@@ -6,3 +6,8 @@ function openBookmarksModal() {
 function closeBookmarksModal() {
 	$(bookmarksModalEl).hide();
 }
+
+function addBookmark(event) {
+	event.stopPropagation();
+}
+
