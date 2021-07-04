@@ -15,6 +15,7 @@ function openImgDetailsView(imgIndex) {
 	displayRating(imageData.image);
 	displayTags(imageData.tags);
 	updateModalNav();
+	updateBookmarkOnImageDetailView(imageData.image);
 	
 	// this callback actually only needs to be set once
 	modalImg.onload = function() {

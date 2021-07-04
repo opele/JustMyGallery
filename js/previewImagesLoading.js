@@ -58,6 +58,7 @@ var predefinedTagsEl;
 var userDefinedTagsEl;
 var modalNavCurrentEl;
 var modalNavMaxEl;
+var addBookmarkEl;
 
 var bookmarksModalEl;
 
@@ -95,6 +96,7 @@ $(function() {
 	userDefinedTagsEl = document.getElementById("myTags");
 	modalNavCurrentEl = document.getElementById("modalNavCurrent");
 	modalNavMaxEl = document.getElementById("modalNavMax");
+	addBookmarkEl = document.getElementById("addBookmark");
 	
 	bookmarksModalEl = document.getElementById("bookmarksModal");
 	
