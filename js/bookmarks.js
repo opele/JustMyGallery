@@ -1,5 +1,6 @@
 
 function openBookmarksModal() {
+	loadBookmarksView();
 	$(bookmarksModalEl).show();
 }
 
@@ -7,9 +8,22 @@ function closeBookmarksModal() {
 	$(bookmarksModalEl).hide();
 }
 
+function loadBookmarksView() {
+	let columns = Array.from(bookmarksListEl.childNodes).filter(cn => cn.className == 'bookmarks-column');
+	let bookmarksArr = getBookmarks();
+	
+	columns.forEach(c => c.innerHTML = "");
+	
+	bookmarksArr.forEach((bm, index) => {
+		$(columns[index % columns.length]).append('<img src="' + bm + '" style="width:100%">');
+	});
+}
+
+
+/* Image Fullscreen Modal */
 function updateBookmarkOnImageDetailView(imageSrc) {
-	let bookmarksVal = getBookmarks();
-	let bookmark = bookmarksVal.find(el => el == imageSrc);
+	let bookmarksArr = getBookmarks();
+	let bookmark = bookmarksArr.find(el => el == imageSrc);
 	
 	if (bookmark != null) {
 		$(addBookmarkEl).removeClass('fa-bookmark-o');
@@ -19,34 +33,33 @@ function updateBookmarkOnImageDetailView(imageSrc) {
 		$(addBookmarkEl).addClass('fa-bookmark-o');
 	}
 }
-	
 
 function toggleBookmark(event) {
 	event.stopPropagation();
 	
 	let imgSrc = imagesToLoad[currentImageIndex].image;
-	let bookmarksVal = getBookmarks();
-	let bookmark = bookmarksVal.find(el => el == imgSrc);
+	let bookmarksArr = getBookmarks();
+	let bookmark = bookmarksArr.find(el => el == imgSrc);
 	
 	if (bookmark != null) {
-		bookmarksVal = bookmarksVal.filter(item => item !== imgSrc);
+		bookmarksArr = bookmarksArr.filter(item => item !== imgSrc);
 	} else {
-		bookmarksVal.push(imgSrc);
+		bookmarksArr.push(imgSrc);
 	}
 	
-	store("bookmarks", JSON.stringify(bookmarksVal));
+	store("bookmarks", JSON.stringify(bookmarksArr));
 	
 	updateBookmarkOnImageDetailView(imgSrc);
 }
 
 function getBookmarks() {
 	let existingData = localStorage.getItem("bookmarks");
-	try { var bookmarksVal = JSON.parse(existingData); } catch(ex){}
+	try { var bookmarksArr = JSON.parse(existingData); } catch(ex){}
 	
-	if (existingData == null || bookmarksVal == null) {
-		bookmarksVal = JSON.parse('[]');
+	if (existingData == null || bookmarksArr == null) {
+		bookmarksArr = JSON.parse('[]');
 	}
 	
-	return bookmarksVal;
+	return bookmarksArr;
 }
 

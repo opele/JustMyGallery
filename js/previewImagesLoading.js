@@ -61,6 +61,7 @@ var modalNavMaxEl;
 var addBookmarkEl;
 
 var bookmarksModalEl;
+var bookmarksListEl;
 
 var scaleUpImageHeight = true;
 var scaleUpImageWidth = true;
@@ -99,6 +100,7 @@ $(function() {
 	addBookmarkEl = document.getElementById("addBookmark");
 	
 	bookmarksModalEl = document.getElementById("bookmarksModal");
+	bookmarksListEl = document.getElementById("bookmarksList");
 	
 	initSearchSidebar();
 	initSettingsSidebar();
