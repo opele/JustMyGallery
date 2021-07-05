@@ -14,9 +14,23 @@ function loadBookmarksView() {
 	
 	columns.forEach(c => c.innerHTML = "");
 	
+	// TODO: find in imagesToLoad and use preview image (also change loadBookmark(..))
+	// if not found, lower opactity and add overlay text: Filtered Out https://www.w3schools.com/howto/howto_css_image_text.asp
 	bookmarksArr.forEach((bm, index) => {
-		$(columns[index % columns.length]).append('<img src="' + bm + '" style="width:100%">');
+		$(columns[index % columns.length]).append('<img src="' + bm + '" style="width:100%" onclick="loadBookmark(event)">');
 	});
+}
+
+function loadBookmark(event) {
+	event.stopPropagation();
+	
+	let imgSrc = event.target.getAttribute('src');
+	let imgIdx = imagesToLoad.findIndex(i => i.image == imgSrc);
+	
+	if (imgIdx >= 0) {
+		closeBookmarksModal();
+		openImgDetailsView(imgIdx);
+	}
 }
 
 

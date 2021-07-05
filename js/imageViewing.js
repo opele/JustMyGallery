@@ -3,6 +3,13 @@
 
 function openImgDetailsView(imgIndex) {
 	
+	let isValid = isNumber(imgIndex) && Number.isInteger(imgIndex) && imgIndex >= 0 && imgIndex <= imagesToLoad.length;
+	
+	if (!isValid) {
+		console.log("Warning: ignoring invalid image index: " + imgIndex);
+		return;
+	}
+	
 	$('.sidebar-open-button').hide();
 	$('body').css('overflow', 'hidden');
 	
