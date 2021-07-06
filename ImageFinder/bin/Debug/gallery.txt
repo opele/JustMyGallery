@@ -15,6 +15,9 @@ center small images if scaling down or scaling is disabled
 - create github page: https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site
 - multithreading c# app for previewimage generaion
 
+gifs from
+https://giphy.com
+
 
 ---
 bookmarks

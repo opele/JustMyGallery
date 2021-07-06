@@ -22,3 +22,6 @@ C:\Users\elko-\Documents\GitHub\Gallery\ImageFinder\obj\Debug\ImageFinder.pdb
 C:\Users\elko-\Documents\GitHub\Gallery\ImageFinder\bin\Debug\Newtonsoft.Json.dll
 C:\Users\elko-\Documents\GitHub\Gallery\ImageFinder\bin\Debug\Newtonsoft.Json.xml
 C:\Users\elko-\Documents\GitHub\Gallery\ImageFinder\obj\Debug\ImageFinder.csproj.CopyComplete
+C:\Users\Elko\Documents\gallery\ImageFinder\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Elko\Documents\gallery\ImageFinder\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Elko\Documents\gallery\ImageFinder\obj\Debug\ImageFinder.csproj.CopyComplete

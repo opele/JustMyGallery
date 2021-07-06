@@ -19,7 +19,7 @@ namespace ImageFinder {
         }
 
         public static bool isOriginalImg(string filePath) {
-            return (filePath.EndsWith(".png") || filePath.EndsWith(".jpg") || filePath.EndsWith(".jpeg"))
+            return (filePath.EndsWith(".png") || filePath.EndsWith(".jpg") || filePath.EndsWith(".jpeg") || filePath.EndsWith(".gif"))
                 && !isPreviewImg(filePath);
         }
 
