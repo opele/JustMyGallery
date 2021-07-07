@@ -11,7 +11,7 @@ TODO: document format
 	
 ## C# Console App
 The imageData.js file can be created by a C# app which parses all sub-directories for images from the directory the executable was placed in.
-The supported image formats are jpeg and png. 
+The supported image formats are jpeg/jpg, png and gif.
 Detailed instructions appear when starting the console app.
 In essence, it creates preview images by downscaling the originals and stores the image paths in imageData.js. 
 In addition, it adds metadata like tags, categories, dates to the output file, which the website allows to filter and sort by.
@@ -42,12 +42,11 @@ imageName2.png:tag1,tag2,tag3
 ## Resources Used
 - Bootstrap: https://getbootstrap.com/
 - jQuery: https://jquery.com/
-- Images used: https://unsplash.com/ and https://nasa.gov
+- Images used from: https://unsplash.com/, https://nasa.gov and https://giphy.com
 - Bootstrap theme: https://github.com/thomaspark/bootswatch (demos: https://bootswatch.com/superhero/)
 - Multiselect: https://developer.snapappointments.com/bootstrap-select/
 - Sidebar: https://www.codeply.com/go/3e0RAjccRO/bootstrap-4-collapsing-sidebar-menu
 - Local Storage consent banner: https://github.com/Wruczek/Bootstrap-Cookie-Alert
-	
 
 ## Release Process
 This is the procedure to create a new release after changing javascript files.
