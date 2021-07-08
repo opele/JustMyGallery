@@ -14,23 +14,28 @@ function loadBookmarksView() {
 	
 	columns.forEach(c => c.innerHTML = "");
 	
-	// TODO: find in imagesToLoad and use preview image (also change loadBookmark(..))
-	// if not found, lower opactity and add overlay text: Filtered Out https://www.w3schools.com/howto/howto_css_image_text.asp
+	// display the bookmarks in the popup modal for user selection
 	bookmarksArr.forEach((bm, index) => {
-		$(columns[index % columns.length]).append('<img src="' + bm + '" style="width:100%" onclick="loadBookmark(event)">');
+		
+		let bmIdx = imagesToLoad.findIndex(i => i.image == bm);
+		let filteredOut = bmIdx < 0;
+		
+		if (bmIdx >= 0) {
+			// the bookmarked image currently passes filter criteria
+			$(columns[index % columns.length]).append('<img src="' + imagesToLoad[bmIdx].thumb + '" style="width:100%" onclick="loadBookmark(event, ' + bmIdx + ')">');
+		} else {
+			// the bookmarked image is filtered out
+			// TODO: lower opactity, avoid click event and add overlay text: Filtered Out https://www.w3schools.com/howto/howto_css_image_text.asp
+			// preview image path needs to be loaded from imgData
+		}
 	});
 }
 
-function loadBookmark(event) {
+function loadBookmark(event, imgIdx) {
 	event.stopPropagation();
 	
-	let imgSrc = event.target.getAttribute('src');
-	let imgIdx = imagesToLoad.findIndex(i => i.image == imgSrc);
-	
-	if (imgIdx >= 0) {
-		closeBookmarksModal();
-		openImgDetailsView(imgIdx);
-	}
+	closeBookmarksModal();
+	openImgDetailsView(imgIdx);
 }
 
 

@@ -41,12 +41,15 @@ var filterFunction = function(arr) {
 			});
 	};
 
+// gallery object which manages the preview images
 var gallery;
+// imagesToLoad contains all the images available for display according to currently selected filter criteria
 var imagesToLoad;
+// number of next images to load when scrolled to the bottom
 var chunkSize = 15;
 var scrolledToEnd = false;
 
-// detail image view
+/** detail image view element variables for caching **/
 var currentImageIndex = 0; // index of the currently or last opened image
 var modal;
 var modalImg;
@@ -60,9 +63,11 @@ var modalNavCurrentEl;
 var modalNavMaxEl;
 var addBookmarkEl;
 
+/** bookmarks modal **/
 var bookmarksModalEl;
 var bookmarksListEl;
 
+/** scaling options for the image details view, most of which can be user configured **/
 var scaleUpImageHeight = true;
 var scaleUpImageWidth = true;
 var scaleDownImageWidth = true;
@@ -78,6 +83,7 @@ var scaleWidthRatioThreshold = 3;
 // only allow to scale up to twice the original size (original size = slider in the middle)
 var maxScale = 2;
 
+// preloading options of full sized images in relation the the currently opened image
 var preloadedImages = [];
 var numberOfPrevImgsToPreload = 1;
 var numberOfNextImgsToPreload = 2;
