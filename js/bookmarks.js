@@ -15,18 +15,31 @@ function loadBookmarksView() {
 	columns.forEach(c => c.innerHTML = "");
 	
 	// display the bookmarks in the popup modal for user selection
-	bookmarksArr.forEach((bm, index) => {
+	let filteredOutBookmarks = [];
+	let insertCount = 0;
+	bookmarksArr.forEach((bm) => {
 		
 		let bmIdx = imagesToLoad.findIndex(i => i.image == bm);
-		let filteredOut = bmIdx < 0;
 		
 		if (bmIdx >= 0) {
 			// the bookmarked image currently passes filter criteria
-			$(columns[index % columns.length]).append('<img src="' + imagesToLoad[bmIdx].thumb + '" style="width:100%" onclick="loadBookmark(event, ' + bmIdx + ')">');
+			$(columns[insertCount++ % columns.length]).append('<img src="' + imagesToLoad[bmIdx].thumb + '" style="width:100%" onclick="loadBookmark(event, ' + bmIdx + ')">');
 		} else {
 			// the bookmarked image is filtered out
-			// TODO: lower opactity, avoid click event and add overlay text: Filtered Out https://www.w3schools.com/howto/howto_css_image_text.asp
-			// preview image path needs to be loaded from imgData
+			filteredOutBookmarks.push(bm);
+		}
+	});
+	
+	// append filtered out bookmarks
+	filteredOutBookmarks.forEach((bm) => {
+		
+		let bmIdx = imgData.findIndex(i => i.image == bm);
+		
+		if (bmIdx >= 0) {
+			// the bookmarked image currently passes filter criteria
+			$(columns[insertCount++ % columns.length]).append('<div class="bookmark-container-filtered-out"><img src="' + imgData[bmIdx].thumb + '" class="bookmark-filtered-out" style="width:100%"> <div class="centered-text">Filtered Out</div></div>');
+		} else {
+			console.log('Info: bookmarked image does not exist anymore (image name or path changed) and likely can be removed from your browsers local storage: ' + bm);
 		}
 	});
 }

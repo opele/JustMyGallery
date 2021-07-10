@@ -71,6 +71,28 @@
 	
 	.bookmarks-column img:hover {opacity: 0.7; transform: scale(1.1);}
 	
+	.bookmark-container-filtered-out {
+	  pointer-events: none;
+	  position: relative;
+	  text-align: center;
+	  color: white;
+	  font-family: "IMPACT";
+	  font-size: xx-large;
+	}
+	
+	.centered-text {
+	  position: absolute;
+	  top: 50%;
+	  left: 50%;
+	  transform: translate(-50%, -50%);
+	}
+	
+	.bookmark-filtered-out {
+	  cursor: auto;
+	  filter: brightness(50%);
+	}
+	
+	
 	/* Responsive layout - makes a four column-layout instead of six columns */
 	@media screen and (max-width: 1200px) {
 		.bookmarks-column {
