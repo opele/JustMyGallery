@@ -1,10 +1,12 @@
 
 function openBookmarksModal() {
+	$('body').css('overflow', 'hidden');
 	loadBookmarksView();
 	$(bookmarksModalEl).show();
 }
 
 function closeBookmarksModal() {
+	$('body').css('overflow', 'auto');
 	$(bookmarksModalEl).hide();
 }
 
