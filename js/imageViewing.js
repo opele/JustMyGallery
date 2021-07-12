@@ -287,3 +287,8 @@ function hideImageSizeRange() {
 		range.css('display','none');
 	}
 }
+
+function syncGalleryWithImg(event) {
+	// TODO
+}
+
