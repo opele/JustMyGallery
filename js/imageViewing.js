@@ -289,6 +289,8 @@ function hideImageSizeRange() {
 }
 
 function syncGalleryWithImg(event) {
-	// TODO
+	event.stopPropagation();
+	
+	displayImagesStartingAt(currentImageIndex);
 }
 

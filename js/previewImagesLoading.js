@@ -45,6 +45,9 @@ var filterFunction = function(arr) {
 var gallery;
 // imagesToLoad contains all the images available for display according to currently selected filter criteria
 var imagesToLoad;
+// index of the first loaded preview image, all previous images are not displayed in the gallery
+// i.e. equal to the number of unloaded previous images
+var imgIdxOffset = 0;
 // number of next images to load when scrolled to the bottom
 var chunkSize = 15;
 var scrolledToEnd = false;
@@ -114,7 +117,6 @@ $(function() {
 	loadImages();
 });
 
-
 function loadImages() {
 	
 	scrolledToEnd = false;
@@ -130,7 +132,7 @@ function loadImages() {
 	
 	gallery = new Gallery({
 	  container: '.gallery-container',
-	  images: imagesToLoad.slice(0,30),
+	  images: imagesToLoad.slice(imgIdxOffset, 30),
 	  columnWidth: 230,
 	  spacing: 10,
 	  imageOnLoadCallback: updateLazyLoadSentinel
@@ -138,6 +140,11 @@ function loadImages() {
 	
 	// navigate to top
 	window.scrollTo(0, 0);
+}
+
+function displayImagesStartingAt(offset) {
+	imgIdxOffset = offset;
+	loadImages();
 }
 
 // Add or update LazyLoadSentinel when an image loads. Passed into Gallery constructor.
@@ -190,14 +197,15 @@ function registerIntersectionCallback() {
 function tryLoadNextChunk() {
 
 	var currentLoadSize = gallery.getDataLength();
+	var nextImgsToLoadCnt = imagesToLoad.length - imgIdxOffset;
 	
-	if (gallery.lastLoaded() && scrolledToEnd && currentLoadSize < imagesToLoad.length) {
+	if (gallery.lastLoaded() && scrolledToEnd && currentLoadSize < nextImgsToLoadCnt) {
 		
 		var nextLoadSize = currentLoadSize + chunkSize;
-		if (nextLoadSize > imagesToLoad.length) {
-			nextLoadSize = imagesToLoad.length;
+		if (nextLoadSize > nextImgsToLoadCnt) {
+			nextLoadSize = nextImgsToLoadCnt;
 		}
-		gallery.pushAll(imagesToLoad.slice(currentLoadSize, nextLoadSize));
+		gallery.pushAll(imagesToLoad.slice(currentLoadSize + imgIdxOffset, nextLoadSize));
 		
 		lastChunkLoaded = false;
 	}

@@ -9,6 +9,8 @@ when opening details image need a loading animation instead of showing the previ
 
 center small images if scaling down or scaling is disabled
 
+fix horizontal scrollbar caused gallery wrapping too late
+
 - use minified JS for external libs
 - test in Edge/FF/Chrome on Mac and PC
 - add MIT license
