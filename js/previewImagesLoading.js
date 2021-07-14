@@ -138,8 +138,14 @@ function loadImages() {
 	  imageOnLoadCallback: updateLazyLoadSentinel
 	});
 	
-	// navigate to top
-	window.scrollTo(0, 0);
+	if (imgIdxOffset > 0) {
+		// add space to allow scrolling up for loading previous images
+		gallery.options.container.css('padding-top', '500px');
+		window.scrollTo(0, 1000);
+	} else {
+		// navigate to top
+		window.scrollTo(0, 0);
+	}
 }
 
 function displayImagesStartingAt(offset) {
