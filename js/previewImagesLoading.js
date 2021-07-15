@@ -51,6 +51,7 @@ var imgIdxOffset = 0;
 // number of next images to load when scrolled to the bottom
 var chunkSize = 15;
 var scrolledToEnd = false;
+var scrolledToTop = false;
 
 /** detail image view element variables for caching **/
 var currentImageIndex = 0; // index of the currently or last opened image
@@ -162,6 +163,12 @@ function updateLazyLoadSentinel(e, imageData, imgEl) {
 	// TODO: when image fails loading, we never get past this
 	if (!gallery.allImgsLoaded()) return;
 	
+	updateBottomSentinel();
+	updateTopSentinel();
+}
+
+function updateBottomSentinel() {
+	
 	let lastLoadedImgData = gallery.lastLoaded();
 	
 	var sentinel = $('#sentinel');
@@ -183,6 +190,27 @@ function updateLazyLoadSentinel(e, imageData, imgEl) {
 	}
 }
 
+function updateTopSentinel() {
+	
+	var sentinel = $('#topSentinel');
+	let isNew = false;
+	
+	if (sentinel == null || !sentinel.length) {
+		isNew = true;
+		gallery.columnsContainer.append('<div id="topSentinel"></div>');
+		sentinel = $('#topSentinel');
+	}
+	
+	sentinel.css({top: '-100px', left: '50%', position:'absolute'});
+	
+	if (isNew) {
+		registerIntersectionWithTopCallback();
+	} else {
+		tryLoadPreviousChunk();
+	}
+}
+
+// detect scrolling down
 var observer;
 function registerIntersectionCallback() {
 	let intersectionCallback = (entries, observer) => {
@@ -200,6 +228,25 @@ function registerIntersectionCallback() {
 	observer.observe($('#sentinel').get(0));
 }
 
+// detect scrolling up
+var topObserver;
+function registerIntersectionWithTopCallback() {
+	let intersectionCallback = (entries, observer) => {
+	  entries.forEach(entry => {
+		  if (entry.isIntersecting) {
+			scrolledToTop = true;
+			tryLoadPreviousChunk();
+		  } else {
+			scrolledToTop = false;
+		  }
+	  });
+	};
+	
+	topObserver = new IntersectionObserver(intersectionCallback);
+	topObserver.observe($('#topSentinel').get(0));
+}
+
+// load new images and append to the end of the gallery
 function tryLoadNextChunk() {
 
 	var currentLoadSize = gallery.getDataLength();
@@ -215,6 +262,14 @@ function tryLoadNextChunk() {
 		
 		lastChunkLoaded = false;
 	}
+}
+
+// load new images and stack on top of the gallery
+function tryLoadPreviousChunk() {
+
+	// TODO
+	if (scrolledToTop)
+		console.log("loading previous");
 }
 
 function updateImgCountDisplay() {
