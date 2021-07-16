@@ -59,6 +59,10 @@ function Gallery(options) {
 			self.push(image, true);
 		}
 	}
+	
+	self.pushAllTop = function (images) {
+		console.log("TODO pushAllTop");
+	}
 
     self.push = function (image, init) {
         image = {

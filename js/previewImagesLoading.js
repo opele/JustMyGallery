@@ -259,17 +259,23 @@ function tryLoadNextChunk() {
 			nextLoadSize = nextImgsToLoadCnt;
 		}
 		gallery.pushAll(imagesToLoad.slice(currentLoadSize + imgIdxOffset, nextLoadSize));
-		
-		lastChunkLoaded = false;
 	}
 }
 
 // load new images and stack on top of the gallery
 function tryLoadPreviousChunk() {
 
-	// TODO
-	if (scrolledToTop)
-		console.log("loading previous");
+	if (gallery.images.length && gallery.images[0].loaded && imgIdxOffset > 0 && scrolledToTop) {
+		
+		var nextLoadSize = chunkSize;
+		imgIdxOffset -= nextLoadSize;
+		if (imgIdxOffset < 0) {
+			nextLoadSize += imgIdxOffset;
+			imgIdxOffset = 0;
+		}
+		
+		gallery.pushAllTop(imagesToLoad.slice(imgIdxOffset, nextLoadSize));
+	}
 }
 
 function updateImgCountDisplay() {
