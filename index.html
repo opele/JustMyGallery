@@ -361,6 +361,9 @@
 	  position: absolute;
     }
 
+    #gallery-images-container {
+			width: 100%;
+		}
 
   </style>
 </head>
@@ -613,7 +616,11 @@
         data-trigger='hover' title="Click to show settings or press the 3 key"></span>
   
 
-	<div class="gallery-container"></div>
+	<div class="gallery-container">
+		<div id="topSentinel"></div>
+		<div id="gallery-images-container"></div>
+		<div id="sentinel"></div>
+	</div>
 
 	<!-- The Modal Popup for the Image Detail View -->
 	<div id="imageModal" class="modal" onclick="closeImageView()">

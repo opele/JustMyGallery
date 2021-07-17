@@ -1,199 +1,365 @@
 
-
-
-function Gallery(options) {
+function GalleryColumn(gallery, index) {
     var self = this;
 
-    self.options = options = { ...options };
+    self.gallery = gallery;
 
-    if (typeof options.container === 'string') {
-        options.container = $(options.container).first();
-    }
+    self.index = index;
+
+    self.width = 0;
+
+    self.left = 0;
+
+    self.updateSize = function () {
+        self.width = gallery.columnWidth;
+    };
+
+    self.updatePosition = function () {
+        self.left = gallery.spacing + index * gallery.columnWidth + index * gallery.spacing;
+    };
+
+    return self;
+};
+
+function GalleryRow(gallery, index, relativeIndex) {
+    var self = this;
+
+    self.gallery = gallery;
+
+    self.index = index;
+    self.relativeIndex = relativeIndex;
 
     self.images = [];
-	self.loadedImages = 0;
-	
-	self.columnsContainer = $('.gallery-columns');
-	
-	if (!self.columnsContainer.length) {
-		self.columnsContainer = $('<div>');
-		//self.columnsContainer.hide();
-		self.columnsContainer.addClass('gallery-columns');
-		options.container.append(self.columnsContainer);
-	} else {
-		self.columnsContainer.empty();
-	}
+    self.images.length = self.gallery.columnCount;
 
-    self.remove = function (startIndex, count) {
-    	// removes a range of images in place and also returns the removed images
-        var removed = self.images.splice(startIndex, count);
+    return self;
+};
 
-        for (var image of removed) {
-            //image.removed = true;
-            image.thumbnail.remove();
+function GalleryImage(gallery, data, index, relativeIndex) {
+    var self = this;
+
+    self.gallery = gallery;
+
+    self.data = data;
+
+    self.index = index;
+    self.relativeIndex = relativeIndex;
+
+    self.row = 0;
+    self.column = 0;
+
+    self.left = 0;
+    self.top = 0;
+
+    self.loading = false;
+    self.loaded = false;
+    self.error = false;
+
+    self.thumbnail = $('<div>');
+
+    self.thumbnail.css({
+        left: '0px',
+        top: '0px'
+    });
+
+
+    self.updateRowAndColumn = function () {
+        var column = Math.floor(self.relativeIndex % self.gallery.columnCount);
+        var row = Math.floor(self.relativeIndex / self.gallery.columnCount);
+
+        self.setRowAndColumn(row, column);
+    };
+
+    self.setRowAndColumn = function (row, column) {
+        self.row = row;
+        self.column = column;
+
+        self.gallery.rows[self.row].images[column] = self;
+    };
+
+    self.updatePosition = function () {
+        self.left = self.gallery.columns[self.column].left + self.gallery.spacing;
+
+        var row = self.gallery.rows[self.row];
+
+        if (row.relativeIndex < 0) {
+            // TODO:
+        } else {
+            if (row.relativeIndex === 0)
+                self.top = 0;
+            else {
+                var prevRow = self.gallery.rows[self.row - 1];
+
+                self.top = prevRow.images[self.column].top + prevRow.images[self.column].data.previewSize.h + self.gallery.spacing;
+            }
         }
 
-        self.resize();
-    };
-	
-	self.bind = function (evtName, callback) {
-		options.container.bind(evtName, callback);
-	}
-	
-	self.getDataLength = function () {
-		return self.images.length;
-	}
+        if (!self.loaded) {
+            var startLeft = -self.data.previewSize.w;
+            var startTop = -self.data.previewSize.h;
 
-	// finds the last loaded image data
-    self.lastLoaded = function () {
-        for (var i = self.images.length - 1; i >= 0; --i) {
-            if (self.images[i].loaded)
-                return self.images[i];
-        }
+            if ((self.column / self.gallery.columnCount) >= 0.5) {
+                startLeft = self.gallery.columnsContainer.width();
+            }
 
-        return null;
-    };
-	
-	self.pushAll = function (images) {
-		for (var image of images) {
-			self.push(image, true);
-		}
-	}
-	
-	self.pushAllTop = function (images) {
-		console.log("TODO pushAllTop");
-	}
+            if (self.relativeIndex > 0) {
+                startTop = self.gallery.columnsContainer.height();
+            }
 
-    self.push = function (image, init) {
-        image = {
-            ...image,
-            index: self.images.length,
-            thumbnail: $('<div>'),
-            loaded: false
-        };
-
-        var lastLoaded = self.lastLoaded();
-
-		// set the initial position (before the image is fully loaded) at the last loaded image
-        if (lastLoaded) {
-            image.thumbnail.css({
-                left: lastLoaded.left + 'px',
-                top: lastLoaded.top + 'px'
+            self.thumbnail.css({
+                left: startLeft + 'px',
+                top: startTop + 'px'
             });
         }
+        else {
+            self.thumbnail.css({
+                left: self.left + 'px',
+                top: self.top + 'px'
+            });
+        }
+    };
 
-		// FIXME: is the init parameter needed?
-        //if (!init)
-            image.column = image.index % self.columns;
+    self.load = function () {
+        if (self.loading || self.loaded)
+            return;
 
-        image.thumbnail.addClass('gallery-thumb');
-        image.thumbnail.css({ 'visibility': 'hidden' });
+        self.gallery.imagesBeingLoaded++;
 
-        self.images.push(image);
+        self.loading = true;
+
+        self.thumbnail.addClass('gallery-thumb');
+        self.thumbnail.css({ 'visibility': 'hidden' });
 
         var img = document.createElement('img');
 
         $(img).addClass('gallery-thumb-img');
 
+        var loaded = function (error) {
+            self.thumbnail.css({ 'visibility': 'visible' });
+
+            self.loading = false;
+            self.loaded = true;
+            self.error = error;
+
+            self.gallery.imagesBeingLoaded--;
+
+            self.thumbnail.css({
+                left: self.left + 'px',
+                top: self.top + 'px'
+            });
+
+            self.gallery.onImageLoaded(self);
+
+            if (error) {
+                if (self.gallery.imageOnErrorCallback)
+                    self.gallery.imageOnErrorCallback({ image: self, img: img });
+            }
+            else {
+                if (self.gallery.imageOnLoadCallback)
+                    self.gallery.imageOnLoadCallback({ image: self, img: img });
+            }
+        }
+
         img.onload = function () {
-            //if (image.removed)
-             //   return;
-
-            image.thumbnail.css({ 'visibility': 'visible' });
-
-            image.loaded = true;
-
-            self.position(image);
-			
-			self.addModalViewOnClick(image);
-			
-			++self.loadedImages;
-			
-			options.container.trigger('previewImgLoaded', [image, img]);
+            loaded(false);
         };
 
-        img.src = image.thumb;
+        img.onerror = function () {
+            loaded(true);
+        };
 
-        image.thumbnail.append(img);
+        img.src = self.data.thumb;
 
-        self.columnsContainer.append(image.thumbnail);
+        self.thumbnail.append(img);
+
+        self.gallery.columnsContainer.append(self.thumbnail);
     };
-	
-	self.allImgsLoaded = function () { return self.loadedImages == self.getDataLength(); }
 
-    self.position = function (image) {
-        var l = self.getColumnLeft(image.column);
-        var t = 0;
+    self.remove = function () {
+        self.thumbnail.remove();
+    };
 
-		// calculate the top position only if the image is not placed on the very top of a column
-        if (image.index >= self.columns) {
-            var prevImageInColumn = self.images[image.index - self.columns];
+    return self;
+};
 
-            t = prevImageInColumn.top + prevImageInColumn.thumbnail.height() + options.spacing;
-        }
+function Gallery(options) {
+    var self = this;
 
-        if (l !== image.left || t !== image.top) {
-            image.left = l;
-            image.top = t;
+    self.rows = [];
+    self.columns = [];
 
-            image.thumbnail.css({
-                left: l + 'px',
-                top: t + 'px'
-            });
-        }
+    self.rowCount = 0;
+    self.columnCount = 0;
 
-        var nextImage = self.images[image.index + 1];
+    self.container = (typeof options.container === 'string') ? $(options.container).first() : options.container;
 
-		// reposition the images after this one in case it was inserted or finished loading after the next image
-        if (nextImage && nextImage.loaded) {
-            //setTimeout(() => {
-                self.position(nextImage);
-           // });
+    self.imageDatas = options.images;
+    self.baseImageIndex = options.baseImageIndex || 0;
+
+    self.columnWidth = options.columnWidth;
+    self.spacing = options.spacing;
+
+    self.min = 0;
+    self.max = 0;
+
+
+    self.imagesBeingLoaded = 0;
+
+    self.loadInProgress = function () {
+        return self.imagesBeingLoaded > 0;
+    };
+
+
+    self.imageOnLoadCallback = options.imageOnLoadCallback;
+    self.imageOnErrorCallback = options.imageOnErrorCallback;
+
+
+    // Create column container
+    // If it already exists, it will be emptied
+    self.columnsContainer = $('.gallery-columns');
+
+    if (!self.columnsContainer.length) {
+        self.columnsContainer = $('<div>');
+        self.columnsContainer.addClass('gallery-columns');
+        self.container.append(self.columnsContainer);
+    } else {
+        self.columnsContainer.empty();
+    }
+
+
+    self.images = [];
+
+    for (var i = 0; i < self.imageDatas.length; ++i) {
+        self.images[i] = new GalleryImage(self, self.imageDatas[i], i, i - self.baseImageIndex);
+    }
+
+
+    self.getImage = function (index) {
+        return self.images[index];
+    };
+
+    self.getImageByRelativeIndex = function (index) {
+        return self.getImageByRelativeIndex(self.baseImageIndex + index);
+    };
+
+    self.getRowByRelativeIndex = function (index) {
+        return self.rows[self.baseRowIndex + index];
+    };
+
+
+    self.forEachImage = function (callback) {
+        for (var i = 0; i < self.images.length; ++i) {
+            callback(self.images[i], i);
         }
     };
-	
-	self.addModalViewOnClick = function (imageData) {
-		
-		imageData.thumbnail.get(0).onclick = function(){
-			
-				openImgDetailsView(imageData.index);
-			}
-	};
+
+    self.forEachColumn = function (callback) {
+        for (var i = 0; i < self.columns.length; ++i) {
+            callback(self.columns[i], i);
+        }
+    };
+
+    self.forEachRow = function (callback) {
+        for (var i = 0; i < self.rows.length; ++i) {
+            callback(self.rows[i], i);
+        }
+    };
+
 
     self.resize = function () {
+        // Get width of the container (space for our columns)
         var containerWidth = self.columnsContainer.width();
 
-        var spaceForColumn = containerWidth - options.spacing * 2;
+        // Calculate the actual space available for columns (it excludes the left and right padding)
+        var spaceForColumns = containerWidth - self.spacing * 2;
 
-        var columns = Math.floor(spaceForColumn / options.columnWidth);
+        self.columnCount = Math.max(1, Math.floor(spaceForColumns / (self.columnWidth + self.spacing)));
+        self.rowCount = Math.max(1, Math.ceil(self.images.length / self.columnCount));
 
-        self.columns = columns;
+        self.baseRowIndex = Math.floor(self.baseImageIndex / self.columnCount);
 
-        for (var i = 0; i < self.images.length; ++i) {
-            var image = self.images[i];
+        self.columns = [];
+        self.rows = [];
 
-            image.index = i;
-            image.column = image.index % columns;
+        for (var i = 0; i < self.columnCount; ++i) {
+            self.columns.push(new GalleryColumn(self, i));
         }
 
-        if (self.images.length > 0 && self.images[0].loaded)
-            self.position(self.images[0]);
+        for (var i = 0; i < self.rowCount; ++i) {
+            self.rows.push(new GalleryRow(self, i, i - self.baseRowIndex));
+        }
+
+
+        self.forEachImage(i => i.updateRowAndColumn());
+
+        self.forEachColumn(c => c.updateSize());
+        self.forEachColumn(c => c.updatePosition());
+
+        self.forEachImage(i => i.updatePosition());
+
+
+        self.updateMinMax();
     };
 
-    self.getColumnLeft = function (column) {
-        return options.spacing + column * options.columnWidth + column * options.spacing;
+    self.load = function (baseIndex, count, indexIsRelative) {
+        if (count === undefined)
+            count = 1;
+
+        for (var i = 0; i < count; ++i) {
+            var index = baseIndex + i;
+
+            if (indexIsRelative) {
+                index = self.baseImageIndex + index;
+            }
+
+            self.images[index].load();
+        }
     };
-	
-	if (options.imageOnLoadCallback)
-		self.bind("previewImgLoaded", options.imageOnLoadCallback);
 
-	self.pushAll(options.images);
+    self.remove = function (baseIndex, count, indexIsRelative) {
+        if (count === undefined)
+            count = 1;
 
-    //self.columnsContainer.show();
+        for (var i = 0; i < count; ++i) {
+            var index = baseIndex + i;
 
-    setTimeout(() => {
+            if (indexIsRelative) {
+                index = self.baseImageIndex + index;
+            }
+
+            self.images[index].remove();
+        }
+
         self.resize();
-    }, 1);
+    };
+
+
+    self.updateMinMax = function () {
+        self.min = 0;
+        self.max = 0;
+
+        self.forEachImage(image => {
+            if (image.loaded) {
+                self.min = Math.min(image.top, self.min);
+                self.max = Math.max(image.top + image.data.previewSize.height, self.max);
+            }
+        });
+
+        self.applyMinMax();
+    };
+
+    self.onImageLoaded = function (image) {
+        self.min = Math.min(image.left, self.min);
+        self.max = Math.max(image.top + image.height, self.max);
+
+        self.applyMinMax();
+    };
+
+    self.applyMinMax = function () {
+    };
+
+
+    setTimeout(() => { self.resize(); }, 1);
 
     var windowResizing = null;
 

@@ -132,16 +132,17 @@ function loadImages() {
 	imagesToLoad.sort(sortImages);
 	
 	gallery = new Gallery({
-	  container: '.gallery-container',
-	  images: imagesToLoad.slice(imgIdxOffset, 30),
+	  container: '#gallery-images-container', 
+	  images: imagesToLoad,
+	  baseImageIndex: imgIdxOffset,
 	  columnWidth: 230,
 	  spacing: 10,
 	  imageOnLoadCallback: updateLazyLoadSentinel
 	});
-	
+	gallery.load(0, 10);
 	if (imgIdxOffset > 0) {
 		// add space to allow scrolling up for loading previous images
-		gallery.options.container.css('padding-top', '500px');
+		gallery.container.css('padding-top', '500px');
 		window.scrollTo(0, 1000);
 	} else {
 		// navigate to top
@@ -158,32 +159,28 @@ function displayImagesStartingAt(offset) {
 // This event may only fire for one image if the whole chunk is loaded from cache. 
 // imageData then points to a random image and can have top = 0 but gallery.loadedImages is incremented by the chunk size (all images loaded = true).
 // Therefore, can't use imageData to position the sentinel. Retrieve the last loaded image after which the sentinel should be positioned.
-function updateLazyLoadSentinel(e, imageData, imgEl) {
-		
-	// TODO: when image fails loading, we never get past this
-	if (!gallery.allImgsLoaded()) return;
+function updateLazyLoadSentinel(data) {
+
+	var imageData = data.image;
+	var img = data.imgEl;
+
+	if (gallery.loadInProgress())
+		return;
 	
 	updateBottomSentinel();
 	updateTopSentinel();
 }
 
 function updateBottomSentinel() {
-	
-	let lastLoadedImgData = gallery.lastLoaded();
-	
 	var sentinel = $('#sentinel');
-	let isNew = false;
-	
-	if (sentinel == null || !sentinel.length) {
-		isNew = true;
-		gallery.columnsContainer.append('<div id="sentinel"></div>');
-		sentinel = $('#sentinel');
-	}
-	
+	var isNew = sentinel.data('elko-stupid-init-done') != 'yes';
+
+	/*
 	if (!sentinel.position() || sentinel.position().top < lastLoadedImgData.top)
 		sentinel.css({top: lastLoadedImgData.top, left: lastLoadedImgData.left, position:'absolute'});
-	
+	*/
 	if (isNew) {
+		sentinel.data('elko-stupid-init-done', 'yes');
 		registerIntersectionCallback();
 	} else {
 		tryLoadNextChunk();
@@ -191,19 +188,14 @@ function updateBottomSentinel() {
 }
 
 function updateTopSentinel() {
-	
 	var sentinel = $('#topSentinel');
-	let isNew = false;
-	
-	if (sentinel == null || !sentinel.length) {
-		isNew = true;
-		gallery.columnsContainer.append('<div id="topSentinel"></div>');
-		sentinel = $('#topSentinel');
-	}
-	
+	var isNew = sentinel.data('elko-stupid-init-done') != 'yes';
+
+	/*
 	sentinel.css({top: '-100px', left: '50%', position:'absolute'});
-	
+	*/
 	if (isNew) {
+		sentinel.data('elko-stupid-init-done', 'yes');
 		registerIntersectionWithTopCallback();
 	} else {
 		tryLoadPreviousChunk();
@@ -252,13 +244,14 @@ function tryLoadNextChunk() {
 	var currentLoadSize = gallery.getDataLength();
 	var nextImgsToLoadCnt = imagesToLoad.length - imgIdxOffset;
 	
-	if (gallery.lastLoaded() && scrolledToEnd && currentLoadSize < nextImgsToLoadCnt) {
-		
+	if (gallery.lastLoaded() && scrolledToEnd && currentLoadSize < nextImgsToLoadCnt) {	
 		var nextLoadSize = currentLoadSize + chunkSize;
 		if (nextLoadSize > nextImgsToLoadCnt) {
 			nextLoadSize = nextImgsToLoadCnt;
 		}
-		gallery.pushAll(imagesToLoad.slice(currentLoadSize + imgIdxOffset, nextLoadSize));
+
+		//gallery.load(0, 10);
+		//gallery.pushAll(imagesToLoad.slice(currentLoadSize + imgIdxOffset, nextLoadSize));
 	}
 }
 

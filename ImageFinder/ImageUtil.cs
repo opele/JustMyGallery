@@ -11,6 +11,13 @@ using System.Threading.Tasks;
 
 namespace ImageFinder {
     class ImageUtil {
+        public static Size getImageSize(string imagePath)
+        {
+            using (Image img = Image.FromFile(imagePath))
+            {
+                return img.Size;
+            }
+        }
 
         public static string getPreviewPath(string originalPath) {
             string extension = originalPath.Substring(originalPath.LastIndexOf("."));
