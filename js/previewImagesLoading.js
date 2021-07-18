@@ -143,11 +143,13 @@ function loadImages() {
         spacing: 10,
         imageOnLoadCallback: function (e) {
             if (firstLoaded) {
-                var top = (gallery.columnsContainer.offset().top + e.image.top) - gallery.spacing;
+                if (imgIdxOffset != 0) {
+                    var top = (gallery.columnsContainer.offset().top + e.image.top - gallery.fullMin) - gallery.spacing;
 
-                console.log(top);
+                    console.log(top);
 
-                window.scrollTo(0, top);
+                    window.scrollTo(0, top);
+                }
 
                 firstLoaded = false;
             }
@@ -155,6 +157,9 @@ function loadImages() {
             e.image.thumbnail.get(0).onclick = function () {
                 openImgDetailsView(e.image.index);
             };
+        },
+        heightCalculatedCallback: function (e) {
+            $(document.body).height(e.h);
         }
     });
 

@@ -216,6 +216,9 @@ function Gallery(options) {
     self.min = 0;
     self.max = 0;
 
+    self.fullMin = 0;
+    self.fullMax = 0;
+
 
     self.imagesBeingLoaded = 0;
 
@@ -226,6 +229,7 @@ function Gallery(options) {
 
     self.imageOnLoadCallback = options.imageOnLoadCallback;
     self.imageOnErrorCallback = options.imageOnErrorCallback;
+    self.heightCalculatedCallback = options.heightCalculatedCallback;
 
 
 
@@ -375,11 +379,17 @@ function Gallery(options) {
         self.min = 0;
         self.max = 0;
 
+        self.fullMin = 0;
+        self.fullMax = 0;
+
         self.forEachImage(image => {
             if (image.loaded) {
                 self.min = Math.min(image.top, self.min);
                 self.max = Math.max(image.top + image.data.previewSize.h, self.max);
             }
+
+            self.fullMin = Math.min(image.top, self.fullMin);
+            self.fullMax = Math.max(image.top + image.data.previewSize.h, self.fullMax);
         });
 
         self.applyMinMax();
@@ -389,11 +399,15 @@ function Gallery(options) {
         self.min = Math.min(image.top, self.min);
         self.max = Math.max(image.top + image.data.previewSize.h, self.max);
 
+        self.fullMin = Math.min(image.top, self.fullMin);
+        self.fullMax = Math.max(image.top + image.data.previewSize.h, self.fullMax);
+
         self.applyMinMax();
     };
 
     self.applyMinMax = function () {
         var height = Math.abs(self.max - self.min);
+        var fullHeight = Math.abs(self.fullMax - self.fullMin);
 
         self.columnsContainer.css({
             height: height + 'px'
@@ -409,6 +423,9 @@ function Gallery(options) {
                 transform: 'translateY(0px)'
             });
         }
+
+        if (self.heightCalculatedCallback)
+            self.heightCalculatedCallback({ h: fullHeight, min: self.fullMin, max: self.fullMax });
     };
 
     self.resize();
