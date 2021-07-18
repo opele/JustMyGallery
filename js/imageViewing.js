@@ -1,6 +1,13 @@
 
 /* SHOW IMAGE IN ORIGINAL SIZE */
 
+$(function () {
+	var range = $("#imageSizeRange");
+	range.on("input change", function () {
+		applyScaleToImg(range.val(), $('#modalImg')[0]);
+	});
+});
+
 function openImgDetailsView(imgIndex) {
 	
 	let isValid = isNumber(imgIndex) && Number.isInteger(imgIndex) && imgIndex >= 0 && imgIndex <= imagesToLoad.length;
@@ -9,27 +16,39 @@ function openImgDetailsView(imgIndex) {
 		console.log("Warning: ignoring invalid image index: " + imgIndex);
 		return;
 	}
-	
+
+	$('#imageSizeRangeContainer').show();
 	$('.sidebar-open-button').hide();
 	$('body').css('overflow', 'hidden');
 	
 	let imageData = imagesToLoad[imgIndex];
 	modal.style.display = "block";
-	modalImg.src = imageData.image;
 	captionText.innerHTML = imageData.title;
 	currentImageIndex = imgIndex;
-	
-	displayRating(imageData.image);
-	displayTags(imageData.tags);
-	updateModalNav();
-	updateBookmarkOnImageDetailView(imageData.image);
-	
+
+	var newModelImg = $('<img class="modal-content" id="modalImg">')[0];
+
 	// this callback actually only needs to be set once
-	modalImg.onload = function() {
+	newModelImg.onload = function () {
+		showImageSizeRange(newModelImg, imageData.size);
+
+		// when scrolled to the bottom and navigating to the next image, we want to start from the top again
+		modal.scrollTop = 0;
+
+		displayRating(imageData.image);
+		displayTags(imageData.tags);
+
+		updateModalNav();
+
+		updateBookmarkOnImageDetailView(imageData.image);
+
 		// we need the width and height loaded before sizing the image
-		showImageSizeRange();
 		preloadImages();
-	}
+		
+		$('#modelImgContainer').html(newModelImg);
+	};
+
+	newModelImg.src = imageData.image;
 }
 
 
@@ -54,17 +73,19 @@ function updateModalNav() {
 	modalNavMaxEl.textContent = imagesToLoad.length;
 }
 
-function showImageSizeRange() {
-	
-	// when scrolled to the bottom and navigating to the next image, we want to start from the top again
-	modal.scrollTop = 0;
-	
-	let currentImg = modalImg;
-	let imgHeightExceedsWidth = currentImg.naturalHeight > currentImg.naturalWidth;
+function showImageSizeRange(img, size) {
+
+	let currentImg = img;
+
+	if (!size) {
+		size = { w: currentImg.naturalWidth, h: currentImg.naturalHeight };
+	};
+
+	let imgHeightExceedsWidth = size.h > size.w;
 	
 	let screenWidth = document.documentElement.clientWidth;
 	let optimalWidth = optimalWidthRatio * screenWidth;
-	let optimalScaleWidth = optimalWidth / currentImg.naturalWidth;
+	let optimalScaleWidth = optimalWidth / size.w;
 	let imgWidthExceedsOptimal = optimalScaleWidth < 1;
 	let attemptScaleUpWidth = scaleUpImageWidth && !imgWidthExceedsOptimal;
 	let attemptScaleDownWidth = scaleDownImageWidth && imgWidthExceedsOptimal;
@@ -72,7 +93,7 @@ function showImageSizeRange() {
 	
 	let screenHeight = document.documentElement.clientHeight;
 	let optimalHeight = optimalHeightRatio * screenHeight;
-	let optimalScaleHeight = optimalHeight / currentImg.naturalHeight;
+	let optimalScaleHeight = optimalHeight / size.h;
 	let imgHeightExceedsOptimal = optimalScaleHeight < 1;
 	let attemptScaleUpHeight = scaleUpImageHeight && !imgHeightExceedsOptimal;
 	let attemptScaleDownHeight = scaleDownImageHeight && imgHeightExceedsOptimal;
@@ -87,7 +108,7 @@ function showImageSizeRange() {
 			// For comparing if the image height exceeds the configured height threshold,
 			// first factor out the width, so when the image is also wide we still scale down to perfect fit.
 			// However, fallback to the original height when width scaling is turned off.
-			let heightToCompare = currentImg.naturalHeight;
+			let heightToCompare = size.h;
 			if (attemptScaleDownWidth) {
 				heightToCompare *= optimalScaleWidth;
 			}
@@ -103,7 +124,7 @@ function showImageSizeRange() {
 			// For comparing if the image width exceeds the configured width threshold,
 			// first factor out the height, so when the image is also tall we still scale down to perfect fit.
 			// However, fallback to the original width when height scaling is turned off.
-			let widthToCompare = currentImg.naturalWidth;
+			let widthToCompare = size.w;
 			if (attemptScaleDownHeight) {
 				widthToCompare *= optimalScaleHeight;
 			}
@@ -120,7 +141,7 @@ function showImageSizeRange() {
 		if (imgHeightExceedsWidth) {
 			// attempt to scale width
 			if (attemptScaleWidth) {
-				let widthToCompare = currentImg.naturalWidth;
+				let widthToCompare = size.w;
 				// get the ratio between this image width to the screen width
 				let widthWindowRatio = widthToCompare / screenWidth;
 				// only scale width if we don't exceed our threshold
@@ -130,7 +151,7 @@ function showImageSizeRange() {
 		} else {
 			// the image is wider than high
 			if (attemptScaleHeight) {
-				let heightToCompare = currentImg.naturalHeight;
+				let heightToCompare = size.h;
 				// get the ratio between this image height to the screen height
 				let heightWindowRatio = heightToCompare / screenHeight;
 				// only scale height if we don't exceed our threshold
@@ -151,26 +172,21 @@ function showImageSizeRange() {
 	}
 	
 	var range = $("#imageSizeRange");
-	if (!range.length) {
-		var rangeHtml = '<input type="range" class="form-range image-size-range" min="0.1" max="' + maxScale + '" step="0.01" id="imageSizeRange" data-toggle="tooltip" data-placement="bottom" title="Use Shift + Mousewheel">';
-		gallery.options.container.append(rangeHtml);
-		range = $("#imageSizeRange");
-	}
-	
+	range.attr('max', maxScale);
 	range.css("display", "block");
-	range.on("input change", function() {
-		applyScaleToImg(range.val(), currentImg);
-	});
-	
 	range.val(optimalScale);
-	applyScaleToImg(range.val(), currentImg);
+	applyScaleToImg(range.val(), currentImg, size);
 }
 
-function applyScaleToImg(scale, currentImg) {
-	var newHeight = currentImg.naturalHeight * scale;
-	var newWidth = currentImg.naturalWidth * scale;
-	currentImg.style.height = newHeight + 'px';
+function applyScaleToImg(scale, currentImg, size) {
+	if (!size) {
+		size = { w: currentImg.naturalWidth, h: currentImg.naturalHeight };
+	};
+
+	var newWidth = size.w * scale;
+	var newHeight = size.h * scale;
 	currentImg.style.width = newWidth + 'px';
+	currentImg.style.height = newHeight + 'px';
 	currentImg.width = newWidth;
 	currentImg.height = newHeight;
 }
@@ -239,7 +255,8 @@ $(function() {
 function closeImageView(forceClose) {
 	
 	if (!forceClose && isEditingModalComponent()) return;
-	
+
+	$('#imageSizeRangeContainer').hide();
     modal.style.display = "none";
 	
 	hideImageSizeRange();

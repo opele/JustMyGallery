@@ -16,30 +16,30 @@ var filterByCategoryEnabled = false;
 var currentFilterCategory;
 var categoriesAndTags = true;
 
-var nameFilterFunc = function(dataItemToFilter) {return true;};
-var tagsFilterFunc = function(dataItemToFilter) {return true;};
-var categoryFilterFunc = function(dataItemToFilter) {return true;};
-var dateRangeFilterFunc = function(dataItemToFilter) {return true;};
-var filterFunction = function(arr) {
-		return arr.filter(function(dataItemToFilter) {
-				return nameFilterFunc(dataItemToFilter) && 
-				
-					// if tag AND category filters are on, only then consider categoriesAndTags
-					// otherwise the OR condition is true and we don't even evaluate the filters
-					((!filterByTagsEnabled || !filterByCategoryEnabled) ||
-						((categoriesAndTags && tagsFilterFunc(dataItemToFilter) && categoryFilterFunc(dataItemToFilter)) ||
-						(!categoriesAndTags && (tagsFilterFunc(dataItemToFilter) || categoryFilterFunc(dataItemToFilter))))
-					) &&
-					
-					// if one of them is off, then just apply it regardless of categoriesAndTags
-					// this avoids showing all results when categoriesAndTags = false (i.e. OR filtering) and one of the filters is not active (i.e. allows all)
-					((filterByTagsEnabled && filterByCategoryEnabled) ||
-						(tagsFilterFunc(dataItemToFilter) && categoryFilterFunc(dataItemToFilter))
-					) &&
-					
-					dateRangeFilterFunc(dataItemToFilter);
-			});
-	};
+var nameFilterFunc = function (dataItemToFilter) { return true; };
+var tagsFilterFunc = function (dataItemToFilter) { return true; };
+var categoryFilterFunc = function (dataItemToFilter) { return true; };
+var dateRangeFilterFunc = function (dataItemToFilter) { return true; };
+var filterFunction = function (arr) {
+    return arr.filter(function (dataItemToFilter) {
+        return nameFilterFunc(dataItemToFilter) &&
+
+            // if tag AND category filters are on, only then consider categoriesAndTags
+            // otherwise the OR condition is true and we don't even evaluate the filters
+            ((!filterByTagsEnabled || !filterByCategoryEnabled) ||
+                ((categoriesAndTags && tagsFilterFunc(dataItemToFilter) && categoryFilterFunc(dataItemToFilter)) ||
+                    (!categoriesAndTags && (tagsFilterFunc(dataItemToFilter) || categoryFilterFunc(dataItemToFilter))))
+            ) &&
+
+            // if one of them is off, then just apply it regardless of categoriesAndTags
+            // this avoids showing all results when categoriesAndTags = false (i.e. OR filtering) and one of the filters is not active (i.e. allows all)
+            ((filterByTagsEnabled && filterByCategoryEnabled) ||
+                (tagsFilterFunc(dataItemToFilter) && categoryFilterFunc(dataItemToFilter))
+            ) &&
+
+            dateRangeFilterFunc(dataItemToFilter);
+    });
+};
 
 // gallery object which manages the preview images
 var gallery;
@@ -92,185 +92,141 @@ var preloadedImages = [];
 var numberOfPrevImgsToPreload = 1;
 var numberOfNextImgsToPreload = 2;
 
-$(function(){
-	refreshSelectableTags();
-	refreshSelectableCategories();
+$(function () {
+    refreshSelectableTags();
+    refreshSelectableCategories();
 });
 
-$(function() {
+$(function () {
 
-	modal = document.getElementById("imageModal");
-	modalImg = document.getElementById("modalImg");
-	captionText = document.getElementById("caption");
-	ratingEl = document.getElementById("rating");
-	predefinedTagsEl = document.getElementById("predefinedTags");
-	userDefinedTagsEl = document.getElementById("myTags");
-	modalNavCurrentEl = document.getElementById("modalNavCurrent");
-	modalNavMaxEl = document.getElementById("modalNavMax");
-	addBookmarkEl = document.getElementById("addBookmark");
-	
-	bookmarksModalEl = document.getElementById("bookmarksModal");
-	bookmarksListEl = document.getElementById("bookmarksList");
-	
-	initSearchSidebar();
-	initSettingsSidebar();
-	
-	loadImages();
+    modal = document.getElementById("imageModal");
+    modalImg = document.getElementById("modalImg");
+    captionText = document.getElementById("caption");
+    ratingEl = document.getElementById("rating");
+    predefinedTagsEl = document.getElementById("predefinedTags");
+    userDefinedTagsEl = document.getElementById("myTags");
+    modalNavCurrentEl = document.getElementById("modalNavCurrent");
+    modalNavMaxEl = document.getElementById("modalNavMax");
+    addBookmarkEl = document.getElementById("addBookmark");
+
+    bookmarksModalEl = document.getElementById("bookmarksModal");
+    bookmarksListEl = document.getElementById("bookmarksList");
+
+    initSearchSidebar();
+    initSettingsSidebar();
+
+    loadImages();
 });
 
 function loadImages() {
-	
-	scrolledToEnd = false;
+    scrolledToEnd = false;
 
-	imagesToLoad = imgData;
-	if (typeof filterFunction === 'function') {
-		imagesToLoad = filterFunction(imagesToLoad);
-	}
-	
-	updateImgCountDisplay();
-	
-	imagesToLoad.sort(sortImages);
-	
-	gallery = new Gallery({
-	  container: '#gallery-images-container', 
-	  images: imagesToLoad,
-	  baseImageIndex: imgIdxOffset,
-	  columnWidth: 230,
-	  spacing: 10,
-	  imageOnLoadCallback: updateLazyLoadSentinel
-	});
-	gallery.load(0, 10);
-	if (imgIdxOffset > 0) {
-		// add space to allow scrolling up for loading previous images
-		gallery.container.css('padding-top', '500px');
-		window.scrollTo(0, 1000);
-	} else {
-		// navigate to top
-		window.scrollTo(0, 0);
-	}
+    imagesToLoad = imgData;
+    if (typeof filterFunction === 'function') {
+        imagesToLoad = filterFunction(imagesToLoad);
+    }
+
+    updateImgCountDisplay();
+
+    imagesToLoad.sort(sortImages);
+
+    topImageId = 0;
+    bottomImageId = 0;
+
+    var firstLoaded = true;
+
+    gallery = new Gallery({
+        container: '#gallery-images-container',
+        images: imagesToLoad,
+        baseImageIndex: imgIdxOffset,
+        columnWidth: 230,
+        spacing: 10,
+        imageOnLoadCallback: function (e) {
+            if (firstLoaded) {
+                var top = (gallery.columnsContainer.offset().top + e.image.top) - gallery.spacing;
+
+                console.log(top);
+
+                window.scrollTo(0, top);
+
+                firstLoaded = false;
+            }
+
+            e.image.thumbnail.get(0).onclick = function () {
+                openImgDetailsView(e.image.index);
+            };
+        }
+    });
+
+    registerIntersectionCallback();
+    registerIntersectionWithTopCallback();
+
+    if (imgIdxOffset === 0) {
+        // navigate to top
+        window.scrollTo(0, 0);
+    }
 }
 
 function displayImagesStartingAt(offset) {
-	imgIdxOffset = offset;
-	loadImages();
-}
-
-// Add or update LazyLoadSentinel when an image loads. Passed into Gallery constructor.
-// This event may only fire for one image if the whole chunk is loaded from cache. 
-// imageData then points to a random image and can have top = 0 but gallery.loadedImages is incremented by the chunk size (all images loaded = true).
-// Therefore, can't use imageData to position the sentinel. Retrieve the last loaded image after which the sentinel should be positioned.
-function updateLazyLoadSentinel(data) {
-
-	var imageData = data.image;
-	var img = data.imgEl;
-
-	if (gallery.loadInProgress())
-		return;
-	
-	updateBottomSentinel();
-	updateTopSentinel();
-}
-
-function updateBottomSentinel() {
-	var sentinel = $('#sentinel');
-	var isNew = sentinel.data('elko-stupid-init-done') != 'yes';
-
-	/*
-	if (!sentinel.position() || sentinel.position().top < lastLoadedImgData.top)
-		sentinel.css({top: lastLoadedImgData.top, left: lastLoadedImgData.left, position:'absolute'});
-	*/
-	if (isNew) {
-		sentinel.data('elko-stupid-init-done', 'yes');
-		registerIntersectionCallback();
-	} else {
-		tryLoadNextChunk();
-	}
-}
-
-function updateTopSentinel() {
-	var sentinel = $('#topSentinel');
-	var isNew = sentinel.data('elko-stupid-init-done') != 'yes';
-
-	/*
-	sentinel.css({top: '-100px', left: '50%', position:'absolute'});
-	*/
-	if (isNew) {
-		sentinel.data('elko-stupid-init-done', 'yes');
-		registerIntersectionWithTopCallback();
-	} else {
-		tryLoadPreviousChunk();
-	}
+    imgIdxOffset = offset;
+    loadImages();
 }
 
 // detect scrolling down
 var observer;
 function registerIntersectionCallback() {
-	let intersectionCallback = (entries, observer) => {
-	  entries.forEach(entry => {
-		  if (entry.isIntersecting) {
-			scrolledToEnd = true;
-			tryLoadNextChunk();
-		  } else {
-			scrolledToEnd = false;
-		  }
-	  });
-	};
-	
-	observer = new IntersectionObserver(intersectionCallback);
-	observer.observe($('#sentinel').get(0));
+    let intersectionCallback = (entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                scrolledToEnd = true;
+                tryLoadNextChunk();
+            } else {
+                scrolledToEnd = false;
+            }
+        });
+    };
+
+    observer = new IntersectionObserver(intersectionCallback);
+    observer.observe($('#sentinel').get(0));
 }
 
 // detect scrolling up
 var topObserver;
 function registerIntersectionWithTopCallback() {
-	let intersectionCallback = (entries, observer) => {
-	  entries.forEach(entry => {
-		  if (entry.isIntersecting) {
-			scrolledToTop = true;
-			tryLoadPreviousChunk();
-		  } else {
-			scrolledToTop = false;
-		  }
-	  });
-	};
-	
-	topObserver = new IntersectionObserver(intersectionCallback);
-	topObserver.observe($('#topSentinel').get(0));
+    let intersectionCallback = (entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                scrolledToTop = true;
+                tryLoadPreviousChunk();
+            } else {
+                scrolledToTop = false;
+            }
+        });
+    };
+
+    topObserver = new IntersectionObserver(intersectionCallback);
+    topObserver.observe($('#topSentinel').get(0));
 }
+
+var topImageId = 0;
+var bottomImageId = 0;
 
 // load new images and append to the end of the gallery
 function tryLoadNextChunk() {
+    console.log(bottomImageId + ' > ' + (bottomImageId + 10));
 
-	var currentLoadSize = gallery.getDataLength();
-	var nextImgsToLoadCnt = imagesToLoad.length - imgIdxOffset;
-	
-	if (gallery.lastLoaded() && scrolledToEnd && currentLoadSize < nextImgsToLoadCnt) {	
-		var nextLoadSize = currentLoadSize + chunkSize;
-		if (nextLoadSize > nextImgsToLoadCnt) {
-			nextLoadSize = nextImgsToLoadCnt;
-		}
-
-		//gallery.load(0, 10);
-		//gallery.pushAll(imagesToLoad.slice(currentLoadSize + imgIdxOffset, nextLoadSize));
-	}
+    gallery.load(bottomImageId, gallery.columnCount, true);
+    bottomImageId += gallery.columnCount;
 }
 
 // load new images and stack on top of the gallery
 function tryLoadPreviousChunk() {
+    console.log(topImageId + ' > ' + (topImageId - 10));
 
-	if (gallery.images.length && gallery.images[0].loaded && imgIdxOffset > 0 && scrolledToTop) {
-		
-		var nextLoadSize = chunkSize;
-		imgIdxOffset -= nextLoadSize;
-		if (imgIdxOffset < 0) {
-			nextLoadSize += imgIdxOffset;
-			imgIdxOffset = 0;
-		}
-		
-		gallery.pushAllTop(imagesToLoad.slice(imgIdxOffset, nextLoadSize));
-	}
+    gallery.load(topImageId, -gallery.columnCount, true);
+    topImageId -= gallery.columnCount;
 }
 
 function updateImgCountDisplay() {
-	$('#filteredImgNumberInfo').html(imagesToLoad.length + ' images to show.');
+    $('#filteredImgNumberInfo').html(imagesToLoad.length + ' images to show.');
 }
