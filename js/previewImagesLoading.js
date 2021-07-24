@@ -120,6 +120,7 @@ $(function () {
 
 function loadImages() {
     scrolledToEnd = false;
+    scrolledToTop = false;
 
     imagesToLoad = imgData;
     if (typeof filterFunction === 'function') {
@@ -144,11 +145,12 @@ function loadImages() {
         imageOnLoadCallback: function (e) {
             if (firstLoaded) {
                 if (imgIdxOffset != 0) {
-                    var top = (gallery.columnsContainer.offset().top + e.image.top - gallery.fullMin) - gallery.spacing;
+                    var top = gallery.columnsContainer.offset().top;
 
                     console.log(top);
 
                     window.scrollTo(0, top);
+					registerIntersectionWithTopCallback();
                 }
 
                 firstLoaded = false;
@@ -164,7 +166,6 @@ function loadImages() {
     });
 
     registerIntersectionCallback();
-    registerIntersectionWithTopCallback();
 
     if (imgIdxOffset === 0) {
         // navigate to top
