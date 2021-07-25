@@ -51,7 +51,6 @@ var imgIdxOffset = 0;
 // number of next images to load when scrolled to the bottom
 var chunkSize = 15;
 var scrolledToEnd = false;
-var scrolledToTop = false;
 
 /** detail image view element variables for caching **/
 var currentImageIndex = 0; // index of the currently or last opened image
@@ -120,7 +119,6 @@ $(function () {
 
 function loadImages() {
     scrolledToEnd = false;
-    scrolledToTop = false;
 
     imagesToLoad = imgData;
     if (typeof filterFunction === 'function') {
@@ -146,11 +144,8 @@ function loadImages() {
             if (firstLoaded) {
                 if (imgIdxOffset != 0) {
                     var top = gallery.columnsContainer.offset().top;
-
-                    console.log(top);
-
                     window.scrollTo(0, top);
-					registerIntersectionWithTopCallback();
+                    $('#loadPreviousBtn').show();
                 }
 
                 firstLoaded = false;
@@ -170,6 +165,7 @@ function loadImages() {
     if (imgIdxOffset === 0) {
         // navigate to top
         window.scrollTo(0, 0);
+        $('#loadPreviousBtn').hide();
     }
 }
 
@@ -196,39 +192,18 @@ function registerIntersectionCallback() {
     observer.observe($('#sentinel').get(0));
 }
 
-// detect scrolling up
-var topObserver;
-function registerIntersectionWithTopCallback() {
-    let intersectionCallback = (entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                scrolledToTop = true;
-                tryLoadPreviousChunk();
-            } else {
-                scrolledToTop = false;
-            }
-        });
-    };
-
-    topObserver = new IntersectionObserver(intersectionCallback);
-    topObserver.observe($('#topSentinel').get(0));
-}
-
 var topImageId = 0;
 var bottomImageId = 0;
 
 // load new images and append to the end of the gallery
 function tryLoadNextChunk() {
-    console.log(bottomImageId + ' > ' + (bottomImageId + 10));
-
     gallery.load(bottomImageId, gallery.columnCount, true);
     bottomImageId += gallery.columnCount;
 }
 
 // load new images and stack on top of the gallery
 function tryLoadPreviousChunk() {
-    console.log(topImageId + ' > ' + (topImageId - 10));
-
+	$('#loadPreviousBtn').hide();
     gallery.load(topImageId, -gallery.columnCount, true);
     topImageId -= gallery.columnCount;
 }
