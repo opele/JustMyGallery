@@ -154,6 +154,12 @@ function loadImages() {
             e.image.thumbnail.get(0).onclick = function () {
                 openImgDetailsView(e.image.index);
             };
+            
+            if (!gallery.loadInProgress()) {
+            	if (topImageId + imgIdxOffset > 0) {
+            		$('#loadPreviousBtn').show();
+            	}
+            }
         },
         heightCalculatedCallback: function (e) {
             $(document.body).height(e.h);
