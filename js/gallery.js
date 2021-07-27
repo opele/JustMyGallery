@@ -7,6 +7,8 @@ function GalleryColumn(gallery, index) {
     self.index = index;
 
     self.width = 0;
+    
+    self.height = 0;
 
     self.left = 0;
 
@@ -187,6 +189,8 @@ function GalleryImage(gallery, data, index, relativeIndex) {
         self.thumbnail.append(img);
 
         self.gallery.columnsContainer.append(self.thumbnail);
+        
+        self.gallery.columns[self.column].height += self.data.previewSize.h;
     };
 
     self.remove = function () {
@@ -318,6 +322,7 @@ function Gallery(options) {
 
 
         self.updateMinMax();
+        self.updateColumHeights();
     };
 
     self.load = function (baseIndex, count, indexIsRelative) {
@@ -393,6 +398,30 @@ function Gallery(options) {
         });
 
         self.applyMinMax();
+    };
+    
+    self.updateColumHeights = function () {
+
+        var columIdxToSizeMap = new Map();
+
+        self.forEachImage(image => {
+        	if (image.loading || image.loaded) {
+        		
+				let imgPos = image.top + image.data.previewSize.h;
+				
+				if (columIdxToSizeMap.has(image.column)) {
+					if (columIdxToSizeMap.get(image.column) < imgPos) {
+						columIdxToSizeMap.set(image.column, imgPos);
+					}
+				} else {
+					columIdxToSizeMap.set(image.column, imgPos);
+				}
+        	}
+        });
+        
+        columIdxToSizeMap.forEach((columnHeight, columnIdx) => {
+        	self.columns[columnIdx].height = columnHeight;
+        });
     };
 
     self.onImageLoaded = function (image) {
