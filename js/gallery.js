@@ -9,6 +9,8 @@ function GalleryColumn(gallery, index) {
     self.width = 0;
     
     self.height = 0;
+	
+	self.topHeight = 0;
 
     self.left = 0;
 
@@ -19,20 +21,26 @@ function GalleryColumn(gallery, index) {
     self.updatePosition = function () {
         self.left = gallery.spacing + index * gallery.columnWidth + index * gallery.spacing;
     };
-
-    return self;
-};
-
-function GalleryRow(gallery, index, relativeIndex) {
-    var self = this;
-
-    self.gallery = gallery;
-
-    self.index = index;
-    self.relativeIndex = relativeIndex;
-
-    self.images = [];
-    self.images.length = self.gallery.columnCount;
+	
+	self.getFirstImageBelow = function(imgIdx) {
+		let imgBelow = null;
+		self.gallery.forEachImage(i => {
+			if (i.column == self.index && i.index > imgIdx && (imgBelow == null || imgBelow.index > i.index)) {
+				imgBelow = i;
+			}
+		});
+		return imgBelow;
+	}
+	
+	self.getFirstImageAbove = function(imgIdx) {
+		let imgAbove = null;
+		self.gallery.forEachImage(i => {
+			if (i.column == self.index && i.index < imgIdx && (imgAbove == null || imgAbove.index < i.index)) {
+				imgAbove = i;
+			}
+		});
+		return imgAbove;
+	}
 
     return self;
 };
@@ -47,7 +55,6 @@ function GalleryImage(gallery, data, index, relativeIndex) {
     self.index = index;
     self.relativeIndex = relativeIndex;
 
-    self.row = 0;
     self.column = 0;
 
     self.left = 0;
@@ -65,50 +72,44 @@ function GalleryImage(gallery, data, index, relativeIndex) {
     });
 
 
-    self.updateRowAndColumn = function () {
+    self.updateColumn = function () {
         var column;
-        var row;
-
+		
         if (self.relativeIndex < 0 && (self.relativeIndex % self.gallery.columnCount) != 0) {
-            column = self.gallery.columnCount + Math.floor(self.relativeIndex % self.gallery.columnCount);
+			let newColumnObj = self.gallery.getSmallestColumnTop();
+            self.column = newColumnObj.index;
+			newColumnObj.topHeight += self.data.previewSize.h;
+			self.thumbnail.attr('x-gallery-column', self.column + ' ' + newColumnObj.topHeight);
         }
         else {
-            column = Math.floor(self.relativeIndex % self.gallery.columnCount);
+            let newColumnObj = self.gallery.getSmallestColumnBottom();
+			self.column = newColumnObj.index;
+			newColumnObj.height += self.data.previewSize.h;
+			self.thumbnail.attr('x-gallery-column', self.column + ' ' + newColumnObj.height);
         }
-
-        var row = Math.floor(self.relativeIndex / self.gallery.columnCount);
-
-        self.setRowAndColumn(row, column);
-    };
-
-    self.setRowAndColumn = function (row, column) {
-        self.row = row;
-        self.column = column;
-
-        self.gallery.getRowByRelativeIndex(self.row).images[column] = self;
-
-        self.thumbnail.attr('x-gallery-position', self.row + ' ' + self.column);
     };
 
     self.updatePosition = function () {
-        self.left = self.gallery.columns[self.column].left + self.gallery.spacing;
-
-        var row = self.gallery.getRowByRelativeIndex(self.row);
+		var ourColumn = self.gallery.columns[self.column];
+        self.left = ourColumn.left + self.gallery.spacing;
 
         self.top = 0;
 
-        if (row.relativeIndex < 0) {
-            var nextRow = self.gallery.getRowByRelativeIndex(self.row + 1);
-            if (nextRow && nextRow.images[self.column]) {
-                self.top = (nextRow.images[self.column].top - self.data.previewSize.h) - self.gallery.spacing;
+        if (self.isAddedToTop()) {
+			// put image on top, so get the position of the image below in the same column
+			let imgBelow = ourColumn.getFirstImageBelow(self.index);
+            if (imgBelow) {
+                self.top = (imgBelow.top - self.data.previewSize.h) - self.gallery.spacing;
             }
         } else {
-            if (row.relativeIndex > 0) {
-                var prevRow = self.gallery.getRowByRelativeIndex(self.row - 1);
-                if (prevRow && prevRow.images[self.column]) {
-                    self.top = prevRow.images[self.column].top + prevRow.images[self.column].data.previewSize.h + self.gallery.spacing;
+			// put image at the end, so get the position of the image above in the same column
+            if (self.isAddedToBottom()) {
+                let imgAbove = ourColumn.getFirstImageAbove(self.index);
+                if (imgAbove) {
+                    self.top = imgAbove.top + imgAbove.data.previewSize.h + self.gallery.spacing;
                 }
             }
+			// else just just place at the top if we are loading the first row, no need to update the top
         }
 
         if (!self.loaded) {
@@ -135,6 +136,14 @@ function GalleryImage(gallery, data, index, relativeIndex) {
             });
         }
     };
+	
+	self.isAddedToTop = function() {
+		return self.gallery.baseImageIndex > self.index;
+	}
+	
+	self.isAddedToBottom = function() {
+		return self.gallery.baseImageIndex < self.index;
+	}
 
     self.load = function () {
         if (self.loading || self.loaded)
@@ -189,8 +198,6 @@ function GalleryImage(gallery, data, index, relativeIndex) {
         self.thumbnail.append(img);
 
         self.gallery.columnsContainer.append(self.thumbnail);
-        
-        self.gallery.columns[self.column].height += self.data.previewSize.h;
     };
 
     self.remove = function () {
@@ -203,10 +210,8 @@ function GalleryImage(gallery, data, index, relativeIndex) {
 function Gallery(options) {
     var self = this;
 
-    self.rows = [];
     self.columns = [];
 
-    self.rowCount = 0;
     self.columnCount = 0;
 
     self.container = (typeof options.container === 'string') ? $(options.container).first() : options.container;
@@ -265,10 +270,6 @@ function Gallery(options) {
         return self.getImageByRelativeIndex(self.baseImageIndex + index);
     };
 
-    self.getRowByRelativeIndex = function (index) {
-        return self.rows[self.baseRowIndex + index];
-    };
-
 
     self.forEachImage = function (callback) {
         for (var i = 0; i < self.images.length; ++i) {
@@ -282,12 +283,6 @@ function Gallery(options) {
         }
     };
 
-    self.forEachRow = function (callback) {
-        for (var i = 0; i < self.rows.length; ++i) {
-            callback(self.rows[i], i);
-        }
-    };
-
 
     self.resize = function () {
         // Get width of the container (space for our columns)
@@ -297,23 +292,15 @@ function Gallery(options) {
         var spaceForColumns = containerWidth - self.spacing * 2;
 
         self.columnCount = Math.max(1, Math.floor(spaceForColumns / (self.columnWidth + self.spacing)));
-        self.rowCount = Math.max(1, Math.ceil(self.images.length / self.columnCount + Math.abs(self.baseImageIndex) % self.columnCount));
-
-        self.baseRowIndex = Math.sign(self.baseImageIndex) * Math.ceil(Math.abs(self.baseImageIndex) / self.columnCount);
 
         self.columns = [];
-        self.rows = [];
 
         for (var i = 0; i < self.columnCount; ++i) {
             self.columns.push(new GalleryColumn(self, i));
         }
 
-        for (var i = 0; i < self.rowCount; ++i) {
-            self.rows.push(new GalleryRow(self, i, i - self.baseRowIndex));
-        }
 
-
-        self.forEachImage(i => i.updateRowAndColumn());
+        self.forEachImage(i => i.updateColumn());
 
         self.forEachColumn(c => c.updateSize());
         self.forEachColumn(c => c.updatePosition());
@@ -322,7 +309,6 @@ function Gallery(options) {
 
 
         self.updateMinMax();
-        self.updateColumHeights();
     };
 
     self.load = function (baseIndex, count, indexIsRelative) {
@@ -399,30 +385,28 @@ function Gallery(options) {
 
         self.applyMinMax();
     };
-    
-    self.updateColumHeights = function () {
-
-        var columIdxToSizeMap = new Map();
-
-        self.forEachImage(image => {
-        	if (image.loading || image.loaded) {
-        		
-				let imgPos = image.top + image.data.previewSize.h;
-				
-				if (columIdxToSizeMap.has(image.column)) {
-					if (columIdxToSizeMap.get(image.column) < imgPos) {
-						columIdxToSizeMap.set(image.column, imgPos);
-					}
-				} else {
-					columIdxToSizeMap.set(image.column, imgPos);
-				}
-        	}
-        });
-        
-        columIdxToSizeMap.forEach((columnHeight, columnIdx) => {
-        	self.columns[columnIdx].height = columnHeight;
-        });
-    };
+	
+	self.getSmallestColumnBottom = function() {
+		var smallestColumn = self.columns[0];
+		
+		self.forEachColumn(c => { 
+			if (c.height < smallestColumn.height)
+				smallestColumn = c;
+		});
+		
+		return smallestColumn;
+	};
+	
+	self.getSmallestColumnTop = function() {
+		var smallestColumn = self.columns[0];
+		
+		self.forEachColumn(c => {
+			if (c.topHeight < smallestColumn.topHeight)
+				smallestColumn = c;
+		});
+		
+		return smallestColumn;
+	};
 
     self.onImageLoaded = function (image) {
         self.min = Math.min(image.top, self.min);

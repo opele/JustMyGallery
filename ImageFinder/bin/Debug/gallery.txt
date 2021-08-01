@@ -11,6 +11,8 @@ center small images if scaling down or scaling is disabled
 
 fix horizontal scrollbar caused gallery wrapping too late
 
+image details view: allow grab with mouse and scroll in the dragged direction
+
 - use minified JS for external libs
 - test in Edge/FF/Chrome on Mac and PC
 - add MIT license
