@@ -75,16 +75,17 @@ function GalleryImage(gallery, data, index, relativeIndex) {
     self.updateColumn = function () {
         var column;
 		
-        if (self.relativeIndex < 0 && (self.relativeIndex % self.gallery.columnCount) != 0) {
+		// image added to top
+        if (self.relativeIndex < 0) {
 			let newColumnObj = self.gallery.getSmallestColumnTop();
             self.column = newColumnObj.index;
-			newColumnObj.topHeight += self.data.previewSize.h;
+			newColumnObj.topHeight += self.data.previewSize.h + self.gallery.spacing;
 			self.thumbnail.attr('x-gallery-column', self.column + ' ' + newColumnObj.topHeight);
         }
-        else {
+        else { // image appended to bottom or center
             let newColumnObj = self.gallery.getSmallestColumnBottom();
 			self.column = newColumnObj.index;
-			newColumnObj.height += self.data.previewSize.h;
+			newColumnObj.height += self.data.previewSize.h + self.gallery.spacing;
 			self.thumbnail.attr('x-gallery-column', self.column + ' ' + newColumnObj.height);
         }
     };
@@ -276,6 +277,18 @@ function Gallery(options) {
             callback(self.images[i], i);
         }
     };
+	
+	// iterates over the images in the order they are added to the gallery: appended images first then previous images
+	self.forEachImageInsertionOrder = function (callback) {
+        for (var i = 0; i < self.images.length; ++i) {
+			if (self.images[i].relativeIndex > -1)
+				callback(self.images[i], i);
+        }
+		for (var i = self.images.length - 1; i >= 0; --i) {
+			if (self.images[i].relativeIndex < 0)
+				callback(self.images[i], i);
+        }
+    };
 
     self.forEachColumn = function (callback) {
         for (var i = 0; i < self.columns.length; ++i) {
@@ -300,7 +313,7 @@ function Gallery(options) {
         }
 
 
-        self.forEachImage(i => i.updateColumn());
+        self.forEachImageInsertionOrder(i => i.updateColumn());
 
         self.forEachColumn(c => c.updateSize());
         self.forEachColumn(c => c.updatePosition());

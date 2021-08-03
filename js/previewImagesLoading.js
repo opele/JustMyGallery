@@ -176,6 +176,7 @@ function loadImages() {
 }
 
 function displayImagesStartingAt(offset) {
+	// TODO: make sure to reduce offset so we always load at least a full row
     imgIdxOffset = offset;
     loadImages();
 }
