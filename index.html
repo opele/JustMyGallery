@@ -18,8 +18,14 @@
     .gallery-container {
       min-width: 500px;
       background: #2b3e50;
-			padding-left: 30px;
+	  padding-left: 30px;
     }
+	
+	#loadPreviousContainer {
+		justify-content: center;
+		display: flex;
+		align-items: center;
+	}
 	
 	.gallery-columns {
       position: relative;
@@ -620,7 +626,9 @@
   
 
 	<div class="gallery-container">
-		<button id="loadPreviousBtn" class="btn btn-lg btn-primary" style="width: 98%;" type="button" onclick="tryLoadPreviousChunk()">Load Previous</button>
+		<div id="loadPreviousContainer">
+			<button id="loadPreviousBtn" class="btn btn-lg btn-primary" type="button" onclick="tryLoadPreviousChunk()">Load Previous Images</button>
+		</div>
 		<div id="gallery-images-container"></div>
 		<div id="sentinel"></div>
 	</div>
