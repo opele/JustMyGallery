@@ -159,6 +159,7 @@ function loadImages() {
             	if (topImageId + imgIdxOffset > 0) {
             		$('#loadPreviousBtn').show();
             	}
+            	tryLoadNextChunk();
             }
         },
         heightCalculatedCallback: function (e) {
@@ -204,8 +205,10 @@ var bottomImageId = 0;
 
 // load new images and append to the end of the gallery
 function tryLoadNextChunk() {
-    gallery.load(bottomImageId, gallery.columnCount, true);
-    bottomImageId += gallery.columnCount;
+	if (scrolledToEnd) {
+		gallery.load(bottomImageId, gallery.columnCount, true);
+		bottomImageId += gallery.columnCount;
+    }
 }
 
 // load new images and stack on top of the gallery
