@@ -303,10 +303,15 @@ namespace ImageFinder {
 
             Formatting format = minifyOutput ? Formatting.None : Formatting.Indented;
 
+            var imgSize = ImageUtil.getImageSize(imgPath);
+            var previewImgSize = ImageUtil.getImageSize(ImageUtil.getPreviewPath(imgPath));
+
             string line = JsonConvert.SerializeObject(new
             {
                 thumb = ImageUtil.getPreviewPath(outputPath),
                 image = outputPath,
+                size = new { w = imgSize.Width, h = imgSize.Height },
+                previewSize = new { w = previewImgSize.Width, h = previewImgSize.Height },
                 title = Path.GetFileName(outputPath),
                 timestamp = new DateTimeOffset(createdAt).ToUnixTimeMilliseconds(),
                 createdDate = createdAt.ToString("G"),

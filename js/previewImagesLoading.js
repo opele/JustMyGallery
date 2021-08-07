@@ -16,36 +16,39 @@ var filterByCategoryEnabled = false;
 var currentFilterCategory;
 var categoriesAndTags = true;
 
-var nameFilterFunc = function(dataItemToFilter) {return true;};
-var tagsFilterFunc = function(dataItemToFilter) {return true;};
-var categoryFilterFunc = function(dataItemToFilter) {return true;};
-var dateRangeFilterFunc = function(dataItemToFilter) {return true;};
-var filterFunction = function(arr) {
-		return arr.filter(function(dataItemToFilter) {
-				return nameFilterFunc(dataItemToFilter) && 
-				
-					// if tag AND category filters are on, only then consider categoriesAndTags
-					// otherwise the OR condition is true and we don't even evaluate the filters
-					((!filterByTagsEnabled || !filterByCategoryEnabled) ||
-						((categoriesAndTags && tagsFilterFunc(dataItemToFilter) && categoryFilterFunc(dataItemToFilter)) ||
-						(!categoriesAndTags && (tagsFilterFunc(dataItemToFilter) || categoryFilterFunc(dataItemToFilter))))
-					) &&
-					
-					// if one of them is off, then just apply it regardless of categoriesAndTags
-					// this avoids showing all results when categoriesAndTags = false (i.e. OR filtering) and one of the filters is not active (i.e. allows all)
-					((filterByTagsEnabled && filterByCategoryEnabled) ||
-						(tagsFilterFunc(dataItemToFilter) && categoryFilterFunc(dataItemToFilter))
-					) &&
-					
-					dateRangeFilterFunc(dataItemToFilter);
-			});
-	};
+var nameFilterFunc = function (dataItemToFilter) { return true; };
+var tagsFilterFunc = function (dataItemToFilter) { return true; };
+var categoryFilterFunc = function (dataItemToFilter) { return true; };
+var dateRangeFilterFunc = function (dataItemToFilter) { return true; };
+var filterFunction = function (arr) {
+    return arr.filter(function (dataItemToFilter) {
+        return nameFilterFunc(dataItemToFilter) &&
+
+            // if tag AND category filters are on, only then consider categoriesAndTags
+            // otherwise the OR condition is true and we don't even evaluate the filters
+            ((!filterByTagsEnabled || !filterByCategoryEnabled) ||
+                ((categoriesAndTags && tagsFilterFunc(dataItemToFilter) && categoryFilterFunc(dataItemToFilter)) ||
+                    (!categoriesAndTags && (tagsFilterFunc(dataItemToFilter) || categoryFilterFunc(dataItemToFilter))))
+            ) &&
+
+            // if one of them is off, then just apply it regardless of categoriesAndTags
+            // this avoids showing all results when categoriesAndTags = false (i.e. OR filtering) and one of the filters is not active (i.e. allows all)
+            ((filterByTagsEnabled && filterByCategoryEnabled) ||
+                (tagsFilterFunc(dataItemToFilter) && categoryFilterFunc(dataItemToFilter))
+            ) &&
+
+            dateRangeFilterFunc(dataItemToFilter);
+    });
+};
 
 // gallery object which manages the preview images
 var gallery;
 // imagesToLoad contains all the images available for display according to currently selected filter criteria
 var imagesToLoad;
-// number of next images to load when scrolled to the bottom
+// index of the first loaded preview image, all previous images are not displayed in the gallery
+// i.e. equal to the number of unloaded previous images
+var imgIdxOffset = 0;
+// number of next images to load when scrolled to the bottom or when loading previous images
 var chunkSize = 15;
 var scrolledToEnd = false;
 
@@ -88,121 +91,133 @@ var preloadedImages = [];
 var numberOfPrevImgsToPreload = 1;
 var numberOfNextImgsToPreload = 2;
 
-$(function(){
-	refreshSelectableTags();
-	refreshSelectableCategories();
+$(function () {
+    refreshSelectableTags();
+    refreshSelectableCategories();
 });
 
-$(function() {
+$(function () {
 
-	modal = document.getElementById("imageModal");
-	modalImg = document.getElementById("modalImg");
-	captionText = document.getElementById("caption");
-	ratingEl = document.getElementById("rating");
-	predefinedTagsEl = document.getElementById("predefinedTags");
-	userDefinedTagsEl = document.getElementById("myTags");
-	modalNavCurrentEl = document.getElementById("modalNavCurrent");
-	modalNavMaxEl = document.getElementById("modalNavMax");
-	addBookmarkEl = document.getElementById("addBookmark");
-	
-	bookmarksModalEl = document.getElementById("bookmarksModal");
-	bookmarksListEl = document.getElementById("bookmarksList");
-	
-	initSearchSidebar();
-	initSettingsSidebar();
-	
-	loadImages();
+    modal = document.getElementById("imageModal");
+    modalImg = document.getElementById("modalImg");
+    captionText = document.getElementById("caption");
+    ratingEl = document.getElementById("rating");
+    predefinedTagsEl = document.getElementById("predefinedTags");
+    userDefinedTagsEl = document.getElementById("myTags");
+    modalNavCurrentEl = document.getElementById("modalNavCurrent");
+    modalNavMaxEl = document.getElementById("modalNavMax");
+    addBookmarkEl = document.getElementById("addBookmark");
+
+    bookmarksModalEl = document.getElementById("bookmarksModal");
+    bookmarksListEl = document.getElementById("bookmarksList");
+
+    initSearchSidebar();
+    initSettingsSidebar();
+
+    loadImages();
 });
-
 
 function loadImages() {
-	
-	scrolledToEnd = false;
+    scrolledToEnd = false;
 
-	imagesToLoad = imgData;
-	if (typeof filterFunction === 'function') {
-		imagesToLoad = filterFunction(imagesToLoad);
-	}
-	
-	updateImgCountDisplay();
-	
-	imagesToLoad.sort(sortImages);
-	
-	gallery = new Gallery({
-	  container: '.gallery-container',
-	  images: imagesToLoad.slice(0,30),
-	  columnWidth: 230,
-	  spacing: 10,
-	  imageOnLoadCallback: updateLazyLoadSentinel
-	});
-	
-	// navigate to top
-	window.scrollTo(0, 0);
+    imagesToLoad = imgData;
+    if (typeof filterFunction === 'function') {
+        imagesToLoad = filterFunction(imagesToLoad);
+    }
+
+    updateImgCountDisplay();
+
+    imagesToLoad.sort(sortImages);
+
+    topImageId = 0;
+    bottomImageId = 0;
+
+    var firstLoaded = true;
+
+    gallery = new Gallery({
+        container: '#gallery-images-container',
+        images: imagesToLoad,
+        baseImageIndex: imgIdxOffset,
+        columnWidth: 230,
+        spacing: 10,
+        imageOnLoadCallback: function (e) {
+            if (firstLoaded) {
+                if (imgIdxOffset != 0) {
+                    var top = gallery.columnsContainer.offset().top;
+                    window.scrollTo(0, top);
+                    $('#loadPreviousBtn').show();
+                }
+
+                firstLoaded = false;
+            }
+
+            e.image.thumbnail.get(0).onclick = function () {
+                openImgDetailsView(e.image.index);
+            };
+            
+            if (!gallery.loadInProgress()) {
+            	if (topImageId + imgIdxOffset > 0) {
+            		$('#loadPreviousBtn').show();
+            	}
+            	tryLoadNextChunk();
+            }
+        },
+        heightCalculatedCallback: function (e) {
+            $(document.body).height(e.h);
+        }
+    });
+
+    registerIntersectionCallback();
+
+    if (imgIdxOffset === 0) {
+        // navigate to top
+        window.scrollTo(0, 0);
+        $('#loadPreviousBtn').hide();
+    }
 }
 
-// Add or update LazyLoadSentinel when an image loads. Passed into Gallery constructor.
-// This event may only fire for one image if the whole chunk is loaded from cache. 
-// imageData then points to a random image and can have top = 0 but gallery.loadedImages is incremented by the chunk size (all images loaded = true).
-// Therefore, can't use imageData to position the sentinel. Retrieve the last loaded image after which the sentinel should be positioned.
-function updateLazyLoadSentinel(e, imageData, imgEl) {
-		
-	// TODO: when image fails loading, we never get past this
-	if (!gallery.allImgsLoaded()) return;
-	
-	let lastLoadedImgData = gallery.lastLoaded();
-	
-	var sentinel = $('#sentinel');
-	let isNew = false;
-	
-	if (sentinel == null || !sentinel.length) {
-		isNew = true;
-		gallery.columnsContainer.append('<div id="sentinel"></div>');
-		sentinel = $('#sentinel');
-	}
-	
-	if (!sentinel.position() || sentinel.position().top < lastLoadedImgData.top)
-		sentinel.css({top: lastLoadedImgData.top, left: lastLoadedImgData.left, position:'absolute'});
-	
-	if (isNew) {
-		registerIntersectionCallback();
-	} else {
-		tryLoadNextChunk();
-	}
+function displayImagesStartingAt(offset) {
+    imgIdxOffset = offset;
+    loadImages();
+	imgIdxOffset = gallery.baseImageIndex;
 }
 
+// detect scrolling down
 var observer;
 function registerIntersectionCallback() {
-	let intersectionCallback = (entries, observer) => {
-	  entries.forEach(entry => {
-		  if (entry.isIntersecting) {
-			scrolledToEnd = true;
-			tryLoadNextChunk();
-		  } else {
-			scrolledToEnd = false;
-		  }
-	  });
-	};
-	
-	observer = new IntersectionObserver(intersectionCallback);
-	observer.observe($('#sentinel').get(0));
+    let intersectionCallback = (entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                scrolledToEnd = true;
+                tryLoadNextChunk();
+            } else {
+                scrolledToEnd = false;
+            }
+        });
+    };
+
+    observer = new IntersectionObserver(intersectionCallback);
+    observer.observe($('#sentinel').get(0));
 }
 
-function tryLoadNextChunk() {
+var topImageId = 0;
+var bottomImageId = 0;
 
-	var currentLoadSize = gallery.getDataLength();
-	
-	if (gallery.lastLoaded() && scrolledToEnd && currentLoadSize < imagesToLoad.length) {
-		
-		var nextLoadSize = currentLoadSize + chunkSize;
-		if (nextLoadSize > imagesToLoad.length) {
-			nextLoadSize = imagesToLoad.length;
-		}
-		gallery.pushAll(imagesToLoad.slice(currentLoadSize, nextLoadSize));
-		
-		lastChunkLoaded = false;
-	}
+// load new images and append to the end of the gallery
+function tryLoadNextChunk() {
+	if (scrolledToEnd) {
+		gallery.load(bottomImageId, chunkSize, true);
+		bottomImageId += chunkSize;
+    }
+}
+
+// load new images and stack on top of the gallery
+function tryLoadPreviousChunk() {
+	$('#loadPreviousBtn').hide();
+    gallery.load(topImageId, -chunkSize, true);
+    topImageId -= chunkSize;
 }
 
 function updateImgCountDisplay() {
-	$('#filteredImgNumberInfo').html(imagesToLoad.length + ' images to show.');
+    $('#filteredImgNumberInfo').html(imagesToLoad.length + ' images to show.');
 }
