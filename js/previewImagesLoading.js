@@ -48,7 +48,7 @@ var imagesToLoad;
 // index of the first loaded preview image, all previous images are not displayed in the gallery
 // i.e. equal to the number of unloaded previous images
 var imgIdxOffset = 0;
-// number of next images to load when scrolled to the bottom
+// number of next images to load when scrolled to the bottom or when loading previous images
 var chunkSize = 15;
 var scrolledToEnd = false;
 
@@ -206,16 +206,16 @@ var bottomImageId = 0;
 // load new images and append to the end of the gallery
 function tryLoadNextChunk() {
 	if (scrolledToEnd) {
-		gallery.load(bottomImageId, gallery.columnCount, true);
-		bottomImageId += gallery.columnCount;
+		gallery.load(bottomImageId, chunkSize, true);
+		bottomImageId += chunkSize;
     }
 }
 
 // load new images and stack on top of the gallery
 function tryLoadPreviousChunk() {
 	$('#loadPreviousBtn').hide();
-    gallery.load(topImageId, -gallery.columnCount, true);
-    topImageId -= gallery.columnCount;
+    gallery.load(topImageId, -chunkSize, true);
+    topImageId -= chunkSize;
 }
 
 function updateImgCountDisplay() {
