@@ -84,11 +84,11 @@ function GalleryImage(gallery, data, index) {
             let newColumnObj = self.gallery.getSmallestColumnBottom();
 			self.column = newColumnObj.index;
 			newColumnObj.height += self.data.previewSize.h + self.gallery.spacing;
-			self.thumbnail.attr('x-gallery-column', self.column + ' ' + newColumnObj.height);
+			self.thumbnail.attr('x-gallery-position', self.index + ' ' +  self.column + ' ' + newColumnObj.height);
         }
     };
 
-    self.updatePosition = function () {
+    self.updatePosition = function (setAnimationStartPosition) {
 		var ourColumn = self.gallery.columns[self.column];
         self.left = ourColumn.left + self.gallery.spacing;
 
@@ -111,20 +111,19 @@ function GalleryImage(gallery, data, index) {
 			// else just just place at the top if we are loading the first row, no need to update the top
         }
 
-        if (!self.loaded) {
-            var startLeft = -self.data.previewSize.w;
-            var startTop = -self.data.previewSize.h;
+        if (setAnimationStartPosition) {
+            var startTop = self.top;
 
-            if ((self.column / self.gallery.columnCount) >= 0.5) {
-                startLeft = self.gallery.columnsContainer.width();
+            if (self.isAddedToTop()) {
+            	// disabled sliding down animation because it requires to be timed with an animation for pushing existing images down
+            	//startTop = self.top - 2000;
             }
-
-            if (!self.isAddedToTop()) {
-                startTop = self.gallery.columnsContainer.height();
+            else {
+                startTop = self.top + 2000;
             }
 
             self.thumbnail.css({
-                left: startLeft + 'px',
+                left: self.left + 'px',
                 top: startTop + 'px'
             });
         }
@@ -159,7 +158,7 @@ function GalleryImage(gallery, data, index) {
 
         $(img).addClass('gallery-thumb-img');
 
-        self.updatePosition();
+        self.updatePosition(true);
 
         var loaded = function (error) {
             self.thumbnail.css({ 'visibility': 'visible' });
@@ -170,7 +169,8 @@ function GalleryImage(gallery, data, index) {
 
             self.gallery.imagesBeingLoaded--;
 
-            self.updatePosition();
+            // this needs to have a delay for the animation to play, otherwise the image randomly just pops up
+            setTimeout(self.updatePosition, 100)
 
             self.gallery.onImageLoaded(self);
 
@@ -316,7 +316,7 @@ function Gallery(options) {
         self.forEachColumn(c => c.updateSize());
         self.forEachColumn(c => c.updatePosition());
 
-        self.forEachImage(i => i.updatePosition());
+        self.forEachImage(i => i.updatePosition(false));
 
 
         self.updateMinMax();
