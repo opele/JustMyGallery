@@ -143,8 +143,6 @@ function loadImages() {
         imageOnLoadCallback: function (e) {
             if (firstLoaded) {
                 if (imgIdxOffset != 0) {
-                    var top = gallery.columnsContainer.offset().top;
-                    window.scrollTo(0, top);
                     $('#loadPreviousBtn').show();
                 }
 
@@ -171,9 +169,17 @@ function loadImages() {
 
     if (imgIdxOffset === 0) {
         // navigate to top
+        if ('scrollRestoration' in history) {
+		  history.scrollRestoration = 'manual';
+		}
         window.scrollTo(0, 0);
         $('#loadPreviousBtn').hide();
+    } else {
+    	
+    	let top = gallery.columnsContainer.offset().top;
+        window.scrollTo(0, top);
     }
+    
 }
 
 function displayImagesStartingAt(offset) {
