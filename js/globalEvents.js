@@ -15,7 +15,7 @@
 				  navigateToNext(null);
 				  
 				} else if (event.key == "Escape") {
-				  closeImageView(true);
+					closeImageView(event, true);
 				  
 				} else if (event.key == "ArrowUp") {
 					modal.scrollTop -= 20;

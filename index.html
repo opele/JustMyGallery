@@ -169,6 +169,26 @@
 	  max-width: 700px;*/
 	}
 
+	#modelImgContainer {
+		    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    left: 0;
+    top: 0;
+		}
+
+    #modalPanner {
+			overflow:hidden;
+      width: 100vw;
+      height: 100vh;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    #modalImg {
+      touch-action: none;
+    }
+
 	/* Caption of Modal Image */
 	#caption {
 	  margin: auto;
@@ -642,7 +662,7 @@
 	</div>
 
 	<!-- The Modal Popup for the Image Detail View -->
-	<div id="imageModal" class="modal" onclick="closeImageView()">
+	<div id="imageModal" class="modal" onclick="closeImageView(event)">
 	  <div id="modalNav">
 		<label for="modalNavCurrent">Showing </label>
 		<input id="modalNavCurrent" type="text"/>
@@ -653,7 +673,11 @@
 	  <span id="addBookmark" class="fa fa-bookmark-o fa-2x" onclick="toggleBookmark(event)"></span>
 	  <span class="next" onclick="navigateToNext(event)">&rarr;</span>
 	  <span class="previous" onclick="navigateToPrevious(event)">&larr;</span>
-		<div id="modelImgContainer"><img class="modal-content" id="modalImg"></div>
+		<div id="modelImgContainer">
+			<div id="modalPanner">
+				<div class="modal-content" id="modalImg"></div>
+			</div>
+		</div>
 	  <div id="caption"></div>
 	  <div id="rating" class="rate">
 		<span class = "fa fa-star unchecked" onclick='rateImage(event, 1)'></span>

@@ -1,15 +1,21 @@
 
 /* SHOW IMAGE IN ORIGINAL SIZE */
 
+let currSelectedImg;
+
 $(function () {
 	var range = $("#imageSizeRange");
 	range.on("input change", function () {
-		applyScaleToImg(range.val(), $('#modalImg')[0]);
+		applyScaleToImg(range.val(), $('#modalImg')[0], currSelectedImg.size);
 	});
 });
 
+let isPanning = false;
+
 function openImgDetailsView(imgIndex) {
-	
+	isPanning = false;
+	resetPan();
+
 	let isValid = isNumber(imgIndex) && Number.isInteger(imgIndex) && imgIndex >= 0 && imgIndex <= imagesToLoad.length;
 	
 	if (!isValid) {
@@ -21,7 +27,7 @@ function openImgDetailsView(imgIndex) {
 	$('.sidebar-open-button').hide();
 	$('body').css('overflow', 'hidden');
 	
-	let imageData = imagesToLoad[imgIndex];
+	let imageData = currSelectedImg = imagesToLoad[imgIndex];
 	modal.style.display = "block";
 	captionText.innerHTML = imageData.title;
 	currentImageIndex = imgIndex;
@@ -30,7 +36,6 @@ function openImgDetailsView(imgIndex) {
 
 	// this callback actually only needs to be set once
 	newModelImg.onload = function () {
-		showImageSizeRange(newModelImg, imageData.size);
 
 		// when scrolled to the bottom and navigating to the next image, we want to start from the top again
 		modal.scrollTop = 0;
@@ -44,12 +49,65 @@ function openImgDetailsView(imgIndex) {
 
 		// we need the width and height loaded before sizing the image
 		preloadImages();
-		
-		$('#modelImgContainer').html(newModelImg);
+
+		let css = {
+			'background-image': 'url("' + imageData.image + '")',
+			'background-size': 'contain',
+			'width': imageData.size.w + 'px',
+			'height': imageData.size.h + 'px'
+		};
+
+		$('#modalImg').css(css);
+		showImageSizeRange($('#modalImg')[0], imageData.size);
 	};
 
 	newModelImg.src = imageData.image;
 }
+
+var panStart = { x: 0, y: 0 };
+var pan = { x: 0, y: 0 };
+
+function resetPan() {
+	panStart = { x: 0, y: 0 };
+	pan = { x: 0, y: 0 };
+}
+
+function installPanning(el) {
+	el.on('mousemove', e => {
+		if (!isPanning)
+			return;
+
+		let panner = el;//$('#modalImg');
+
+		let dx = e.pageX - panStart.x;
+		let dy = e.pageY - panStart.y;
+
+		pan.x += dx;
+		pan.y += dy;
+
+		panStart.x = e.pageX;
+		panStart.y = e.pageY;
+
+		panner.css({
+			'transform': 'translate(' + pan.x + 'px,' + pan.y + 'px)'
+		});
+	});
+
+	el.on('mousedown', e => {
+		isPanning = true;
+
+		panStart.x = e.pageX;
+		panStart.y = e.pageY;
+	});
+
+	el.on('mouseup', e => {
+		isPanning = false;
+	});
+}
+
+$(function () {
+	installPanning($('#modalImg'));
+});
 
 
 function navigateToPrevious(event) {
@@ -179,16 +237,10 @@ function showImageSizeRange(img, size) {
 }
 
 function applyScaleToImg(scale, currentImg, size) {
-	if (!size) {
-		size = { w: currentImg.naturalWidth, h: currentImg.naturalHeight };
-	};
-
 	var newWidth = size.w * scale;
 	var newHeight = size.h * scale;
 	currentImg.style.width = newWidth + 'px';
 	currentImg.style.height = newHeight + 'px';
-	currentImg.width = newWidth;
-	currentImg.height = newHeight;
 }
 
 function resizeImage(event) {
@@ -252,8 +304,12 @@ $(function() {
 })
 
 
-function closeImageView(forceClose) {
-	
+function closeImageView(event, forceClose) {
+
+	if (event.target.id === 'modalImg') {
+		return;
+	}
+
 	if (!forceClose && isEditingModalComponent()) return;
 
 	$('#imageSizeRangeContainer').hide();
