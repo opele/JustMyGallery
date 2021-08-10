@@ -189,6 +189,12 @@
     #modalImg {
       touch-action: none;
     }
+    
+    #imgDetails {
+      position: absolute;
+      bottom: 20px;
+      width: 300px;
+    }
 
 	/* Caption of Modal Image */
 	#caption {
@@ -200,6 +206,7 @@
 	  color: #ccc;
 	  padding: 10px 0;
 	  height: 35px;
+	  white-space: nowrap;
 	}
 
 	/* Add Animation */
@@ -674,21 +681,23 @@
 	  <span id="addBookmark" class="fa fa-bookmark-o fa-2x" onclick="toggleBookmark(event)"></span>
 	  <span class="next" onclick="navigateToNext(event)">&rarr;</span>
 	  <span class="previous" onclick="navigateToPrevious(event)">&larr;</span>
-		<div id="modelImgContainer">
-			<div id="modalPanner">
-				<div class="modal-content" id="modalImg"></div>
-			</div>
+	  <div id="modelImgContainer">
+	  	<div id="modalPanner">
+			<div class="modal-content" id="modalImg"></div>
 		</div>
-	  <div id="caption"></div>
-	  <div id="rating" class="rate">
-		<span class = "fa fa-star unchecked" onclick='rateImage(event, 1)'></span>
-		<span class = "fa fa-star unchecked" onclick='rateImage(event, 2)'></span>
-		<span class = "fa fa-star unchecked" onclick='rateImage(event, 3)'></span>
-		<span class = "fa fa-star unchecked" onclick='rateImage(event, 4)'></span>
-		<span class = "fa fa-star unchecked" onclick='rateImage(event, 5)'></span>
 	  </div>
-	  <div id="predefinedTags" class="predefined-tags"></div>
-	  <div id="myTags" class="my-tags"></div>
+	  <div id="imgDetails">
+		  <div id="caption"></div>
+		  <div id="rating" class="rate">
+			<span class = "fa fa-star unchecked" onclick='rateImage(event, 1)'></span>
+			<span class = "fa fa-star unchecked" onclick='rateImage(event, 2)'></span>
+			<span class = "fa fa-star unchecked" onclick='rateImage(event, 3)'></span>
+			<span class = "fa fa-star unchecked" onclick='rateImage(event, 4)'></span>
+			<span class = "fa fa-star unchecked" onclick='rateImage(event, 5)'></span>
+		  </div>
+		  <div id="predefinedTags" class="predefined-tags"></div>
+		  <div id="myTags" class="my-tags"></div>
+	  </div>
 	</div>
 	
 	<!-- The Modal Popup for the Bookmarks List View -->
