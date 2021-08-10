@@ -28,10 +28,6 @@ function isViewingBookmarks() {
 	return bookmarksModalEl.style.display == "block";
 }
 
-function getCurrentlyViewedImg() {
-	if (isViewingImage()) return modalImg;
-}
-
 function getCurrentlyViewedImgData() {
 	if (isViewingImage()) return imagesToLoad[currentImageIndex];
 }
@@ -67,10 +63,10 @@ function store(key, value) {
 }
 
 function storeCurrentImgUserData(rating, customTags) {
-	let currentImg = getCurrentlyViewedImg();
+	let currentImgData = getCurrentlyViewedImgData();
 	
-	if (currentImg != null && isLocalStorageAccepted()) {
-		let key = currentImg.getAttribute("src");
+	if (currentImgData != null && isLocalStorageAccepted()) {
+		let key = currentImgData.image;
 		let existingData = localStorage.getItem(key);
 		let item = JSON.parse(existingData);
 		
@@ -91,10 +87,10 @@ function storeCurrentImgUserData(rating, customTags) {
 }
 
 function getCurrentImgUserData() {
-	let currentImg = getCurrentlyViewedImg();
+	let currentImgData = getCurrentlyViewedImgData();
 	
-	if (currentImg != null) {
-			return getImgUserData(currentImg.getAttribute("src"));
+	if (currentImgData != null) {
+			return getImgUserData(currentImgData.image);
 	} else 	return JSON.parse('{}');
 }
 
