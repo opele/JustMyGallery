@@ -70,6 +70,7 @@ var pan = { x: 0, y: 0 };
 function resetPan() {
 	panStart = { x: 0, y: 0 };
 	pan = { x: 0, y: 0 };
+	$('#modalImg').css({'transform' : ''});
 }
 
 function installPanning(el) {
