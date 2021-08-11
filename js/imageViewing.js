@@ -32,10 +32,10 @@ function openImgDetailsView(imgIndex) {
 	captionText.innerHTML = imageData.title;
 	currentImageIndex = imgIndex;
 
-	var newModelImg = $('<img class="modal-content" id="modalImg">')[0];
+	var newModalImg = $('<img class="modal-content" id="modalImg">')[0];
 
 	// this callback actually only needs to be set once
-	newModelImg.onload = function () {
+	newModalImg.onload = function () {
 
 		// when scrolled to the bottom and navigating to the next image, we want to start from the top again
 		modal.scrollTop = 0;
@@ -61,7 +61,7 @@ function openImgDetailsView(imgIndex) {
 		showImageSizeRange($('#modalImg')[0], imageData.size);
 	};
 
-	newModelImg.src = imageData.image;
+	newModalImg.src = imageData.image;
 }
 
 var panStart = { x: 0, y: 0 };

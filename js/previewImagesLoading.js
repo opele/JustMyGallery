@@ -55,7 +55,6 @@ var scrolledToEnd = false;
 /** detail image view element variables for caching **/
 var currentImageIndex = 0; // index of the currently or last opened image
 var modal;
-var modalImg;
 var next;
 var previous;
 var captionText;
@@ -99,7 +98,6 @@ $(function () {
 $(function () {
 
     modal = document.getElementById("imageModal");
-    modalImg = document.getElementById("modalImg");
     captionText = document.getElementById("caption");
     ratingEl = document.getElementById("rating");
     predefinedTagsEl = document.getElementById("predefinedTags");
