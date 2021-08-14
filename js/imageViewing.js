@@ -238,10 +238,19 @@ function showImageSizeRange(img, size) {
 }
 
 function applyScaleToImg(scale, currentImg, size) {
-	var newWidth = size.w * scale;
-	var newHeight = size.h * scale;
-	currentImg.style.width = newWidth + 'px';
-	currentImg.style.height = newHeight + 'px';
+	let newImgWidth = size.w * scale;
+	let newImgHeight = size.h * scale;
+	currentImg.style.width = newImgWidth + 'px';
+	currentImg.style.height = newImgHeight + 'px';
+	
+	// center image
+	let screenHeight = document.documentElement.clientHeight;
+	if (newImgHeight < screenHeight) {
+		let imgTopPos = (screenHeight / 2) - (newImgHeight / 2);
+		currentImg.style.top = imgTopPos + 'px';
+	} else {
+		currentImg.style.top = 0 + 'px';
+	}
 }
 
 function resizeImage(event) {
