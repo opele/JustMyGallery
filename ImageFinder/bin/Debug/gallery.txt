@@ -4,14 +4,10 @@ Gallery Website Dev Notes
 
 TODO:
 
+fix removal of image from the view when a tag is removed which is currently filtered for
+
 when opening details image need a loading animation instead of showing the previous image
 	requires testing with non cached images which load with a latency
-
-center small images if scaling down or scaling is disabled
-
-fix horizontal scrollbar caused gallery wrapping too late
-
-image details view: allow grab with mouse and scroll in the dragged direction
 
 - use minified JS for external libs
 - test in Edge/FF/Chrome on Mac and PC
