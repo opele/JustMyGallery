@@ -74,6 +74,7 @@ function resetPan() {
 }
 
 function installPanning(el) {
+	
 	el.on('mousemove', e => {
 		if (!isPanning)
 			return;
@@ -95,6 +96,7 @@ function installPanning(el) {
 	});
 
 	el.on('mousedown', e => {
+		event.preventDefault();
 		isPanning = true;
 
 		panStart.x = e.pageX;
