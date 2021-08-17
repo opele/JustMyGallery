@@ -101,6 +101,7 @@ function installPanning(el) {
 	el.on('mousedown', e => {
 		event.preventDefault();
 		isPanning = true;
+		$('.modal-content').css({'cursor': 'grabbing'});
 
 		panStart.x = e.pageX;
 		panStart.y = e.pageY;
@@ -108,6 +109,7 @@ function installPanning(el) {
 
 	el.on('mouseup', e => {
 		isPanning = false;
+		$('.modal-content').css({'cursor': 'grab'});
 	});
 }
 
