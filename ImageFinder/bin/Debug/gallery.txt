@@ -6,11 +6,11 @@ TODO:
 
 fix removal of image from the view when a tag is removed which is currently filtered for
 
-when opening details image: do not show the previous image during load
+when opening details image when loading is slow: 
+- should show image loading (jpg goes from blurred to sharp, png loads from top to bottom)
+- cancel the loading when closed; currently, when selecting a preloaded img, it is replaces when the previously closed img finished loading 
 
-
-
-
+- minify CSS
 - use minified JS for external libs
 - test in Edge/FF/Chrome on Mac and PC
 - add MIT license

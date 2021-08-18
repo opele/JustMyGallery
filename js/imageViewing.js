@@ -33,10 +33,21 @@ function openImgDetailsView(imgIndex) {
 	captionText.innerHTML = imageData.title;
 	currentImageIndex = imgIndex;
 
-	var newModalImg = $('<img class="modal-content" id="modalImg">')[0];
+	// Create a new image element but don't add to the DOM. 
+	// Instead use it to load the image and when loaded set as the background on the original modal image.
+	var newTmpModalImg = $('<img class="modal-content" id="modalImg">')[0];
+	
+	// clear previously displayed image
+	let css = {
+			'background-image': '',
+			'background-size': '',
+			'width': '0px',
+			'height': '0px'
+		};
+	$('#modalImg').css(css);
 
 	// this callback actually only needs to be set once
-	newModalImg.onload = function () {
+	newTmpModalImg.onload = function () {
 
 		// when scrolled to the bottom and navigating to the next image, we want to start from the top again
 		modal.scrollTop = 0;
@@ -50,7 +61,6 @@ function openImgDetailsView(imgIndex) {
 
 		updateBookmarkOnImageDetailView(imageData.image);
 
-		// we need the width and height loaded before sizing the image
 		preloadImages();
 
 		let css = {
@@ -61,10 +71,12 @@ function openImgDetailsView(imgIndex) {
 		};
 
 		$('#modalImg').css(css);
+
+		// we need the width and height loaded before sizing the image
 		showImageSizeRange($('#modalImg')[0], imageData.size);
 	};
 
-	newModalImg.src = imageData.image;
+	newTmpModalImg.src = imageData.image;
 }
 
 var panStart = { x: 0, y: 0 };
