@@ -11,6 +11,7 @@ $(function () {
 });
 
 let isPanning = false;
+var newTmpModalImg;
 
 function openImgDetailsView(imgIndex) {
 	isPanning = false;
@@ -35,7 +36,8 @@ function openImgDetailsView(imgIndex) {
 
 	// Create a new image element but don't add to the DOM. 
 	// Instead use it to load the image and when loaded set as the background on the original modal image.
-	var newTmpModalImg = $('<img class="modal-content" id="modalImg">')[0];
+	if (newTmpModalImg == null)
+		newTmpModalImg = $('<img class="modal-content" id="modalImg">')[0];
 	
 	// clear previously displayed image
 	let css = {
