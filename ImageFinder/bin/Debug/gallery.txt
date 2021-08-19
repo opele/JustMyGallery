@@ -4,8 +4,6 @@ Gallery Website Dev Notes
 
 TODO:
 
-fix removal of image from the view when a tag is removed which is currently filtered for
-
 when opening details image when loading is slow: 
 - should show image loading (jpg goes from blurred to sharp, png loads from top to bottom)
 

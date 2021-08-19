@@ -372,9 +372,9 @@ function maybeRemovePreviewImg() {
 	try {
 		let currImgData = imagesToLoad[currentImageIndex];
 		// double check we got the right image
-		if (currImgData && gallery.images[currentImageIndex] && currImgData.image === gallery.images[currentImageIndex].image) {
+		if (currImgData && gallery.images[currentImageIndex] && currImgData.image === gallery.images[currentImageIndex].data.image) {
 			if (!filterFunction([currImgData]).length) {
-				gallery.remove(currentImageIndex, 1);
+				gallery.remove(currentImageIndex);
 				imagesToLoad.splice(currentImageIndex, 1);
 				updateImgCountDisplay();
 			}
