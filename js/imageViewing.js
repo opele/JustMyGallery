@@ -24,6 +24,7 @@ function openImgDetailsView(imgIndex) {
 		return;
 	}
 	let modalImg = $('#modalImg');
+	let modalPanner = $('#modalPanner');
 	$('#imageSizeRangeContainer').show();
 	$('.loader').show();
 	$('.sidebar-open-button').hide();
@@ -32,10 +33,10 @@ function openImgDetailsView(imgIndex) {
 	let imageData = currSelectedImg = imagesToLoad[imgIndex];
 	currentImageIndex = imgIndex;
 
-	// Create a new image element but don't add to the DOM. 
-	// Instead use it to load the image and when loaded set as the background on the original modal image.
-	//if (newTmpModalImg == null)
-	//	newTmpModalImg = $('<img class="modal-content" id="modalImg">')[0];
+	// Create a new image element to avoid showing a previous image
+	modalImg[0].remove();
+	modalPanner.append('<img class="modal-content" id="modalImg"></img>');
+	modalImg = $('#modalImg');
 	
 	// clear previously displayed image
 	let css = {
@@ -73,12 +74,8 @@ function openImgDetailsView(imgIndex) {
 		// we need the width and height loaded before sizing the image
 		showImageSizeRange($('#modalImg')[0], imageData.size);
 	};
-	// this callback actually only needs to be set once
-	//modalImg.onload = imgLoaded;
+	
 	modalImg.on('load', imgLoaded);
-
-	//newTmpModalImg.src = imageData.image;
-	//modalImg[0].src = imageData.image;
 	modalImg.attr('src', imageData.image);
 	
 	if (modalImg[0].complete){
