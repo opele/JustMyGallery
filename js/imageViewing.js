@@ -23,33 +23,31 @@ function openImgDetailsView(imgIndex) {
 		console.log("Warning: ignoring invalid image index: " + imgIndex);
 		return;
 	}
-
+	let modalImg = $('#modalImg');
+	let modalPanner = $('#modalPanner');
 	$('#imageSizeRangeContainer').show();
 	$('.loader').show();
 	$('.sidebar-open-button').hide();
 	$('body').css('overflow', 'hidden');
 	
 	let imageData = currSelectedImg = imagesToLoad[imgIndex];
-	modal.style.display = "block";
-	captionText.innerHTML = imageData.title;
 	currentImageIndex = imgIndex;
 
-	// Create a new image element but don't add to the DOM. 
-	// Instead use it to load the image and when loaded set as the background on the original modal image.
-	if (newTmpModalImg == null)
-		newTmpModalImg = $('<img class="modal-content" id="modalImg">')[0];
+	// Create a new image element to avoid showing a previous image
+	modalImg[0].remove();
+	modalPanner.append('<img class="modal-content" id="modalImg"></img>');
+	modalImg = $('#modalImg');
 	
 	// clear previously displayed image
 	let css = {
-			'background-image': '',
-			'background-size': '',
-			'width': '0px',
-			'height': '0px'
+			'width': 'auto',
+			'max-height': document.documentElement.clientHeight * 0.9 + 'px',
+			'height': 'auto' 
 		};
-	$('#modalImg').css(css);
+	modalImg.css(css);
 
-	// this callback actually only needs to be set once
-	newTmpModalImg.onload = function () {
+	
+	var imgLoaded = function (e) {
 
 		// when scrolled to the bottom and navigating to the next image, we want to start from the top again
 		modal.scrollTop = 0;
@@ -66,19 +64,26 @@ function openImgDetailsView(imgIndex) {
 		preloadImages();
 
 		let css = {
-			'background-image': 'url("' + imageData.image + '")',
-			'background-size': 'contain',
 			'width': imageData.size.w + 'px',
-			'height': imageData.size.h + 'px'
+			'height': imageData.size.h + 'px',
+			'max-height': '',
 		};
 
-		$('#modalImg').css(css);
+		modalImg.css(css);
 
 		// we need the width and height loaded before sizing the image
 		showImageSizeRange($('#modalImg')[0], imageData.size);
 	};
-
-	newTmpModalImg.src = imageData.image;
+	
+	modalImg.on('load', imgLoaded);
+	modalImg.attr('src', imageData.image);
+	
+	if (modalImg[0].complete){
+		imgLoaded();
+	}
+	
+	captionText.innerHTML = imageData.title;
+	modal.style.display = "block";
 }
 
 var panStart = { x: 0, y: 0 };
