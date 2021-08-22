@@ -35,17 +35,12 @@ function openImgDetailsView(imgIndex) {
 
 	// Create a new image element to avoid showing a previous image
 	modalImg[0].remove();
-	modalPanner.append('<img class="modal-content" id="modalImg"></img>');
+	modalPanner.append('<img class="modal-content" id="modalImg" draggable="false"></img>');
 	modalImg = $('#modalImg');
-	
-	// clear previously displayed image
-	let css = {
-			'width': 'auto',
-			'max-height': document.documentElement.clientHeight * 0.9 + 'px',
-			'height': 'auto' 
-		};
-	modalImg.css(css);
 
+	applyImageSizeRange($('#modalImg')[0], imageData.size);
+	
+	installPanning(modalImg);
 	
 	var imgLoaded = function (e) {
 
@@ -62,17 +57,6 @@ function openImgDetailsView(imgIndex) {
 		updateBookmarkOnImageDetailView(imageData.image);
 
 		preloadImages();
-
-		let css = {
-			'width': imageData.size.w + 'px',
-			'height': imageData.size.h + 'px',
-			'max-height': '',
-		};
-
-		modalImg.css(css);
-
-		// we need the width and height loaded before sizing the image
-		showImageSizeRange($('#modalImg')[0], imageData.size);
 	};
 	
 	modalImg.on('load', imgLoaded);
@@ -132,10 +116,6 @@ function installPanning(el) {
 	});
 }
 
-$(function () {
-	installPanning($('#modalImg'));
-});
-
 
 function navigateToPrevious(event) {
     if (event) event.stopPropagation();
@@ -158,7 +138,7 @@ function updateModalNav() {
 	modalNavMaxEl.textContent = imagesToLoad.length;
 }
 
-function showImageSizeRange(img, size) {
+function applyImageSizeRange(img, size) {
 
 	let currentImg = img;
 
