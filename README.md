@@ -2,7 +2,12 @@
 
 Free gallery template website: TODO
 
-This repository contains the website code as well as a small app to create a file which tells the website which images to display.
+This repository contains the website code as well as a small app to create a file which tells the website about the images to display.
+
+The gallery is a simple single page app made with javascript and html. The preview images are displayed with fixed width and scaled height. 
+The gallery features lazy loading of new preview images while scrolling down, image rating, bookmarking, adding custom tags, sorting and filtering of images. Data is persisted into the local storage of the browser.
+
+Feel free to copy and modify as needed.
 
 ## Load Images
 The images are defined in a JSON file imageData.js loaded by index.html as a script.
