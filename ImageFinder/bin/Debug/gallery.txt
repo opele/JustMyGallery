@@ -4,8 +4,9 @@ Gallery Website Dev Notes
 
 TODO:
 
-when opening details image when loading is slow: 
-- should show image loading (jpg goes from blurred to sharp, png loads from top to bottom)
+- when dragging image up, then scaling down, img disappears from view. When negative top, height should be lowered towards the top of the screen when scaling down.
+- move more functions out of the 'is loaded' callback of an img
+- move the loading animation top left
 
 - minify CSS
 - use minified JS for external libs
