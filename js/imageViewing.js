@@ -6,14 +6,16 @@ let currSelectedImg;
 $(function () {
 	var range = $("#imageSizeRange");
 	range.on("input change", function () {
-		applyScaleToImg(range.val(), $('#modalImg')[0], currSelectedImg.size);
+		applyScaleToImg(range.val(), modalImg[0], currSelectedImg.size);
 	});
 });
 
 let isPanning = false;
-var newTmpModalImg;
+let modalImg;
 
 function openImgDetailsView(imgIndex) {
+	modalImg = $('#modalImg');
+	
 	isPanning = false;
 	resetPan();
 
@@ -23,7 +25,7 @@ function openImgDetailsView(imgIndex) {
 		console.log("Warning: ignoring invalid image index: " + imgIndex);
 		return;
 	}
-	let modalImg = $('#modalImg');
+
 	let modalPanner = $('#modalPanner');
 	$('#imageSizeRangeContainer').show();
 	$('.loader').show();
@@ -38,9 +40,9 @@ function openImgDetailsView(imgIndex) {
 	modalPanner.append('<img class="modal-content" id="modalImg" draggable="false"></img>');
 	modalImg = $('#modalImg');
 
-	applyImageSizeRange($('#modalImg')[0], imageData.size);
+	applyImageSizeRange(modalImg[0], imageData.size);
 	
-	installPanning(modalImg);
+	installPanning();
 	
 	var imgLoaded = function (e) {
 
@@ -76,16 +78,14 @@ var pan = { x: 0, y: 0 };
 function resetPan() {
 	panStart = { x: 0, y: 0 };
 	pan = { x: 0, y: 0 };
-	$('#modalImg').css({'transform' : ''});
+	modalImg.css({'transform' : ''});
 }
 
-function installPanning(el) {
+function installPanning() {
 	
-	el.on('mousemove', e => {
+	modalImg.on('mousemove', e => {
 		if (!isPanning)
 			return;
-
-		let panner = el;//$('#modalImg');
 
 		let dx = e.pageX - panStart.x;
 		let dy = e.pageY - panStart.y;
@@ -95,13 +95,12 @@ function installPanning(el) {
 
 		panStart.x = e.pageX;
 		panStart.y = e.pageY;
-
-		panner.css({
-			'transform': 'translate(' + pan.x + 'px,' + pan.y + 'px)'
-		});
+		
+		applyPanning();
+		
 	});
 
-	el.on('mousedown', e => {
+	modalImg.on('mousedown', e => {
 		event.preventDefault();
 		isPanning = true;
 		$('.modal-content').css({'cursor': 'grabbing'});
@@ -110,10 +109,16 @@ function installPanning(el) {
 		panStart.y = e.pageY;
 	});
 
-	el.on('mouseup', e => {
+	modalImg.on('mouseup', e => {
 		isPanning = false;
 		$('.modal-content').css({'cursor': 'grab'});
 	});
+}
+
+function applyPanning() {
+	modalImg.css({
+			'transform': 'translate(' + pan.x + 'px,' + pan.y + 'px)'
+		});
 }
 
 
@@ -246,6 +251,10 @@ function applyImageSizeRange(img, size) {
 function applyScaleToImg(scale, currentImg, size) {
 	let newImgWidth = size.w * scale;
 	let newImgHeight = size.h * scale;
+	let currentImgWidth = parseInt(currentImg.style.width, 10);
+	let currentImgHeight = parseInt(currentImg.style.height, 10);
+	let scaleDeltaHeight = newImgHeight / currentImgHeight;
+	
 	currentImg.style.width = newImgWidth + 'px';
 	currentImg.style.height = newImgHeight + 'px';
 	
@@ -256,6 +265,12 @@ function applyScaleToImg(scale, currentImg, size) {
 		currentImg.style.top = imgTopPos + 'px';
 	} else {
 		currentImg.style.top = 0 + 'px';
+	}
+	
+	// adjust panning translation so the image remains visible when scaled down and was dragged down or up
+	if (scaleDeltaHeight < 1) {
+		pan.y *= scaleDeltaHeight;
+		applyPanning();
 	}
 }
 
