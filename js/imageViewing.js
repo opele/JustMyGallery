@@ -45,19 +45,7 @@ function openImgDetailsView(imgIndex) {
 	installPanning();
 	
 	var imgLoaded = function (e) {
-
-		// when scrolled to the bottom and navigating to the next image, we want to start from the top again
-		modal.scrollTop = 0;
-		
 		$('.loader').hide();
-
-		displayRating(imageData.image);
-		displayTags(imageData.tags);
-
-		updateModalNav();
-
-		updateBookmarkOnImageDetailView(imageData.image);
-
 		preloadImages();
 	};
 	
@@ -69,6 +57,11 @@ function openImgDetailsView(imgIndex) {
 	}
 	
 	captionText.innerHTML = imageData.title;
+	displayRating(imageData.image);
+	displayTags(imageData.tags);
+	updateModalNav();
+	updateBookmarkOnImageDetailView(imageData.image);
+	
 	modal.style.display = "block";
 }
 

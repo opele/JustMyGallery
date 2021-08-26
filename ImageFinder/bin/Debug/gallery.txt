@@ -4,13 +4,12 @@ Gallery Website Dev Notes
 
 TODO:
 
-- when dragging image up, then scaling down, img disappears from view. When negative top, height should be lowered towards the top of the screen when scaling down.
-- move more functions out of the 'is loaded' callback of an img
-- move the loading animation top left
+- fix tags not appearing when clicking an image but works when navigating left or right
 
 - minify CSS
 - use minified JS for external libs
 - test in Edge/FF/Chrome on Mac and PC
+- check initial page load speed test
 - add MIT license
 - create github page: https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site
 - multithreading c# app for previewimage generaion
