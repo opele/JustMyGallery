@@ -58,11 +58,11 @@ function openImgDetailsView(imgIndex) {
 	
 	captionText.innerHTML = imageData.title;
 	displayRating(imageData.image);
-	displayTags(imageData.tags);
 	updateModalNav();
 	updateBookmarkOnImageDetailView(imageData.image);
 	
 	modal.style.display = "block";
+	displayTags(imageData.tags);
 }
 
 var panStart = { x: 0, y: 0 };

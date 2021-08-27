@@ -4,7 +4,7 @@ Gallery Website Dev Notes
 
 TODO:
 
-- fix tags not appearing when clicking an image but works when navigating left or right
+- fix horizontal scrolling (enable panning by mousewheel as long as image end is outside the screen in scrolling direction)
 
 - minify CSS
 - use minified JS for external libs
