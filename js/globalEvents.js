@@ -37,6 +37,8 @@
 					// when the sidebar is already visible, this prevents switching between the different sidebars
 					// this is a problem when typing numbers into an input field
 					openSearchSidebar();
+				} else if (event.key == '2' && !isSidebarVisible()) {
+					openBookmarksModal();
 				} else if (event.key == '3' && !isSidebarVisible()) {
 					openSettingsSidebar();
 				}
