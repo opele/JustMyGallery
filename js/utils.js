@@ -24,6 +24,32 @@ function isViewingImage() {
 	return modal.style.display == "block";
 }
 
+function isImgTopOutsideScreen() {
+
+	if (isViewingImage()) {
+		let imgTop = parseInt(modalImg[0].style.top, 10);
+		let imgPanY = pan.y;
+		
+		return imgTop + imgPanY < 0;
+	}
+	
+	return false;
+}
+
+function isImgBottomOutsideScreen() {
+	
+	if (isViewingImage()) {
+		let screenHeight = document.documentElement.clientHeight;
+		let imgHeight = parseInt(modalImg[0].style.height, 10);
+		let imgTop = parseInt(modalImg[0].style.top, 10);
+		let imgPanY = pan.y;
+		
+		return imgHeight + imgTop + imgPanY > screenHeight;
+	}
+	
+	return false;
+}
+
 function isViewingBookmarks() {
 	return bookmarksModalEl.style.display == "block";
 }

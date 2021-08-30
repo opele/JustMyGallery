@@ -4,7 +4,7 @@ Gallery Website Dev Notes
 
 TODO:
 
-- fix horizontal scrolling (enable panning by mousewheel as long as image end is outside the screen in scrolling direction)
+- fix bookmark shortcut: 2
 
 - minify CSS
 - use minified JS for external libs
@@ -12,6 +12,7 @@ TODO:
 - check initial page load speed test
 - add MIT license
 - create github page: https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site
+- create release
 - multithreading c# app for previewimage generaion
 
 

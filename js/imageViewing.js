@@ -268,18 +268,23 @@ function applyScaleToImg(scale, currentImg, size) {
 }
 
 function resizeImage(event) {
+	// change image size based on scroll event
+	var range = $("#imageSizeRange");
+	if (range.length) {
+		var delta = event.originalEvent.wheelDelta/120 || -event.originalEvent.detail/3;
+		range.val(range.val() - delta*0.04);
+		range.change();
+	}
+}
 
-	//event.preventDefault();
-	
-	if (event.shiftKey) {
-		// change image size
-		var range = $("#imageSizeRange");
-		if (range.length) {
-			var delta = event.originalEvent.wheelDelta/120 || -event.originalEvent.detail/3;
-			range.val(range.val() - delta*0.04);
-			range.change();
-		}
-		
+function moveImageY(event) {
+	// change image Y based on scroll event
+	// move the image vertically if there is more to see in the scrolling direction
+	let delta = event.originalEvent.wheelDelta/120 || -event.originalEvent.detail/3;
+	let isScrollingUp = delta > 0;
+	if ((isScrollingUp && isImgTopOutsideScreen()) || (!isScrollingUp && isImgBottomOutsideScreen())) {
+		pan.y += delta * 50;
+		applyPanning();
 	}
 }
 

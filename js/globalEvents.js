@@ -43,12 +43,14 @@
 			}
 				
 		});
-		
-		// TODO
+
 		$(window).on("mousewheel DOMMouseScroll", function(event) {
 			if (isViewingImage() && !isEditingModalComponent()) {
-				resizeImage(event);
-				// return false; // causes warning as listerner is registered as passive
+				if (event.shiftKey) {
+					resizeImage(event);
+				} else {
+					moveImageY(event);
+				}
 			}
 		});
  });
