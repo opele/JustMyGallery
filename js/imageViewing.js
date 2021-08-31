@@ -393,6 +393,6 @@ function hideImageSizeRange() {
 function syncGalleryWithImg(event) {
 	event.stopPropagation();
 	
-	displayImagesStartingAt(currentImageIndex);
+	loadImages(currentImageIndex);
 }
 

@@ -4,7 +4,7 @@ Gallery Website Dev Notes
 
 TODO:
 
-- reset synced image on the gallery when applying a new search
+- bug: loading next chunk multiple times even though previous chunk not fully displayed, especially when changing sorting filter
 
 - minify CSS
 - use minified JS for external libs

@@ -115,7 +115,13 @@ $(function () {
     loadImages();
 });
 
-function loadImages() {
+function loadImages(offset) {
+	
+	if (offset)
+		imgIdxOffset = offset;
+	else 
+		imgIdxOffset = 0;
+	
     scrolledToEnd = false;
 
     imagesToLoad = imgData;
@@ -178,11 +184,7 @@ function loadImages() {
         window.scrollTo(0, top);
     }
     
-}
-
-function displayImagesStartingAt(offset) {
-    imgIdxOffset = offset;
-    loadImages();
+	// gallery may has updated the provided base index
 	imgIdxOffset = gallery.baseImageIndex;
 }
 
@@ -210,6 +212,7 @@ var bottomImageId = 0;
 // load new images and append to the end of the gallery
 function tryLoadNextChunk() {
 	if (scrolledToEnd) {
+		console.log('load next');
 		gallery.load(bottomImageId, chunkSize, true);
 		bottomImageId += chunkSize;
     }
