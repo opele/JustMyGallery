@@ -4,7 +4,8 @@ Gallery Website Dev Notes
 
 TODO:
 
-- bug: loading next chunk multiple times even though previous chunk not fully displayed, especially when changing sorting filter
+- jagged or jumpy scrollbar when loading new images
+
 
 - minify CSS
 - use minified JS for external libs

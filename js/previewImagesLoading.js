@@ -51,6 +51,9 @@ var imgIdxOffset = 0;
 // number of next images to load when scrolled to the bottom or when loading previous images
 var chunkSize = 15;
 var scrolledToEnd = false;
+var lastChunkLoaded = true;
+var minDelayLoadingNextChunkSec = 1;
+var minDelayLoadingNextChunkPassed = true;
 
 /** detail image view element variables for caching **/
 var currentImageIndex = 0; // index of the currently or last opened image
@@ -137,6 +140,8 @@ function loadImages(offset) {
     bottomImageId = 0;
 
     var firstLoaded = true;
+	// we are not loading any images when creating a new gallery, all controlled by the sentinel which is triggered again by clearing all previous images
+	lastChunkLoaded = true;
 
     gallery = new Gallery({
         container: '#gallery-images-container',
@@ -161,6 +166,7 @@ function loadImages(offset) {
             	if (topImageId + imgIdxOffset > 0) {
             		$('#loadPreviousBtn').show();
             	}
+				lastChunkLoaded = true;
             	tryLoadNextChunk();
             }
         },
@@ -211,11 +217,19 @@ var bottomImageId = 0;
 
 // load new images and append to the end of the gallery
 function tryLoadNextChunk() {
-	if (scrolledToEnd) {
-		console.log('load next');
+	if (scrolledToEnd && lastChunkLoaded && minDelayLoadingNextChunkPassed) {
+		lastChunkLoaded = false;
 		gallery.load(bottomImageId, chunkSize, true);
 		bottomImageId += chunkSize;
+		
+		minDelayLoadingNextChunkPassed = false;
+		setTimeout(tryLoadNextChunkFromTimer, minDelayLoadingNextChunkSec * 1000);
     }
+}
+
+function tryLoadNextChunkFromTimer() {
+	minDelayLoadingNextChunkPassed = true;
+	tryLoadNextChunk();
 }
 
 // load new images and stack on top of the gallery
