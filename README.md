@@ -13,40 +13,36 @@ Feel free to copy and modify as needed.
 The images are defined in a JSON file imageData.js loaded by index.html as a script.
 Start by replacing the images referenced in imageData.js with your own images. In addition to the image path there are several other fields used by the gallery website to display the image:
 
-> {
->    // path to the smaller preview image displayed in the gallery
->    "thumb":"images/fred-moon-2DnRQ5IZFZo-unsplashPreview230px.jpg",
->
->    // path to the full image displayed in the details view after selecting an image from the gallery
->    "image":"images/fred-moon-2DnRQ5IZFZo-unsplash.jpg",
->
->    // the width and height of the full image in pixels
->    "size":{
->       "w":4000,
->       "h":6000
->    },
->
->    // the width and height of the preview image in pixels
->    "previewSize":{
->       "w":230,
->       "h":345
->    },
->
->    // the image title
->    "title":"fred-moon-2DnRQ5IZFZo-unsplash.jpg",
->
->    // the createdDate as an UNIX timestamp used for sorting and filtering
->    "timestamp":1626545342528,
->
->    // the timestamp in a human readable format
->    "createdDate":"17/07/2021 19:09:02",
->
->    // the comma separated image tags (value can be blank)
->    "tags":"snow,cold night,trees",
->
->    // the image category (value can be blank)
->    "categories":"nature"
-> }
+```json
+ {
+    "thumb":"images/fred-moon-2DnRQ5IZFZo-unsplashPreview230px.jpg",
+    "image":"images/fred-moon-2DnRQ5IZFZo-unsplash.jpg",
+    "size":{  
+       "w":4000,  
+       "h":6000  
+    },  
+    "previewSize":{
+       "w":230,
+       "h":345
+    },
+    "title":"fred-moon-2DnRQ5IZFZo-unsplash.jpg", 
+    "timestamp":1626545342528,
+    "createdDate":"17/07/2021 19:09:02",
+    "tags":"snow,cold night,trees",
+    "categories":"nature"  
+ }
+```
+
+Explanation of the fields:  
+>   thumb: path to the smaller preview image displayed in the gallery  
+>   image: path to the full image displayed in the details view after selecting an image from the gallery  
+>   size: width and height of the full image in pixels  
+>   previewSize: width and height of the preview image in pixels  
+>   title: image title  
+>   timestamp: createdDate as an UNIX timestamp used for sorting and filtering  
+>   createdDate: timestamp in a human readable format  
+>   tags: the comma separated image tags (value can be blank)  
+>   categories: image category (value can be blank)  
 
 All fields are mandatory but the value can be left blank in case of tags and categories.
 
