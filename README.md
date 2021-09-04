@@ -41,8 +41,8 @@ Explanation of the fields:
 >   title: image title  
 >   timestamp: createdDate as an UNIX timestamp used for sorting and filtering  
 >   createdDate: timestamp in a human readable format  
->   tags: the comma separated image tags (value can be blank)  
->   categories: image category (value can be blank)  
+>   tags: comma separated image tags (value can be blank)  
+>   categories: comma separated image categories (value can be blank)  
 
 All fields are mandatory but the value can be left blank in case of tags and categories.
 
