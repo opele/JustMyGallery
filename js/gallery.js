@@ -1,4 +1,6 @@
 
+var imgStartPositionYOffset = 500;
+
 function GalleryColumn(gallery, index) {
     var self = this;
 
@@ -111,6 +113,7 @@ function GalleryImage(gallery, data, index) {
 			// else just just place at the top if we are loading the first row, no need to update the top
         }
 
+
         if (setAnimationStartPosition) {
             var startTop = self.top;
 
@@ -119,7 +122,7 @@ function GalleryImage(gallery, data, index) {
             	//startTop = self.top - 2000;
             }
             else {
-                startTop = self.top + 2000;
+                startTop = self.top + imgStartPositionYOffset;
             }
 
             self.thumbnail.css({
@@ -431,7 +434,7 @@ function Gallery(options) {
 
     self.applyMinMax = function () {
         var height = Math.abs(self.max - self.min);
-        var fullHeight = Math.abs(self.fullMax - self.fullMin);
+        var fullHeight = Math.abs(self.fullMax - self.fullMin) + imgStartPositionYOffset;
 
         self.columnsContainer.css({
             height: height + 'px'
