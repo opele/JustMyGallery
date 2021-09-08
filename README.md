@@ -1,17 +1,22 @@
-# Gallery
+# JustMyGallery
 
-Free gallery template website: TODO
+**JavaScript Image Gallery**
 
-This repository contains the website code as well as a small app to create a file which tells the website about the images to display.
+Have a look: TODO
 
-The gallery is a simple single page app made with javascript and html. The preview images are displayed with fixed width and scaled height. 
+Or simply download this repository and open the index.html in your browser. No server side code.
+
+This repository contains the website code as well as a small app to create a JSON file which tells the website about your images to display.
+
+The gallery is a single page app made with JavaScript and html. The preview images are displayed with fixed width (230px) and scaled height. 
 The gallery features lazy loading of new preview images while scrolling down, image rating, bookmarking, adding custom tags, sorting and filtering of images. Data is persisted into the local storage of the browser.
 
 Feel free to copy and modify as needed.
 
 ## Load Images
 The images are defined in a JSON file imageData.js loaded by index.html as a script.
-Start by replacing the images referenced in imageData.js with your own images. In addition to the image path there are several other fields used by the gallery website to display the image:
+Start by replacing the images referenced in imageData.js with your own images.  
+Each image entry im imageData.js must look like this example:
 
 ```json
  {
