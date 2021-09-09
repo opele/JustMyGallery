@@ -4,7 +4,6 @@ Gallery Website Dev Notes
 
 TODO:
 
-- minify CSS
 - use minified JS for external libs
 - test in Edge/FF/Chrome on Mac and PC
 - check initial page load speed test

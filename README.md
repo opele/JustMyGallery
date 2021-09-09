@@ -97,3 +97,4 @@ This is the procedure to create a new release after changing javascript files.
 2. combine all custom JS scripts into a single file by executing the combine.bat script
 3. minify the result 'combined.js' to 'combined.min.js' using e.g. https://javascript-minifier.com/
 4. change the scripts import in index.html to import combined.min.js
+5. minfiy justMyGallery.css and import in index.html

@@ -1,0 +1,414 @@
+.gallery-container {
+      min-width: 500px;
+      background: #2b3e50;
+	  padding-left: 30px;
+    }
+	
+	#loadPreviousContainer {
+		justify-content: center;
+		display: flex;
+		align-items: center;
+	}
+	
+	#loadPreviousBtn {
+		display: none;
+	}
+	
+	.gallery-columns {
+      position: relative;
+    }
+
+    .gallery-thumb {
+      position: absolute;
+      left: 0px;
+      top: 0px;
+      transition: all 0.7s;
+      transition-timing-function: ease-out;
+	  cursor: pointer;
+    }
+	
+	.gallery-thumb:hover {opacity: 0.7;}
+	
+	
+	/* The Bookmarks List Modal */
+	#bookmarksHeader {
+		text-align: center;
+		margin: auto;
+	    display: block;
+	    width: 80%;
+	}
+	
+	#bookmarksList {
+	  margin: auto;
+	  width: 80%;
+	  /* border: 3px solid green; */
+	  padding: 10px;
+	  display: flex;
+	  flex-wrap: wrap;
+	  padding: 0 4px;
+	}
+	
+	.bookmarks-column {
+	  flex: 16%;
+	  max-width: 16%;
+	  padding: 0 8px;
+	}
+	
+	.bookmarks-column img {
+	  margin-top: 20px;
+	  vertical-align: middle;
+	  width: 100%;
+	  transition: all 0.5s;
+	  cursor: pointer;
+	}
+	
+	.bookmarks-column img:hover {opacity: 0.7; transform: scale(1.1);}
+	
+	.bookmark-container-filtered-out {
+	  pointer-events: none;
+	  position: relative;
+	  text-align: center;
+	  color: white;
+	  font-family: "IMPACT";
+	  font-size: xx-large;
+	}
+	
+	.centered-text {
+	  position: absolute;
+	  top: 50%;
+	  left: 50%;
+	  transform: translate(-50%, -50%);
+	}
+	
+	.bookmark-filtered-out {
+	  cursor: auto;
+	  filter: brightness(50%);
+	}
+	
+	
+	/* Responsive layout - makes a four column-layout instead of six columns */
+	@media screen and (max-width: 1200px) {
+		.bookmarks-column {
+			flex: 25%;
+			max-width: 25%;
+		}
+	}
+	
+	/* Responsive layout - makes a two column-layout instead of four columns */
+	@media screen and (max-width: 800px) {
+		.bookmarks-column {
+			flex: 50%;
+			max-width: 50%;
+		}
+	}
+	
+	/* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
+	@media screen and (max-width: 600px) {
+	  .bookmarks-column {
+		flex: 100%;
+		max-width: 100%;
+	  }
+	}
+	
+	#syncGalleryWithImg {
+		top: 2%;
+		right: 4%;
+		position: fixed;
+		z-index: 5;
+	}
+	
+	#syncGalleryWithImg:hover {opacity: 0.7; transform: scale(1.1);}
+	
+	#addBookmark {
+		top: 2%;
+		right: 1.5%;
+		position: fixed;
+		z-index: 5;
+	}
+	
+	#addBookmark:hover {opacity: 0.7; transform: scale(1.1);}
+	
+	
+	/* The Modal (background) */
+	.modal {
+	  display: none; /* Hidden by default */
+	  position: fixed; /* Stay in place */
+	  z-index: 2; /* Sit on top */
+	  padding-top: 10px; /* Location of the box */
+	  left: 0;
+	  top: 0;
+	  width: 100%; /* Full width */
+	  height: 100%; /* Full height */
+	  overflow: auto; /* Enable scroll if needed */
+	  background-color: rgb(0,0,0); /* Fallback color */
+	  background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+	}
+
+	/* Modal Content (image) */
+	.modal-content {
+	  cursor: grab;
+	  margin: auto;
+	  display: block;
+	  /*width: 100%;
+	  max-width: 700px;*/
+	}
+
+	#modelImgContainer {
+		    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: -1;
+		}
+
+    #modalPanner {
+			overflow:hidden;
+      width: 100vw;
+      height: 100vh;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    
+    #imgDetails {
+      position: absolute;
+      bottom: 20px;
+      width: 300px;
+    }
+	
+	.loader {
+	  display: none;
+	  position: fixed;
+	  top: 2%;
+	  right: 6.5%;
+	  border: 8px solid #f3f3f3;
+	  border-radius: 50%;
+	  border-top: 8px solid #3498db;
+	  width: 33px;
+	  height: 33px;
+	  -webkit-animation: spin 2s linear infinite; /* Safari */
+	  animation: spin 2s linear infinite;
+	}
+
+	/* Safari */
+	@-webkit-keyframes spin {
+	  0% { -webkit-transform: rotate(0deg); }
+	  100% { -webkit-transform: rotate(360deg); }
+	}
+
+	@keyframes spin {
+	  0% { transform: rotate(0deg); }
+	  100% { transform: rotate(360deg); }
+	}
+
+	/* Caption of Modal Image */
+	#caption {
+	  margin: auto;
+	  display: block;
+	  width: 80%;
+	  max-width: 700px;
+	  text-align: center;
+	  color: #ccc;
+	  padding: 10px 0;
+	  height: 35px;
+	  white-space: nowrap;
+	}
+
+	/* Add Animation */
+	.modal-content, #caption {  
+	  -webkit-animation-name: zoom;
+	  -webkit-animation-duration: 0.6s;
+	  animation-name: zoom;
+	  animation-duration: 0.6s;
+	}
+
+	@-webkit-keyframes zoom {
+	  from {-webkit-transform:scale(0)} 
+	  to {-webkit-transform:scale(1)}
+	}
+
+	@keyframes zoom {
+	  from {transform:scale(0)} 
+	  to {transform:scale(1)}
+	}
+
+	/* Navigate to previous or next image */
+    .next, .previous {
+      position: fixed;
+      top: 50%;
+      padding: 50px;
+      right: 20px;
+      color: #f1f1f1;
+      font-size: 40px;
+      font-weight: bold;
+      transition: 0.3s;
+      z-index: 3;
+      transform: translateY(-90px);
+      padding-bottom: 60px;
+    }
+
+    .previous {
+      left: 20px;
+      right: unset;
+    }
+
+	.next:hover, .previous:hover,
+	.next:focus, .previous:focus {
+	  color: #bbb;
+	  text-decoration: none;
+	  cursor: pointer;
+	}
+
+
+	/* 100% Image Width on Smaller Screens */
+	@media only screen and (max-width: 700px){
+	  .modal-content {
+		width: 100%;
+	  }
+	}
+	
+	
+	/* modal components */
+	
+	#modalNav {
+		bottom: 2%;
+		right: 3%;
+		position: fixed;
+		z-index: 5;
+		mix-blend-mode: luminosity;
+	}
+	
+	#modalNavCurrent {
+		width:40px;
+		opacity:45%;
+	}
+
+    .image-size-range {
+      top: 5%;
+	  left: 1%;
+      width: 145px;
+      position: fixed;
+      z-index: 5;
+    }
+
+
+	/* rating */
+    .rate {
+      height: 22px;
+      padding: 0 12px;
+	  display: block;
+	  text-align: center;
+    }
+
+    .checked {
+      color: #ffc700;
+      font-size: 20px;
+    }
+
+    .unchecked {
+      color: #ccc;
+      font-size: 20px;
+    }
+
+    .checked:hover,
+    .unchecked:hover {
+        font-size: 25px;
+    }
+
+
+	/* tags */
+    .predefined-tags {
+      color: rgba(255,255,255,0.6);
+	  text-align: center;
+    }
+
+    .my-tags {
+      color: rgba(255,255,255,0.6);
+      display: block;
+	  text-align: center;
+    }
+
+    .my-tag {
+      color: rgba(255,255,255,0.6);
+      text-decoration: underline dotted;
+    }
+
+    
+
+    /* Sidebar Start */
+    .sidebar {
+      opacity: 0.85;
+      width: 250px;
+      padding: 0;
+      position: fixed;
+      z-index: 1;
+      top: 0;
+      left: -250px;
+      overflow-x: hidden;
+      transition: 0.5s;
+      margin-top: 60px;
+    }
+
+    .sidebar-input-box {
+      background-color: #a5b6c3;
+      position: static;
+	  width:158px;
+    }
+	
+	.sidebar-label {
+		margin-bottom: 0px;
+	}
+
+    .sidebar-open-button {
+      font-size: 30px;
+      cursor: pointer;
+      position: fixed;
+      left: 10px;
+      top: 50px;
+      z-index: 1;
+    }
+
+    .sidebar-close {
+      cursor: default;
+    }
+
+    /* for smaller screens */
+    @media screen and (max-height: 450px) {
+      .sidebar {
+        padding-top: 15px;
+      }
+    }
+
+    /* Separators */
+    .sidebar-separator-title {
+      height: 35px;
+      background-color: #6c5a5a;
+      font-weight: 900;
+      font-size: 150%;
+      cursor: default;
+    }
+
+    .sidebar-separator {
+      height: 25px;
+      background-color: #6c5a5a;
+    }
+
+    .logo-separator {
+      height: 60px;
+    }
+
+    /* Sidebar End */
+	
+	
+	#sentinel, #topSentinel {
+      width: 100%;
+      height: 1px;
+			position: static;
+  }
+
+  #gallery-images-container {
+		width: 100%;
+		padding-top: 50px;
+		padding-bottom: 50px;
+	}
