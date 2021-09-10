@@ -4,7 +4,6 @@ Gallery Website Dev Notes
 
 TODO:
 
-- use minified JS for external libs
 - test in Edge/FF/Chrome on Mac and PC
 - check initial page load speed test
 - create github page: https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site

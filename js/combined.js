@@ -2,6 +2,14 @@ function isBlank(str) {
 	return (!str || /^\s*$/.test(str));
 }
 
+function isAlphanumeric(inputTxt) {
+	return /^[a-z0-9]+$/.test(inputTxt);
+}
+
+function isNumber(value) {
+  return typeof value === 'number' && isFinite(value);
+}
+
 function capitalise(str) {
 	return str.charAt(0).toUpperCase() + str.slice(1);
 }
@@ -13,12 +21,48 @@ function findIntersection(arr1, arr2) {
 }
 
 function isViewingImage() {
-	return Galleria.get(0).getActiveImage() != null && $(Galleria.get(0).getActiveImage()).is(':visible');
+	return modal.style.display == "block";
+}
+
+function isImgTopOutsideScreen() {
+
+	if (isViewingImage()) {
+		let imgTop = parseInt(modalImg[0].style.top, 10);
+		let imgPanY = pan.y;
+		
+		return imgTop + imgPanY < 0;
+	}
+	
+	return false;
+}
+
+function isImgBottomOutsideScreen() {
+	
+	if (isViewingImage()) {
+		let screenHeight = document.documentElement.clientHeight;
+		let imgHeight = parseInt(modalImg[0].style.height, 10);
+		let imgTop = parseInt(modalImg[0].style.top, 10);
+		let imgPanY = pan.y;
+		
+		return imgHeight + imgTop + imgPanY > screenHeight;
+	}
+	
+	return false;
+}
+
+function isViewingBookmarks() {
+	return bookmarksModalEl.style.display == "block";
+}
+
+function getCurrentlyViewedImgData() {
+	if (isViewingImage()) return imagesToLoad[currentImageIndex];
 }
 
 function arraysEqual(a, b) {
   if (a === b) return true;
-  if (a == null || b == null) return false;
+  if (a == null) return b == null || !b.length;
+  if (b == null) return a == null || !a.length;
+  
   if (a.length !== b.length) return false;
 
   for (var i = 0; i < a.length; ++i) {
@@ -27,13 +71,545 @@ function arraysEqual(a, b) {
   return true;
 }
 
+function activeElementHasClass(clsName) {
+	return document.activeElement != null &&
+	  document.activeElement.className != null && 
+	  document.activeElement.className.includes(clsName);
+}
+
+function activeElementHasId(id) {
+	return document.activeElement != null &&
+	  document.activeElement.id == id;
+}
+
 function store(key, value) {
 	if (isLocalStorageAccepted()) {
 		localStorage.setItem(key, value);
 	}
-}// debug
-var numberOfPreviewImagesLoaded = 0; // currently displayed, resets when applying new filtering/sorting
-var numberOfFullSizeImagesLoaded = 0; // loaded in this session without page refresh
+}
+
+function storeCurrentImgUserData(rating, customTags) {
+	let currentImgData = getCurrentlyViewedImgData();
+	
+	if (currentImgData != null && isLocalStorageAccepted()) {
+		let key = currentImgData.image;
+		let existingData = localStorage.getItem(key);
+		let item = JSON.parse(existingData);
+		
+		if (existingData == null || item == null) {
+			item = JSON.parse('{}');
+		}
+		
+		if (rating != null) {
+			item.rating = rating;
+		}
+		
+		if (customTags != null) {
+			item.customTags = customTags;
+		}
+		
+		localStorage.setItem(key, JSON.stringify(item));
+	}
+}
+
+function getCurrentImgUserData() {
+	let currentImgData = getCurrentlyViewedImgData();
+	
+	if (currentImgData != null) {
+			return getImgUserData(currentImgData.image);
+	} else 	return JSON.parse('{}');
+}
+
+function getImgUserData(src) {
+	let item = null;
+	if (src != null) {
+		let existingData = localStorage.getItem(src);
+		item = JSON.parse(existingData);
+	}
+	
+	if (item == null) {
+		item = JSON.parse('{}');
+	}
+	
+	return item;
+}
+
+
+
+var imgStartPositionYOffset = 500;
+
+function GalleryColumn(gallery, index) {
+    var self = this;
+
+    self.gallery = gallery;
+
+    self.index = index;
+
+    self.width = 0;
+    
+    self.height = 0;
+	
+	self.topHeight = 0;
+
+    self.left = 0;
+
+    self.updateSize = function () {
+        self.width = gallery.columnWidth;
+    };
+
+    self.updatePosition = function () {
+        self.left = gallery.spacing + index * gallery.columnWidth + index * gallery.spacing;
+    };
+	
+	self.getFirstImageBelow = function(imgIdx) {
+		let imgBelow = null;
+		self.gallery.forEachImage(i => {
+			if (i.column == self.index && i.index > imgIdx && (imgBelow == null || imgBelow.index > i.index)) {
+				imgBelow = i;
+			}
+		});
+		return imgBelow;
+	}
+	
+	self.getFirstImageAbove = function(imgIdx) {
+		let imgAbove = null;
+		self.gallery.forEachImage(i => {
+			if (i.column == self.index && i.index < imgIdx && (imgAbove == null || imgAbove.index < i.index)) {
+				imgAbove = i;
+			}
+		});
+		return imgAbove;
+	}
+
+    return self;
+};
+
+function GalleryImage(gallery, data, index) {
+    var self = this;
+
+    self.gallery = gallery;
+
+    self.data = data;
+
+    self.index = index;
+
+    self.column = 0;
+
+    self.left = 0;
+    self.top = 0;
+
+    self.loading = false;
+    self.loaded = false;
+    self.error = false;
+
+    self.thumbnail = $('<div>');
+
+    self.thumbnail.css({
+        left: '0px',
+        top: '0px'
+    });
+
+
+    self.updateColumn = function () {
+        var column;
+		
+        if (self.isAddedToTop()) {
+			let newColumnObj = self.gallery.getSmallestColumnTop();
+            self.column = newColumnObj.index;
+			newColumnObj.topHeight += self.data.previewSize.h + self.gallery.spacing;
+			self.thumbnail.attr('x-gallery-column', self.column + ' ' + newColumnObj.topHeight);
+        }
+        else { // image appended to bottom or center
+            let newColumnObj = self.gallery.getSmallestColumnBottom();
+			self.column = newColumnObj.index;
+			newColumnObj.height += self.data.previewSize.h + self.gallery.spacing;
+			self.thumbnail.attr('x-gallery-position', self.index + ' ' +  self.column + ' ' + newColumnObj.height);
+        }
+    };
+
+    self.updatePosition = function (setAnimationStartPosition) {
+		var ourColumn = self.gallery.columns[self.column];
+        self.left = ourColumn.left + self.gallery.spacing;
+
+        self.top = 0;
+
+        if (self.isAddedToTop()) {
+			// put image on top, so get the position of the image below in the same column
+			let imgBelow = ourColumn.getFirstImageBelow(self.index);
+            if (imgBelow) {
+                self.top = (imgBelow.top - self.data.previewSize.h) - self.gallery.spacing;
+            }
+        } else {
+			// put image at the end, so get the position of the image above in the same column
+            if (self.isAddedToBottom()) {
+                let imgAbove = ourColumn.getFirstImageAbove(self.index);
+                if (imgAbove) {
+                    self.top = imgAbove.top + imgAbove.data.previewSize.h + self.gallery.spacing;
+                }
+            }
+			// else just just place at the top if we are loading the first row, no need to update the top
+        }
+
+
+        if (setAnimationStartPosition) {
+            var startTop = self.top;
+
+            if (self.isAddedToTop()) {
+            	// disabled sliding down animation because it requires to be timed with an animation for pushing existing images down
+            	//startTop = self.top - 2000;
+            }
+            else {
+                startTop = self.top + imgStartPositionYOffset;
+            }
+
+            self.thumbnail.css({
+                left: self.left + 'px',
+                top: startTop + 'px'
+            });
+        }
+        else {
+            self.thumbnail.css({
+                left: self.left + 'px',
+                top: self.top + 'px'
+            });
+        }
+    };
+	
+	self.isAddedToTop = function() {
+		return self.gallery.baseImageIndex > self.index;
+	}
+	
+	self.isAddedToBottom = function() {
+		return self.gallery.baseImageIndex < self.index;
+	}
+
+    self.load = function () {
+        if (self.loading || self.loaded)
+            return;
+
+        self.loading = true;
+
+        self.gallery.imagesBeingLoaded++;
+
+        self.thumbnail.addClass('gallery-thumb');
+        self.thumbnail.css({ 'visibility': 'hidden' });
+
+        var img = document.createElement('img');
+
+        $(img).addClass('gallery-thumb-img');
+
+        self.updatePosition(true);
+
+        var loaded = function (error) {
+            self.thumbnail.css({ 'visibility': 'visible' });
+
+            self.loading = false;
+            self.loaded = true;
+            self.error = error;
+
+            self.gallery.imagesBeingLoaded--;
+
+            // this needs to have a delay for the animation to play, otherwise the image randomly just pops up
+            setTimeout(self.updatePosition, 100)
+
+            self.gallery.onImageLoaded(self);
+
+            if (error) {
+                if (self.gallery.imageOnErrorCallback)
+                    self.gallery.imageOnErrorCallback({ image: self, img: img });
+            }
+            else {
+                if (self.gallery.imageOnLoadCallback)
+                    self.gallery.imageOnLoadCallback({ image: self, img: img });
+            }
+        }
+
+        img.onload = function () {
+            loaded(false);
+        };
+
+        img.onerror = function () {
+            loaded(true);
+        };
+
+        img.src = self.data.thumb;
+
+        self.thumbnail.append(img);
+
+        self.gallery.columnsContainer.append(self.thumbnail);
+    };
+
+    self.remove = function () {
+        self.thumbnail.remove();
+    };
+
+    return self;
+};
+
+function Gallery(options) {
+    var self = this;
+
+    self.columns = [];
+
+    self.columnCount = 0;
+
+    self.container = (typeof options.container === 'string') ? $(options.container).first() : options.container;
+
+    self.imageDatas = options.images;
+    self.baseImageIndex = options.baseImageIndex || 0;
+
+    self.columnWidth = options.columnWidth;
+    self.spacing = options.spacing;
+
+    self.min = 0;
+    self.max = 0;
+
+    self.fullMin = 0;
+    self.fullMax = 0;
+
+
+    self.imagesBeingLoaded = 0;
+
+    self.loadInProgress = function () {
+        return self.imagesBeingLoaded > 0;
+    };
+
+
+    self.imageOnLoadCallback = options.imageOnLoadCallback;
+    self.imageOnErrorCallback = options.imageOnErrorCallback;
+    self.heightCalculatedCallback = options.heightCalculatedCallback;
+
+
+
+    // Create column container
+    // If it already exists, it will be emptied
+    self.columnsContainer = $('.gallery-columns');
+
+    if (!self.columnsContainer.length) {
+        self.columnsContainer = $('<div>');
+        self.columnsContainer.addClass('gallery-columns');
+        self.container.append(self.columnsContainer);
+    } else {
+        self.columnsContainer.empty();
+    }
+
+
+    self.images = [];
+
+    for (var i = 0; i < self.imageDatas.length; ++i) {
+        self.images[i] = new GalleryImage(self, self.imageDatas[i], i);
+    }
+
+
+    self.getImage = function (index) {
+        return self.images[index];
+    };
+
+
+    self.forEachImage = function (callback) {
+        for (var i = 0; i < self.images.length; ++i) {
+            callback(self.images[i], i);
+        }
+    };
+	
+	// iterates over the images in the order they are added to the gallery: appended images first then previous images
+	self.forEachImageInsertionOrder = function (callback) {
+        for (var i = 0; i < self.images.length; ++i) {
+			if (self.images[i].index >= self.baseImageIndex)
+				callback(self.images[i], i);
+        }
+		for (var i = self.images.length - 1; i >= 0; --i) {
+			if (self.images[i].index < self.baseImageIndex)
+				callback(self.images[i], i);
+        }
+    };
+
+    self.forEachColumn = function (callback) {
+        for (var i = 0; i < self.columns.length; ++i) {
+            callback(self.columns[i], i);
+        }
+    };
+
+
+    self.resize = function () {
+        // Get width of the container (space for our columns)
+        var containerWidth = self.columnsContainer.width();
+
+        // Calculate the actual space available for columns (it excludes the left and right padding)
+        var spaceForColumns = containerWidth - self.spacing * 2;
+
+        self.columnCount = Math.max(1, Math.floor(spaceForColumns / (self.columnWidth + self.spacing)));
+
+        self.columns = [];
+
+        for (var i = 0; i < self.columnCount; ++i) {
+            self.columns.push(new GalleryColumn(self, i));
+        }
+
+		// if there are previous images, always load at least a full row
+		if (self.baseImageIndex > 0 && (self.images.length - self.baseImageIndex) < self.columnCount) {
+			self.baseImageIndex = Math.max(0, self.images.length - self.columnCount);
+		}
+
+        self.forEachImageInsertionOrder(i => i.updateColumn());
+
+        self.forEachColumn(c => c.updateSize());
+        self.forEachColumn(c => c.updatePosition());
+
+        self.forEachImage(i => i.updatePosition(false));
+
+
+        self.updateMinMax();
+    };
+
+    self.load = function (baseIndex, count, indexIsRelative) {
+        if (count === undefined)
+            count = 1;
+
+        var start = baseIndex;
+        var end = baseIndex + count;
+
+        if (count < 0) {
+            for (var i = start; i > end; --i) {
+                var index = i;
+
+                if (indexIsRelative) {
+                    index = self.baseImageIndex + index;
+                }
+
+                if (index < 0 || index >= self.images.length)
+                    continue;
+
+                self.images[index].load();
+            }
+        }
+        else {
+            for (var i = start; i < end; ++i) {
+                var index = i;
+
+                if (indexIsRelative) {
+                    index = self.baseImageIndex + index;
+                }
+
+                if (index < 0 || index >= self.images.length)
+                    continue;
+
+                self.images[index].load();
+            }
+        }
+    };
+
+    self.remove = function (baseIndex, count, indexIsRelative) {
+        if (count === undefined)
+            count = 1;
+
+        for (var i = 0; i < count; ++i) {
+            var index = baseIndex + i;
+
+            if (indexIsRelative) {
+                index = self.baseImageIndex + index;
+            }
+
+            self.images[index].remove();
+        }
+
+        self.resize();
+    };
+
+
+    self.updateMinMax = function () {
+        self.min = 0;
+        self.max = 0;
+
+        self.fullMin = 0;
+        self.fullMax = 0;
+
+        self.forEachImage(image => {
+            if (image.loaded) {
+                self.min = Math.min(image.top, self.min);
+                self.max = Math.max(image.top + image.data.previewSize.h, self.max);
+            }
+
+            self.fullMin = Math.min(image.top, self.fullMin);
+            self.fullMax = Math.max(image.top + image.data.previewSize.h, self.fullMax);
+        });
+
+        self.applyMinMax();
+    };
+	
+	self.getSmallestColumnBottom = function() {
+		var smallestColumn = self.columns[0];
+		
+		self.forEachColumn(c => { 
+			if (c.height < smallestColumn.height)
+				smallestColumn = c;
+		});
+		
+		return smallestColumn;
+	};
+	
+	self.getSmallestColumnTop = function() {
+		var smallestColumn = self.columns[0];
+		
+		self.forEachColumn(c => {
+			if (c.topHeight < smallestColumn.topHeight)
+				smallestColumn = c;
+		});
+		
+		return smallestColumn;
+	};
+
+    self.onImageLoaded = function (image) {
+        self.min = Math.min(image.top, self.min);
+        self.max = Math.max(image.top + image.data.previewSize.h, self.max);
+
+        self.fullMin = Math.min(image.top, self.fullMin);
+        self.fullMax = Math.max(image.top + image.data.previewSize.h, self.fullMax);
+
+        self.applyMinMax();
+    };
+
+    self.applyMinMax = function () {
+        var height = Math.abs(self.max - self.min);
+        var fullHeight = Math.abs(self.fullMax - self.fullMin) + imgStartPositionYOffset;
+
+        self.columnsContainer.css({
+            height: height + 'px'
+        });
+
+        if (self.min < 0) {
+            self.columnsContainer.css({
+                transform: 'translateY(' + (-self.min) + 'px)'
+            });
+        }
+        else {
+            self.columnsContainer.css({
+                transform: 'translateY(0px)'
+            });
+        }
+
+        if (self.heightCalculatedCallback)
+            self.heightCalculatedCallback({ h: fullHeight, min: self.fullMin, max: self.fullMax });
+    };
+
+    self.resize();
+
+    var windowResizing = null;
+
+    window.addEventListener('resize', () => {
+        if (windowResizing)
+            clearTimeout(windowResizing);
+
+        windowResizing = setTimeout(() => {
+            windowResizing = null;
+            self.resize();
+        }, 400);
+    });
+
+    return self;
+}
+
+var customTagsDirty = false; // when true, tags need to be refreshed
 
 var sortByRating = false;
 var sortByDateAsc = false;
@@ -50,161 +626,288 @@ var filterByCategoryEnabled = false;
 var currentFilterCategory;
 var categoriesAndTags = true;
 
-var nameFilterFunc = function(dataItemToFilter) {return true;};
-var tagsFilterFunc = function(dataItemToFilter) {return true;};
-var categoryFilterFunc = function(dataItemToFilter) {return true;};
-var dateRangeFilterFunc = function(dataItemToFilter) {return true;};
-var filterFunction = function(arr) {
-		return arr.filter(function(dataItemToFilter) {
-				return nameFilterFunc(dataItemToFilter) && 
-				
-					// if tag AND category filters are on, only then consider categoriesAndTags
-					// otherwise the OR condition is true and we don't even evaluate the filters
-					((!filterByTagsEnabled || !filterByCategoryEnabled) ||
-						((categoriesAndTags && tagsFilterFunc(dataItemToFilter) && categoryFilterFunc(dataItemToFilter)) ||
-						(!categoriesAndTags && (tagsFilterFunc(dataItemToFilter) || categoryFilterFunc(dataItemToFilter))))
-					) &&
-					
-					// if one of them is off, then just apply it regardless of categoriesAndTags
-					// this avoids showing all results when categoriesAndTags = false (i.e. OR filtering) and one of the filters is not active (i.e. allows all)
-					((filterByTagsEnabled && filterByCategoryEnabled) ||
-						(tagsFilterFunc(dataItemToFilter) && categoryFilterFunc(dataItemToFilter))
-					) &&
-					
-					dateRangeFilterFunc(dataItemToFilter);
-			});
-	};
+var nameFilterFunc = function (dataItemToFilter) { return true; };
+var tagsFilterFunc = function (dataItemToFilter) { return true; };
+var categoryFilterFunc = function (dataItemToFilter) { return true; };
+var dateRangeFilterFunc = function (dataItemToFilter) { return true; };
+var filterFunction = function (arr) {
+    return arr.filter(function (dataItemToFilter) {
+        return nameFilterFunc(dataItemToFilter) &&
 
-$(function(){
-	refreshSelectableTags();
-	refreshSelectableCategories();
-});
+            // if tag AND category filters are on, only then consider categoriesAndTags
+            // otherwise the OR condition is true and we don't even evaluate the filters
+            ((!filterByTagsEnabled || !filterByCategoryEnabled) ||
+                ((categoriesAndTags && tagsFilterFunc(dataItemToFilter) && categoryFilterFunc(dataItemToFilter)) ||
+                    (!categoriesAndTags && (tagsFilterFunc(dataItemToFilter) || categoryFilterFunc(dataItemToFilter))))
+            ) &&
 
-$(function() {
+            // if one of them is off, then just apply it regardless of categoriesAndTags
+            // this avoids showing all results when categoriesAndTags = false (i.e. OR filtering) and one of the filters is not active (i.e. allows all)
+            ((filterByTagsEnabled && filterByCategoryEnabled) ||
+                (tagsFilterFunc(dataItemToFilter) && categoryFilterFunc(dataItemToFilter))
+            ) &&
 
-	Galleria.loadTheme('lib/folio/galleria.folio.min.js');
-	
-	// causes cors error with local files in FF, first param must be an URL, https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS/Errors/CORSRequestNotHttp
-	//$.getJSON('imageData.json', function( data ) {
-	//	Galleria.run('.galleria', {
-	//	dataSource: data});
-	
-	initSidebar();
-	
-	loadImages();
-	
-});
+            dateRangeFilterFunc(dataItemToFilter);
+    });
+};
 
-
+// gallery object which manages the preview images
+var gallery;
+// imagesToLoad contains all the images available for display according to currently selected filter criteria
 var imagesToLoad;
+// index of the first loaded preview image, all previous images are not displayed in the gallery
+// i.e. equal to the number of unloaded previous images
+var imgIdxOffset = 0;
+// number of next images to load when scrolled to the bottom or when loading previous images
+var chunkSize = 15;
 var scrolledToEnd = false;
-var lastChunkLoaded = false;
-function loadImages() {
+var lastChunkLoaded = true;
+var minDelayLoadingNextChunkSec = 1;
+var minDelayLoadingNextChunkPassed = true;
 
-	numberOfPreviewImagesLoaded = 0;
+/** detail image view element variables for caching **/
+var currentImageIndex = 0; // index of the currently or last opened image
+var modal;
+var next;
+var previous;
+var captionText;
+var ratingEl;
+var predefinedTagsEl;
+var userDefinedTagsEl;
+var modalNavCurrentEl;
+var modalNavMaxEl;
+var addBookmarkEl;
 
-	imagesToLoad = imgData;
-	if (typeof filterFunction === 'function') {
-		imagesToLoad = filterFunction(imagesToLoad);
-	}
-	
-	imagesToLoad.sort(sortImages);
+/** bookmarks modal **/
+var bookmarksModalEl;
+var bookmarksListEl;
 
-	Galleria.run('.galleria', {
-		dataSource: imagesToLoad.slice(0,30),
-		transition: 'pulse',
-		thumbCrop: 'width',
-		imageCrop: false,
-		carousel: false,
-		show: false,
-		easing: 'galleriaOut',
-		fullscreenDoubleTap: false,
-		// Shows navigation as cursor for webkit
-		_webkitCursor: true,
-		// Animates the thumbnails: when a new image is pushed they fly into place
-		// unfortunately bugged: the images keep loading for around 5sec even though they are actually loaded (even on local)
-		_animate: false,
-		// Centers the thumbnails inside it’s container
-		_center: true
-	});
-	
-	// navigate to top
-	window.scrollTo(0, 0);
-}
+/** scaling options for the image details view, most of which can be user configured **/
+var scaleUpImageHeight = true;
+var scaleUpImageWidth = true;
+var scaleDownImageWidth = true;
+var scaleDownImageHeight = true;
+// the image width is scaled to 70% of the screen width
+var optimalWidthRatio = 0.7;
+// the image height is scaled to 95% of the screen height
+var optimalHeightRatio = 0.95;
+// when image width is scaled down to fit the screen, the image must be more than 3x as tall than the screen to NOT scale height
+var scaleHeightRatioThreshold = 3;
+// when image height is scaled down to fit the screen, the image must be more than 3x as wide than the screen to NOT scale width
+var scaleWidthRatioThreshold = 3;
+// only allow to scale up to twice the original size (original size = slider in the middle)
+var maxScale = 2;
 
+// preloading options of full sized images in relation the the currently opened image
+var preloadedImages = [];
+var numberOfPrevImgsToPreload = 1;
+var numberOfNextImgsToPreload = 2;
 
-Galleria.ready(function(options) {
-	scrolledToEnd = false;
-	lastChunkLoaded = false;
-	updateLazyLoadSentinel();
+$(function () {
+    refreshSelectableTags();
+    refreshSelectableCategories();
 });
 
-function updateLazyLoadSentinel() {
-	var galleriaRef = Galleria.get(0);
-	var thumbsContainer = $('.galleria-thumbnails');
-	thumbsContainer.append('<div id="sentinel"></div>');
-	var sentinel = $('#sentinel').get(0);
+$(function () {
+
+    modal = document.getElementById("imageModal");
+    captionText = document.getElementById("caption");
+    ratingEl = document.getElementById("rating");
+    predefinedTagsEl = document.getElementById("predefinedTags");
+    userDefinedTagsEl = document.getElementById("myTags");
+    modalNavCurrentEl = document.getElementById("modalNavCurrent");
+    modalNavMaxEl = document.getElementById("modalNavMax");
+    addBookmarkEl = document.getElementById("addBookmark");
+
+    bookmarksModalEl = document.getElementById("bookmarksModal");
+    bookmarksListEl = document.getElementById("bookmarksList");
+
+    initSearchSidebar();
+    initSettingsSidebar();
+
+    loadImages();
+});
+
+function loadImages(offset) {
 	
-	var callback = (entries, observer) => {
-	  entries.forEach(entry => {
-		  if (entry.isIntersecting) {
-			scrolledToEnd = true;
-			tryLoadNextChunk();
-		  } else {
-			scrolledToEnd = false;
-		  }
-	  });
-	};
+	if (offset)
+		imgIdxOffset = offset;
+	else 
+		imgIdxOffset = 0;
 	
-	var observer = new IntersectionObserver(callback);
-	observer.observe(sentinel);
-	
-	galleriaRef.bind("thumbnail", function(e) {
-		++numberOfPreviewImagesLoaded;
-		thumbsContainer.get(0).appendChild(sentinel);
-		if (e.index == galleriaRef.getDataLength() - 1) {
-			lastChunkLoaded = true;
-			tryLoadNextChunk();
+    scrolledToEnd = false;
+
+    imagesToLoad = imgData;
+    if (typeof filterFunction === 'function') {
+        imagesToLoad = filterFunction(imagesToLoad);
+    }
+
+    updateImgCountDisplay();
+
+    imagesToLoad.sort(sortImages);
+
+    topImageId = 0;
+    bottomImageId = 0;
+
+    var firstLoaded = true;
+	// we are not loading any images when creating a new gallery, all controlled by the sentinel which is triggered again by clearing all previous images
+	lastChunkLoaded = true;
+
+    gallery = new Gallery({
+        container: '#gallery-images-container',
+        images: imagesToLoad,
+        baseImageIndex: imgIdxOffset,
+        columnWidth: 230,
+        spacing: 10,
+        imageOnLoadCallback: function (e) {
+            if (firstLoaded) {
+                if (imgIdxOffset != 0) {
+                    $('#loadPreviousBtn').show();
+                }
+
+                firstLoaded = false;
+            }
+
+            e.image.thumbnail.get(0).onclick = function () {
+                openImgDetailsView(e.image.index);
+            };
+            
+            if (!gallery.loadInProgress()) {
+            	if (topImageId + imgIdxOffset > 0) {
+            		$('#loadPreviousBtn').show();
+            	}
+				lastChunkLoaded = true;
+            	tryLoadNextChunk();
+            }
+        },
+        heightCalculatedCallback: function (e) {
+            $(document.body).height(e.h);
+        }
+    });
+
+    registerIntersectionCallback();
+
+    if (imgIdxOffset === 0) {
+        // navigate to top
+        if ('scrollRestoration' in history) {
+		  history.scrollRestoration = 'manual';
 		}
-	});
+        window.scrollTo(0, 0);
+        $('#loadPreviousBtn').hide();
+    } else {
+    	
+    	let top = gallery.columnsContainer.offset().top;
+        window.scrollTo(0, top);
+    }
+    
+	// gallery may has updated the provided base index
+	imgIdxOffset = gallery.baseImageIndex;
 }
 
-function tryLoadNextChunk() {
+// detect scrolling down
+var observer;
+function registerIntersectionCallback() {
+    let intersectionCallback = (entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                scrolledToEnd = true;
+                tryLoadNextChunk();
+            } else {
+                scrolledToEnd = false;
+            }
+        });
+    };
 
-	var gallery = Galleria.get(0);
-	var chunkSize = 15;
-	var currentLoadSize = gallery.getDataLength();
-	
-	if (lastChunkLoaded && scrolledToEnd && currentLoadSize < imagesToLoad.length) {
-		
-		var nextLoadSize = currentLoadSize + chunkSize;
-		if (nextLoadSize > imagesToLoad.length) {
-			nextLoadSize = imagesToLoad.length;
-		}
-		
-		gallery.push(imagesToLoad.slice(currentLoadSize, nextLoadSize));
-		
+    observer = new IntersectionObserver(intersectionCallback);
+    observer.observe($('#sentinel').get(0));
+}
+
+var topImageId = 0;
+var bottomImageId = 0;
+
+// load new images and append to the end of the gallery
+function tryLoadNextChunk() {
+	if (scrolledToEnd && lastChunkLoaded && minDelayLoadingNextChunkPassed) {
 		lastChunkLoaded = false;
-	}
-}// window keyboard event listener
+		gallery.load(bottomImageId, chunkSize, true);
+		bottomImageId += chunkSize;
+		
+		minDelayLoadingNextChunkPassed = false;
+		setTimeout(tryLoadNextChunkFromTimer, minDelayLoadingNextChunkSec * 1000);
+    }
+}
+
+function tryLoadNextChunkFromTimer() {
+	minDelayLoadingNextChunkPassed = true;
+	tryLoadNextChunk();
+}
+
+// load new images and stack on top of the gallery
+function tryLoadPreviousChunk() {
+	$('#loadPreviousBtn').hide();
+    gallery.load(topImageId, -chunkSize, true);
+    topImageId -= chunkSize;
+}
+
+function updateImgCountDisplay() {
+    $('#filteredImgNumberInfo').html(imagesToLoad.length + ' images to show.');
+}
+// window keyboard event listener
  $(function() {
 		 
 		 // use keydown instead of keypress which also catches non-printing keys such as Shift, Esc...
 		$(window).keydown(function( event ) {
 		
-				if (isViewingImage()) { // single image mode
-					// enable rating with number keys 1 to 5
-					processKeyEvtForRating(event);
-					
-				} else { // displaying gallery with preview images
+			if (isViewingImage() && !isEditingModalComponent()) { // single image mode
+				// enable rating with number keys 1 to 5
+				processKeyEvtForRating(event);
 				
-					if (event.key == 'Escape') {
-						closeSidebar();
+				if (event.key == "ArrowLeft") {
+				  navigateToPrevious(null);
+				  
+				} else if (event.key == "ArrowRight") {
+				  navigateToNext(null);
+				  
+				} else if (event.key == "Escape") {
+					closeImageView(event, true);
+				  
+				} else if (event.key == "ArrowUp") {
+					modal.scrollTop -= 20;
 					
-					} else if (event.key == '1') {
-						openSidebar();
-					}
+				} else if (event.key == "ArrowDown") {
+					modal.scrollTop += 20;
 				}
+				
+			} else if (!isViewingImage()) { // displaying gallery with preview images
+			
+				if (event.key == 'Escape') {
+					if (isViewingBookmarks()) {
+						closeBookmarksModal();
+					} else {
+						closeSidebar();
+					}
+				
+				} else if (event.key == '1' && !isSidebarVisible()) {
+					// when the sidebar is already visible, this prevents switching between the different sidebars
+					// this is a problem when typing numbers into an input field
+					openSearchSidebar();
+				} else if (event.key == '2' && !isSidebarVisible()) {
+					openBookmarksModal();
+				} else if (event.key == '3' && !isSidebarVisible()) {
+					openSettingsSidebar();
+				}
+			}
+				
+		});
+
+		$(window).on("mousewheel DOMMouseScroll", function(event) {
+			if (isViewingImage() && !isEditingModalComponent()) {
+				if (event.shiftKey) {
+					resizeImage(event);
+				} else {
+					moveImageY(event);
+				}
+			}
 		});
  });function sortImages(a, b) {
 	
@@ -353,6 +1056,125 @@ function persistSorting() {
 	store('sortByDateDesc', sortByDateDesc);
 	store('sortByName', sortByName);
 }
+
+
+var myTagsPrefix = '&nbsp;&nbsp;&nbsp;&nbsp;My Tags:&nbsp;';
+var myTagEmptyHtml = '<span class="my-tag" contenteditable=true>&nbsp;&nbsp;&nbsp;&nbsp</span>';
+
+function displayTags(tags) {
+
+	var tagsEl = $(predefinedTagsEl);
+	tagsEl.html("");
+	
+	if (tags) {
+		// padding does not work because it inlines the tags with the previous div
+		tagsEl.html("&nbsp;&nbsp;&nbsp;&nbsp;Tags: " + tags.replaceAll(',', ', '));
+	}
+	
+	if (isLocalStorageAccepted()) {
+		// option to add custom tags
+		
+		var myTagsEl = $(userDefinedTagsEl);
+		
+		myTagsEl.html(myTagsPrefix);
+		let imgUserData = getCurrentImgUserData();
+		
+		if (imgUserData.customTags && imgUserData.customTags.length > 0) {
+			imgUserData.customTags.split(',').forEach((tag) => {
+				let newMyTag = appendNewCustomTag(myTagEmptyHtml);
+				newMyTag.html(tag + ',&nbsp;');
+			});
+			
+		}
+		
+		let emptyMyTag = appendNewCustomTag(myTagEmptyHtml);
+	}
+}
+
+function myTagKeypress(event) {
+	if (event.key == 'Enter') {
+		event.preventDefault();
+		confirmedMyTag(event);
+	} else {
+		return isAlphanumeric(event.key) || '-' == event.key || '_' == event.key;
+	}
+}
+
+function confirmedMyTag(event) {
+	let currentMyTagTxt = event.target.textContent.trim();
+	if (!currentMyTagTxt.length || currentMyTagTxt.length == 0) {
+		event.target.innerHtml = '&nbsp;&nbsp;&nbsp;&nbsp;';
+	} else {
+		event.target.innerHtml = currentMyTagTxt.replace(/&nbsp;|\s/g,'') + '&nbsp';
+	}
+	event.target.blur();
+	addEmptyTagToEditIfRequired();
+	persistCustomTags($(event.target.parentElement));
+}
+
+function persistCustomTags(myTagsEl) {
+	if (myTagsEl != null) {
+		let myTags = null;
+		myTagsEl.children('.my-tag').each(function(i) {
+			let txt = $(this).html();
+			if (txt != null && txt.length) {
+				if (myTags == null) myTags = txt;
+				else myTags += txt;
+			}
+		});
+		myTags = myTags.replace(/&nbsp;|\s/g,'');
+		
+		if (myTags.endsWith(',')) {
+			myTags = myTags.slice(0,-1);
+		}
+		
+		storeCurrentImgUserData(null, myTags);
+		customTagsDirty = true;
+	}
+}
+
+function addEmptyTagToEditIfRequired() {
+	let lastMyTag = $(userDefinedTagsEl).find('.my-tag').last();
+	let lastTagAbsent = lastMyTag == null || !lastMyTag.length;
+	let emptyTagRequired = lastTagAbsent || lastMyTag.text().trim().length > 0;
+	
+	if (emptyTagRequired) {
+		if (!lastTagAbsent && !lastMyTag.text().trim().endsWith(',')) {
+			lastMyTag.html(lastMyTag.text().trim().replace(/&nbsp;|\s/g,'') + ',&nbsp;');
+		}
+		var newTagEl = appendNewCustomTag(myTagEmptyHtml);
+		newTagEl.focus();
+	}
+}
+
+function appendNewCustomTag(myTagEl) {
+	let newTagEl = $(userDefinedTagsEl).append(myTagEl).find('.my-tag').last();
+	newTagEl.keypress(myTagKeypress);
+	newTagEl.keydown(myTagKeydown);
+	newTagEl.blur(confirmedMyTag);
+	return newTagEl
+}
+
+function myTagKeydown(event) {
+	if (event.key == 'Backspace') {
+		if (window.getSelection) {
+			var text = window.getSelection().toString();
+			
+			if (text.length > 0 && text.trim().length > 0 && text.trim() == event.target.textContent.trim().replace(',','')) {
+				event.preventDefault();
+				let parentEl = event.target.parentElement;
+				$(event.target).remove();
+				persistCustomTags($(parentEl));
+			}
+		}
+	} else if (event.key == 'ArrowRight' || event.key == 'ArrowLeft') {
+		event.stopPropagation();
+	}
+}
+
+function isEditingTags() {
+	return activeElementHasClass('my-tag');
+}
 // image title filter
 (function() {
 		$('#inputNameFilter').keypress(function(event) {
@@ -476,7 +1298,13 @@ function applyFilterByTags() {
 	
 	if (filterByTagsEnabled) {
 		tagsFilterFunc = function(dataItemToFilter) {
-				return dataItemToFilter.tags && findIntersection(dataItemToFilter.tags.split(","), currentFilterTags).length > 0;
+				let imgTags = dataItemToFilter.tags;
+				let customTags = getImgUserData(dataItemToFilter.image).customTags;
+				if (customTags && customTags.length) {
+					if (imgTags && imgTags.length) imgTags += ',' + customTags;
+					else imgTags = customTags;
+				}
+				return imgTags.length && findIntersection(imgTags.split(","), currentFilterTags).length > 0;
 			}
 	} else {
 		tagsFilterFunc = function(dataItemToFilter) {return true;};
@@ -554,14 +1382,22 @@ function applyTagsAndCategoryFilter() {
 	} else {
 		$('#toggleTagsAndCategoryFilterBtn').html("Tags OR Category");
 	}
-}function openSidebar() {
-  $('#searchSidebarOpenBtn').hide();
+}
+
+function openSearchSidebar() {
+  $('.sidebar-open-button').hide();
+  $('#settingsSidebar').hide();
+  $('#searchAndFilterSidebar').show();
   document.getElementById("sidebar-container").style.left = "0px";
 }
 
 function closeSidebar() {
   document.getElementById("sidebar-container").style.left = "-250px";
-  $('#searchSidebarOpenBtn').show(500);
+  $('.sidebar-open-button').show(500);
+}
+
+function isSidebarVisible() {
+	return $("#sidebar-container").position().left >= 0;
 }
 
 $(function() {
@@ -582,7 +1418,7 @@ function displayAsActive(isActive, element) {
 	}
 }
 
-function initSidebar() {
+function initSearchSidebar() {
 	
 	var currentFilterByName = null;
 	
@@ -600,7 +1436,8 @@ function initSidebar() {
 		currentFromFilterDate = parseInt(localStorage.getItem('currentFromFilterDate'));
 		currentToFilterDate = parseInt(localStorage.getItem('currentToFilterDate'));
 		filterByTagsEnabled = localStorage.getItem('filterByTagsEnabled') == 'true';
-		currentFilterTags = localStorage.getItem('currentFilterTags');
+		if (localStorage.getItem('currentFilterTags'))
+			currentFilterTags = localStorage.getItem('currentFilterTags').split(',');
 		filterByCategoryEnabled = localStorage.getItem('filterByCategoryEnabled') == 'true';
 		currentFilterCategory = localStorage.getItem('currentFilterCategory');
 		categoriesAndTags = localStorage.getItem('categoriesAndTags') == 'true';
@@ -616,7 +1453,7 @@ function initSidebar() {
 	applyFilterByDateRange();
 	
 	if (currentFilterTags != null && currentFilterTags.length > 0) {
-		$('#tagsFilter').selectpicker('val', currentFilterTags.split(","));
+		$('#tagsFilter').selectpicker('val', currentFilterTags);
 	}
 	applyFilterByTags();
 	
@@ -696,10 +1533,18 @@ function toggleDisplaySidebarElementInForeground(element, showInForeground) {
  // initialising selections
  // tags
  function refreshSelectableTags() {
+	customTagsDirty = false;
 	var allTagsSet = new Set();
 	imgData.forEach(function(imgDataItem) {
+		
 		if (imgDataItem.tags) {
 			imgDataItem.tags.split(',').forEach(t => allTagsSet.add(t));
+		}
+		
+		// add user defined tags
+		item = JSON.parse(localStorage.getItem(imgDataItem.image));
+		if (item != null && item.customTags && item.customTags.length) {
+			item.customTags.split(',').forEach(t => allTagsSet.add(t));
 		}
 	});
 	
@@ -707,6 +1552,35 @@ function toggleDisplaySidebarElementInForeground(element, showInForeground) {
 	allTagsSet.forEach(function(tag) {
 		$('#tagsFilter').append('<option value="' + tag + '">' + tag + '</option>');
 	});
+	
+	$('#tagsFilter').selectpicker('refresh');
+	
+	if (filterByTagsEnabled && currentFilterTags != null && currentFilterTags.length > 0) {
+		// remove currently selected tag if it was only set on the single image
+		currentFilterTags = findIntersection(currentFilterTags, Array.from(allTagsSet));
+		
+		// if we still have tags then just set to the tag widget
+		if (currentFilterTags != null && currentFilterTags.length > 0) {
+			$('#tagsFilter').selectpicker('val', currentFilterTags);
+		} else {
+			$('#tagsFilter').selectpicker('val', null);
+			filterByTagsEnabled = false;
+			store('filterByTagsEnabled', filterByTagsEnabled);
+			// show tag filter as inactive
+			applyFilterByTags();
+		}
+		store('currentFilterTags', currentFilterTags);
+		
+		// if the gallery displays a single image ...
+		if (imagesToLoad.length == 1 || gallery.images.length == 1) {
+			// ...and we removed the tag filter
+			if (!filterByTagsEnabled) {
+				// ...then this image was the last image with that tag, and we should re-apply the remaining filters (if any)
+				// it should not be possible to remove the tag filter when there is more than one image to display
+				loadImages();
+			}
+		}
+	}
 	
 	$('#tagsFilter').selectpicker('refresh');
  }
@@ -727,35 +1601,235 @@ function toggleDisplaySidebarElementInForeground(element, showInForeground) {
 	});
 	
 	$('#categoryFilter').selectpicker('refresh');
- }function displayRating(imageTarget) {
+ }
 
-	var rateEl = $('.galleria-info').find('#rating');
-	if (rateEl.length === 0)
-		rateEl = $('.galleria-info').append(ratingHtml).find('#rating');
+
+function openSettingsSidebar() {
+  $('.sidebar-open-button').hide();
+  $('#searchAndFilterSidebar').hide();
+  $('#settingsSidebar').show();
+  document.getElementById("sidebar-container").style.left = "0px";
+}
+
+function initSettingsSidebar() {
+	
+	if (isLocalStorageAccepted()) {
+		loadSettingsFromStorage();
+	}
+	
+	refreshSettingsUi();
+}
+
+$(function() {
+	
+	$('#scaleUpImgWidthButton').on('click', function(e) {
+	  toggleScaleUpImageWidth();
+	});
+	$('#scaleUpImgWidthButton').on('keydown', function(e) {
+	  if (event.key == 'Enter') {
+		event.preventDefault();
+		toggleScaleUpImageWidth();
+	  }
+	});
+	$('#scaleUpImgWidthSwitch').on('click', function(e) {
+		return false;
+	});
+	
+	$('#scaleDownImgWidthButton').on('click', function(e) {
+	  toggleScaleDownImageWidth();
+	});
+	$('#scaleDownImgWidthButton').on('keydown', function(e) {
+	  if (event.key == 'Enter') {
+		event.preventDefault();
+		toggleScaleDownImageWidth();
+	  }
+	});
+	$('#scaleDownImgWidthSwitch').on('click', function(e) {
+		return false;
+	});
+	
+	$('#scaleUpImgHeightButton').on('click', function(e) {
+	  toggleScaleUpImageHeight();
+	});
+	$('#scaleUpImgHeightButton').on('keydown', function(e) {
+	  if (event.key == 'Enter') {
+		event.preventDefault();
+		toggleScaleUpImageHeight();
+	  }
+	});
+	$('#scaleUpImgHeightSwitch').on('click', function(e) {
+		return false;
+	});
+	
+	$('#scaleDownImgHeightButton').on('click', function(e) {
+	  toggleScaleDownImageHeight();
+	});
+	$('#scaleDownImgHeightButton').on('keydown', function(e) {
+	  if (event.key == 'Enter') {
+		event.preventDefault();
+		toggleScaleDownImageHeight();
+	  }
+	});
+	$('#scaleDownImgHeightSwitch').on('click', function(e) {
+		return false;
+	});
+});
+
+function updateOptimalWidthRatio() {
+	let inputVal = Number(document.getElementById("imgWindowWidthRatio").value);
+	if (!isNumber(inputVal)) {
+		console.log('Error: Invalid input for imgWindowWidthRatio: ' + inputVal);
+		document.getElementById("imgWindowWidthRatio").value = 0.75;
+		inputVal = 0.75;
+	}
+	
+	optimalWidthRatio = inputVal;
+	persistSettings();
+}
+
+function updateOptimalHeightRatio() {
+	let inputVal = Number(document.getElementById("imgWindowHeightRatio").value);
+	if (!isNumber(inputVal)) {
+		console.log('Error: Invalid input for imgWindowHeightRatio: ' + inputVal);
+		document.getElementById("imgWindowHeightRatio").value = 0.95;
+		inputVal = 0.95;
+	}
+	
+	optimalHeightRatio = inputVal;
+	persistSettings();
+}
+
+function updateWidthRatioThreshold() {
+	
+	let inputVal = Number(document.getElementById("imgWidthRatioThreshold").value);
+	 if (!isNumber(inputVal)) {
+		console.log('Error: Invalid input for imgWidthRatioThreshold: ' + inputVal);
+		document.getElementById("imgWidthRatioThreshold").value = 3;
+		inputVal = 3;
+	}
+	
+	scaleWidthRatioThreshold = inputVal;
+	persistSettings();
+}
+
+function updateHeightRatioThreshold() {
+	
+	let inputVal = Number(document.getElementById("imgHeightRatioThreshold").value);
+	 if (!isNumber(inputVal)) {
+		console.log('Error: Invalid input for imgHeightRatioThreshold: ' + inputVal);
+		document.getElementById("imgHeightRatioThreshold").value = 3;
+		inputVal = 3;
+	}
+	
+	scaleHeightRatioThreshold = inputVal;
+	persistSettings();
+}
+
+function toggleScaleUpImageWidth() {
+	scaleUpImageWidth = !scaleUpImageWidth;
+	refreshSettingsUi();
+	persistSettings();
+}
+
+function toggleScaleDownImageWidth() {
+	scaleDownImageWidth = !scaleDownImageWidth;
+	refreshSettingsUi();
+	persistSettings();
+}
+
+function toggleScaleUpImageHeight() {
+	scaleUpImageHeight = !scaleUpImageHeight;
+	refreshSettingsUi();
+	persistSettings();
+}
+
+function toggleScaleDownImageHeight() {
+	scaleDownImageHeight = !scaleDownImageHeight;
+	refreshSettingsUi();
+	persistSettings();
+}
+
+function refreshSettingsUi() {
+	document.getElementById("imgWindowWidthRatio").value = optimalWidthRatio;
+	document.getElementById("imgWidthRatioThreshold").value = scaleWidthRatioThreshold;
+	$('#scaleUpImgWidthSwitch').prop('checked', scaleUpImageWidth);
+	$('#scaleDownImgWidthSwitch').prop('checked', scaleDownImageWidth);
+	
+	document.getElementById("imgWindowHeightRatio").value = optimalHeightRatio;
+	document.getElementById("imgHeightRatioThreshold").value = scaleHeightRatioThreshold;
+	$('#scaleUpImgHeightSwitch').prop('checked', scaleUpImageHeight);
+	$('#scaleDownImgHeightSwitch').prop('checked', scaleDownImageHeight);
+}
+
+function persistSettings() {
+	store('optimalWidthRatio', optimalWidthRatio);
+	store('scaleWidthRatioThreshold', scaleWidthRatioThreshold);
+	store('scaleUpImageWidth', scaleUpImageWidth);
+	store('scaleDownImageWidth', scaleDownImageWidth);
+	
+	store('optimalHeightRatio', optimalHeightRatio);
+	store('scaleHeightRatioThreshold', scaleHeightRatioThreshold);
+	store('scaleUpImageHeight', scaleUpImageHeight);
+	store('scaleDownImageHeight', scaleDownImageHeight);
+}
+
+function loadSettingsFromStorage() {
+	let storedNumber = Number(localStorage.getItem('optimalWidthRatio'));
+	if (isNumber(storedNumber) && storedNumber > 0) {
+		optimalWidthRatio = storedNumber;
+	}
+	storedNumber = Number(localStorage.getItem('scaleWidthRatioThreshold'));
+	if (isNumber(storedNumber) && storedNumber > 0) {
+		scaleWidthRatioThreshold = storedNumber;
+	}
+	if (localStorage.getItem('scaleUpImageWidth') !== null) {
+		scaleUpImageWidth = localStorage.getItem('scaleUpImageWidth') == 'true';
+	}
+	if (localStorage.getItem('scaleDownImageWidth') !== null) {
+		scaleDownImageWidth = localStorage.getItem('scaleDownImageWidth') == 'true';
+	}
+	
+	storedNumber = Number(localStorage.getItem('optimalHeightRatio'));
+	if (isNumber(storedNumber) && storedNumber > 0) {
+		optimalHeightRatio = storedNumber;
+	}
+	storedNumber = Number(localStorage.getItem('scaleHeightRatioThreshold'));
+	if (isNumber(storedNumber) && storedNumber > 0) {
+		scaleHeightRatioThreshold = storedNumber;
+	}
+	if (localStorage.getItem('scaleUpImageHeight') !== null) {
+		scaleUpImageHeight = localStorage.getItem('scaleUpImageHeight') == 'true';
+	}
+	if (localStorage.getItem('scaleDownImageHeight') !== null) {
+		scaleDownImageHeight = localStorage.getItem('scaleDownImageHeight') == 'true';
+	}
+}
+
+
+function displayRating(imageSrc) {
+
+	var rateEl = $(ratingEl);
 	
 	// disable arrowkey navigation to the next input which changes the selection of the next image when the rating input box is focused
 	rateEl.on("keydown keyup keyleft keyright", "input", function(event) { 
 			event.preventDefault();
 	});
 	
-	var item = JSON.parse(localStorage.getItem(imageTarget.getAttribute("src")));
+	var item = JSON.parse(localStorage.getItem(imageSrc));
 	
 	refreshRating(rateEl, item == null ? null : item.rating);
 }
 
 function rateImage(event, rating) {
+	
+	if (event) event.stopPropagation();
 
 	if (!isLocalStorageAccepted()) {
 		alert("Unable to remember new rating without permission to use local browser storage.");
 		return;
 	}
 
-	var galleriaRef = Galleria.get(0);
-	var currentImgData = galleriaRef.getData(galleriaRef.getIndex());
-	if (currentImgData) {
-		localStorage.setItem(currentImgData.image, '{"rating":' + rating + "}");
-	}
-	
+	storeCurrentImgUserData(rating, null);
 	refreshRating($(event.target.parentElement), rating);
 }
 
@@ -765,20 +1839,11 @@ function refreshRating(rateEl, rating) {
 		$(this).get(0).className = isChecked ? 'fa fa-star checked' : 'fa fa-star unchecked';
 	});
 }
-
-var ratingHtml = 
-	'<div id="rating" class="rate">'
-		+ '<span class = "fa fa-star unchecked" onclick=\'rateImage(event, 1)\'></span>'
-		+ '<span class = "fa fa-star unchecked" onclick=\'rateImage(event, 2)\'></span>'
-		+ '<span class = "fa fa-star unchecked" onclick=\'rateImage(event, 3)\'></span>'
-		+ '<span class = "fa fa-star unchecked" onclick=\'rateImage(event, 4)\'></span>'
-		+ '<span class = "fa fa-star unchecked" onclick=\'rateImage(event, 5)\'></span>'
-	+ '</div>';
  
  
  function processKeyEvtForRating(event) {
 	
-	var rateEl = $('.galleria-info').find('#rating');
+	var rateEl = $(ratingEl);
 	
 	// enable rating with number keys
 	// 1 to 5, works with both: numpad or number keys under F-keys
@@ -793,40 +1858,391 @@ var ratingHtml =
 	} else if (event.key == '5') {
 		rateEl.children('span').get(4).click();
 	}
- }/* SHOW IMAGE IN ORIGINAL SIZE */
+ }
 
-// allow scrolling with mousewheel
-var scrollDistance = 170;
+/* SHOW IMAGE IN ORIGINAL SIZE */
 
-$(window).on("mousewheel DOMMouseScroll", function(event){
-	// is viewing image in original size / custom resize mode on
-	if ($("#fullSizeImage").length && $("#fullSizeImage").get(0).style.display != "none") {
-		var target = $(".galleria-images").get(0);
+let currSelectedImg;
 
-		event.preventDefault();
+$(function () {
+	var range = $("#imageSizeRange");
+	range.on("input change", function () {
+		applyScaleToImg(range.val(), modalImg[0], currSelectedImg.size);
+	});
+});
+
+let isPanning = false;
+let modalImg;
+
+function openImgDetailsView(imgIndex) {
+	modalImg = $('#modalImg');
+	
+	isPanning = false;
+	resetPan();
+
+	let isValid = isNumber(imgIndex) && Number.isInteger(imgIndex) && imgIndex >= 0 && imgIndex <= imagesToLoad.length;
+	
+	if (!isValid) {
+		console.log("Warning: ignoring invalid image index: " + imgIndex);
+		return;
+	}
+
+	let modalPanner = $('#modalPanner');
+	$('#imageSizeRangeContainer').show();
+	$('.loader').show();
+	$('.sidebar-open-button').hide();
+	$('body').css('overflow', 'hidden');
+	
+	let imageData = currSelectedImg = imagesToLoad[imgIndex];
+	currentImageIndex = imgIndex;
+
+	// Create a new image element to avoid showing a previous image
+	modalImg[0].remove();
+	modalPanner.append('<img class="modal-content" id="modalImg" draggable="false"></img>');
+	modalImg = $('#modalImg');
+
+	applyImageSizeRange(modalImg[0], imageData.size);
+	
+	installPanning();
+	
+	var imgLoaded = function (e) {
+		$('.loader').hide();
+		preloadImages();
+	};
+	
+	modalImg.on('load', imgLoaded);
+	modalImg.attr('src', imageData.image);
+	
+	if (modalImg[0].complete){
+		imgLoaded();
+	}
+	
+	captionText.innerHTML = imageData.title;
+	displayRating(imageData.image);
+	updateModalNav();
+	updateBookmarkOnImageDetailView(imageData.image);
+	
+	modal.style.display = "block";
+	displayTags(imageData.tags);
+}
+
+var panStart = { x: 0, y: 0 };
+var pan = { x: 0, y: 0 };
+
+function resetPan() {
+	panStart = { x: 0, y: 0 };
+	pan = { x: 0, y: 0 };
+	modalImg.css({'transform' : ''});
+}
+
+function installPanning() {
+	
+	modalImg.on('mousemove', e => {
+		if (!isPanning)
+			return;
+
+		let dx = e.pageX - panStart.x;
+		let dy = e.pageY - panStart.y;
+
+		pan.x += dx;
+		pan.y += dy;
+
+		panStart.x = e.pageX;
+		panStart.y = e.pageY;
 		
-		if (event.shiftKey) {
-			// change image size
-			var range = $("#imageSizeRange");
-			if (range.length) {
-				var delta = event.originalEvent.wheelDelta/120 || -event.originalEvent.detail/3;
-				range.val(range.val() - delta*0.04);
-				range.change();
+		applyPanning();
+		
+	});
+
+	modalImg.on('mousedown', e => {
+		event.preventDefault();
+		isPanning = true;
+		$('.modal-content').css({'cursor': 'grabbing'});
+
+		panStart.x = e.pageX;
+		panStart.y = e.pageY;
+	});
+
+	modalImg.on('mouseup', e => {
+		isPanning = false;
+		$('.modal-content').css({'cursor': 'grab'});
+	});
+}
+
+function applyPanning() {
+	modalImg.css({
+			'transform': 'translate(' + pan.x + 'px,' + pan.y + 'px)'
+		});
+}
+
+
+function navigateToPrevious(event) {
+    if (event) event.stopPropagation();
+    
+    if (currentImageIndex > 0) {
+		openImgDetailsView(currentImageIndex - 1);
+    }
+}
+
+function navigateToNext(event) {
+    if (event) event.stopPropagation();
+    
+    if (currentImageIndex < imagesToLoad.length - 1) {
+		openImgDetailsView(currentImageIndex + 1);
+    }
+}
+
+function updateModalNav() {
+	modalNavCurrentEl.value = currentImageIndex + 1;
+	modalNavMaxEl.textContent = imagesToLoad.length;
+}
+
+function applyImageSizeRange(img, size) {
+
+	let currentImg = img;
+
+	if (!size) {
+		size = { w: currentImg.naturalWidth, h: currentImg.naturalHeight };
+	};
+
+	let imgHeightExceedsWidth = size.h > size.w;
+	
+	let screenWidth = document.documentElement.clientWidth;
+	let optimalWidth = optimalWidthRatio * screenWidth;
+	let optimalScaleWidth = optimalWidth / size.w;
+	let imgWidthExceedsOptimal = optimalScaleWidth < 1;
+	let attemptScaleUpWidth = scaleUpImageWidth && !imgWidthExceedsOptimal;
+	let attemptScaleDownWidth = scaleDownImageWidth && imgWidthExceedsOptimal;
+	let attemptScaleWidth = attemptScaleUpWidth || attemptScaleDownWidth;
+	
+	let screenHeight = document.documentElement.clientHeight;
+	let optimalHeight = optimalHeightRatio * screenHeight;
+	let optimalScaleHeight = optimalHeight / size.h;
+	let imgHeightExceedsOptimal = optimalScaleHeight < 1;
+	let attemptScaleUpHeight = scaleUpImageHeight && !imgHeightExceedsOptimal;
+	let attemptScaleDownHeight = scaleDownImageHeight && imgHeightExceedsOptimal;
+	let attemptScaleHeight = attemptScaleUpHeight || attemptScaleDownHeight;
+	
+	// attempt to scale the image according to its longer side, meaning the other side falls into place since we are scaling uniformly
+	let scalingLongerSide = false;
+	let scaleHeight = false;
+	let scaleWidth = false;
+	if (imgHeightExceedsWidth) {
+		if (attemptScaleHeight) {
+			// For comparing if the image height exceeds the configured height threshold,
+			// first factor out the width, so when the image is also wide we still scale down to perfect fit.
+			// However, fallback to the original height when width scaling is turned off.
+			let heightToCompare = size.h;
+			if (attemptScaleDownWidth) {
+				heightToCompare *= optimalScaleWidth;
+			}
+			// get the ratio between this image height to the screen height
+			let heightWindowRatio = heightToCompare / screenHeight;
+			// only scale height if we don't exceed our threshold
+			scaleHeight = scaleHeightRatioThreshold > heightWindowRatio;
+			scalingLongerSide = scaleHeight;
+		}
+	} else {
+		// the image is wider than high
+		if (attemptScaleWidth) {
+			// For comparing if the image width exceeds the configured width threshold,
+			// first factor out the height, so when the image is also tall we still scale down to perfect fit.
+			// However, fallback to the original width when height scaling is turned off.
+			let widthToCompare = size.w;
+			if (attemptScaleDownHeight) {
+				widthToCompare *= optimalScaleHeight;
+			}
+			// get the ratio between this image width to the screen width
+			let widthWindowRatio = widthToCompare / screenWidth;
+			// only scale width if we don't exceed our threshold
+			scaleWidth = scaleWidthRatioThreshold > widthWindowRatio;
+			scalingLongerSide = scaleWidth;
+		}
+	}
+	
+	if (!scalingLongerSide) {
+		// fallback scaling according to shorter side, so at least this side is fit to the screen size
+		if (imgHeightExceedsWidth) {
+			// attempt to scale width
+			if (attemptScaleWidth) {
+				let widthToCompare = size.w;
+				// get the ratio between this image width to the screen width
+				let widthWindowRatio = widthToCompare / screenWidth;
+				// only scale width if we don't exceed our threshold
+				scaleWidth = scaleWidthRatioThreshold > widthWindowRatio;
 			}
 			
 		} else {
-			// scroll the view
-			var delta = event.originalEvent.wheelDelta/120 || -event.originalEvent.detail/3;
-			target.scrollTop -= parseInt(delta*scrollDistance);
+			// the image is wider than high
+			if (attemptScaleHeight) {
+				let heightToCompare = size.h;
+				// get the ratio between this image height to the screen height
+				let heightWindowRatio = heightToCompare / screenHeight;
+				// only scale height if we don't exceed our threshold
+				scaleHeight = scaleHeightRatioThreshold > heightWindowRatio;
+			}
 		}
-		
 	}
-});
+	
+	let optimalScale = 1.0;
+	if (scaleHeight) {
+		optimalScale = optimalScaleHeight;
+	} else if (scaleWidth) {
+		optimalScale = optimalScaleWidth;
+	}
+	 
+	if (optimalScale > maxScale) {
+		optimalScale = maxScale;
+	}
+	
+	var range = $("#imageSizeRange");
+	range.attr('max', maxScale);
+	range.css("display", "block");
+	range.val(optimalScale);
+	applyScaleToImg(range.val(), currentImg, size);
+}
+
+function applyScaleToImg(scale, currentImg, size) {
+	let newImgWidth = size.w * scale;
+	let newImgHeight = size.h * scale;
+	let currentImgWidth = parseInt(currentImg.style.width, 10);
+	let currentImgHeight = parseInt(currentImg.style.height, 10);
+	let scaleDeltaHeight = newImgHeight / currentImgHeight;
+	
+	currentImg.style.width = newImgWidth + 'px';
+	currentImg.style.height = newImgHeight + 'px';
+	
+	// center image
+	let screenHeight = document.documentElement.clientHeight;
+	if (newImgHeight < screenHeight) {
+		let imgTopPos = (screenHeight / 2) - (newImgHeight / 2);
+		currentImg.style.top = imgTopPos + 'px';
+	} else {
+		currentImg.style.top = 0 + 'px';
+	}
+	
+	// adjust panning translation so the image remains visible when scaled down and was dragged down or up
+	if (scaleDeltaHeight < 1) {
+		pan.y *= scaleDeltaHeight;
+		applyPanning();
+	}
+}
+
+function resizeImage(event) {
+	// change image size based on scroll event
+	var range = $("#imageSizeRange");
+	if (range.length) {
+		var delta = event.originalEvent.wheelDelta/120 || -event.originalEvent.detail/3;
+		range.val(range.val() - delta*0.04);
+		range.change();
+	}
+}
+
+function moveImageY(event) {
+	// change image Y based on scroll event
+	// move the image vertically if there is more to see in the scrolling direction
+	let delta = event.originalEvent.wheelDelta/120 || -event.originalEvent.detail/3;
+	let isScrollingUp = delta > 0;
+	if ((isScrollingUp && isImgTopOutsideScreen()) || (!isScrollingUp && isImgBottomOutsideScreen())) {
+		pan.y += delta * 50;
+		applyPanning();
+	}
+}
+
+function preloadImages() {
+	preloadNextImages();
+	preloadPreviousImages();
+}
+
+function preloadNextImages() {
+	for (let i = 0; i < numberOfNextImgsToPreload; i++) {
+		
+		let nextImgInx = currentImageIndex + 1 + i;
+		if (nextImgInx >= imagesToLoad.length) break;
+		
+        preloadedImages[i] = new Image();
+        preloadedImages[i].src = imagesToLoad[nextImgInx].image;
+    }
+}
+
+function preloadPreviousImages() {
+
+	if (preloadedImages.length > 30) preloadedImages = [];
+	let start = preloadedImages.length;
+	
+	for (let i = 0; i < numberOfPrevImgsToPreload; i++) {
+		
+		let prevImgInx = currentImageIndex - 1 - i;
+		if (prevImgInx < 0) break;
+		
+        preloadedImages[start + i] = new Image();
+        preloadedImages[start + i].src = imagesToLoad[prevImgInx].image;
+    }
+}
+
+$(function() {
+	$(modalNavCurrentEl).on('keydown', function(e) {
+	  if (event.key == 'Enter') {
+		event.preventDefault();
+		let newImgInx = Number(modalNavCurrentEl.value);
+		if (isNumber(newImgInx) && Number.isInteger(newImgInx) && newImgInx > 0 && newImgInx <= imagesToLoad.length && (newImgInx - 1) != currentImageIndex) {
+			openImgDetailsView(--newImgInx);
+		}
+		e.target.blur();
+	  }
+	});
+})
 
 
-Galleria.on('fullscreen_exit', function(e) {
+function closeImageView(event, forceClose) {
+
+	if (event.target.id === 'modalImg') {
+		return;
+	}
+
+	if (!forceClose && isEditingModalComponent()) return;
+
+	$('#imageSizeRangeContainer').hide();
+    modal.style.display = "none";
+	
 	hideImageSizeRange();
-});
+	if (customTagsDirty) {
+		refreshSelectableTags();
+		maybeRemovePreviewImg();
+	}
+	
+	if (!isSidebarVisible())
+		$('.sidebar-open-button').show();
+	
+	$('body').css('overflow', 'auto');
+}
+
+function isEditingModalComponent() {
+	return isEditingNav() || isEditingTags();
+}
+
+function isEditingNav() {
+	return activeElementHasId('modalNavCurrent');
+}
+
+// if a tag was removed, the image may not pass the currently selected filter criteria anymore
+function maybeRemovePreviewImg() {
+	// this is a nice to have self contained functionality, so an error should not impact other features
+	try {
+		let currImgData = imagesToLoad[currentImageIndex];
+		// double check we got the right image
+		if (currImgData && gallery.images[currentImageIndex] && currImgData.image === gallery.images[currentImageIndex].data.image) {
+			if (!filterFunction([currImgData]).length) {
+				gallery.remove(currentImageIndex);
+				imagesToLoad.splice(currentImageIndex, 1);
+				updateImgCountDisplay();
+			}
+		}
+	} catch (e) {
+		console.error('Failed to remove preview image after deleting a tag:');
+		console.error(e, e.stack);
+	}
+}
 
 function hideImageSizeRange() {
 	var range = $("#imageSizeRange");
@@ -835,134 +2251,108 @@ function hideImageSizeRange() {
 	}
 }
 
-// galleria event callback when an preview image has been selected and is displayed in the lightbox 
-Galleria.on('image', function(e) {
+function syncGalleryWithImg(event) {
+	event.stopPropagation();
+	
+	loadImages(currentImageIndex);
+}
 
-	++numberOfFullSizeImagesLoaded;
+
+function openBookmarksModal() {
+	$('body').css('overflow', 'hidden');
+	loadBookmarksView();
+	$(bookmarksModalEl).show();
+}
+
+function closeBookmarksModal() {
+	$('body').css('overflow', 'auto');
+	$(bookmarksModalEl).hide();
+}
+
+function loadBookmarksView() {
+	let columns = Array.from(bookmarksListEl.childNodes).filter(cn => cn.className == 'bookmarks-column');
+	let bookmarksArr = getBookmarks();
+	
+	columns.forEach(c => c.innerHTML = "");
+	
+	// display the bookmarks in the popup modal for user selection
+	let filteredOutBookmarks = [];
+	let insertCount = 0;
+	bookmarksArr.forEach((bm) => {
 		
-	// move the info box to the left from center
-	// actually moves presumably because the folio theme sets the style -webkit-transition: all 100ms;
-	$('.galleria-info').css("left", "0px");
-
-	// TODO: remove, can be retireved statically
-	var galleriaRef = this;
-	
-	displayRating(e.imageTarget);
-
-	// when selecting next or prev image, need to reset the full size image view as it does not display properly (scroll pane is still as large as previous image)
-	// to do so we set a custom id to mark the image we last viewed in full size, retrieving the current image from Galleria would not work because the full sized image may not be the current one anymore
-	if ($("#fullSizeImage").length) {
-		resetFullSizeView(e, galleriaRef)
-	}
-
-	// show original image size when clicking on the image
-	// e.imageTarget = the currently active IMG HTML element
-	e.imageTarget.parentElement.onclick = function() {
-	
-		if (!$("#fullSizeImage").length) {
-			
-			currentImg = e.imageTarget;
-			currentImg.id = "fullSizeImage";
-			
-			currentImg.parentElement.parentElement.style.overflow = 'auto';
-			currentImg.parentElement.style.overflow = ''; // if we set auto here, it will crop the vertical scrollbar for some reason
-			currentImg.parentElement.style.height = 'auto';
-			currentImg.parentElement.style.width = 'auto';
-			currentImg.parentElement.style.position = '';
-			
-			currentImg.style.height = 'auto';
-			currentImg.style.width = 'auto';
-			currentImg.height = 'auto';
-			currentImg.width = 'auto';
-			currentImg.style.margin = 'auto';
-			// clear the absolute positioning because for some reason does not show otherwise
-			currentImg.style.position = '';
-			currentImg.style.overflow = 'auto';
-			
-			// issue: this hides the left/right navigation completely
-			//$(".galleria-image-nav").css("z-index", "-1");
-			// the nav spans from right to left with 100% width and would blocks click event on the image or the scrollbar
-			// it starts to block because the position is cleared from the image, which means the z-index property stops working and it slides into the background
-			// so set to ignore click events but allow click events specifically on the left and right navigation which are only small bars on the sides of the screen
-			$(".galleria-image-nav").css("pointer-events", "none");
-			$(".galleria-image-nav-right").css("pointer-events", "auto");
-			$(".galleria-image-nav-left").css("pointer-events", "auto");
-			// need to leave a bit of space to not obstruct the scrollbar by the right nav element control which overlays the image
-			$(".galleria-image-nav").css("width", "99%");
-			
-			// custom resize
-			let optimalWidthRatio = 0.80;
-			let maxScale = 1.5;
-			let screenWidth = document.documentElement.clientWidth;
-			let optimalWidth = optimalWidthRatio * screenWidth;
-			let optimalScale = optimalWidth / currentImg.clientWidth;
-			if (optimalScale > maxScale) {
-				optimalScale = maxScale;
-			}
-			
-			var range = $("#imageSizeRange");
-			if (!range.length) {
-				var rangeHtml = '<input type="range" class="form-range image-size-range" min="0.1" max="' + maxScale + '" step="0.01" id="imageSizeRange" data-toggle="tooltip" data-placement="bottom" title="Use Shift + Mousewheel">';
-				$('.galleria-container').append(rangeHtml);
-				range = $("#imageSizeRange");
-			} else {
-				range.css('display','block');
-			}
-			
-			range.css("display", "block");
-			range.on("input change", function() {
-				applyScaleToImg(range.val(), currentImg);
-			});
-			
-			range.val(optimalScale);
-			applyScaleToImg(range.val(), currentImg);
-			
+		let bmIdx = imagesToLoad.findIndex(i => i.image == bm);
+		
+		if (bmIdx >= 0) {
+			// the bookmarked image currently passes filter criteria
+			$(columns[insertCount++ % columns.length]).append('<img src="' + imagesToLoad[bmIdx].thumb + '" style="width:100%" onclick="loadBookmark(event, ' + bmIdx + ')">');
 		} else {
-			resetFullSizeView(e, galleriaRef);
+			// the bookmarked image is filtered out
+			filteredOutBookmarks.push(bm);
 		}
+	});
+	
+	// append filtered out bookmarks
+	filteredOutBookmarks.forEach((bm) => {
+		
+		let bmIdx = imgData.findIndex(i => i.image == bm);
+		
+		if (bmIdx >= 0) {
+			// the bookmarked image currently passes filter criteria
+			$(columns[insertCount++ % columns.length]).append('<div class="bookmark-container-filtered-out"><img src="' + imgData[bmIdx].thumb + '" class="bookmark-filtered-out" style="width:100%"> <div class="centered-text">Filtered Out</div></div>');
+		} else {
+			console.log('Info: bookmarked image does not exist anymore (image name or path changed) and likely can be removed from your browsers local storage: ' + bm);
+		}
+	});
+}
+
+function loadBookmark(event, imgIdx) {
+	event.stopPropagation();
+	
+	closeBookmarksModal();
+	openImgDetailsView(imgIdx);
+}
+
+
+/* Image Fullscreen Modal */
+function updateBookmarkOnImageDetailView(imageSrc) {
+	let bookmarksArr = getBookmarks();
+	let bookmark = bookmarksArr.find(el => el == imageSrc);
+	
+	if (bookmark != null) {
+		$(addBookmarkEl).removeClass('fa-bookmark-o');
+		$(addBookmarkEl).addClass('fa-bookmark');
+	} else {
+		$(addBookmarkEl).removeClass('fa-bookmark');
+		$(addBookmarkEl).addClass('fa-bookmark-o');
 	}
-});
-
-function applyScaleToImg(scale, currentImg) {
-	var newHeight = currentImg.naturalHeight * scale + 'px';
-	var newWidth = currentImg.naturalWidth * scale + 'px';
-	currentImg.style.height = newHeight;
-	currentImg.style.width = newWidth;
-	currentImg.width = newWidth;
-	currentImg.height = newHeight;
 }
 
-// TODO: no need to pass in the galleria ref, can be retirved statically
-function resetFullSizeView(e, galleriaRef) {
-	// Fitting image to screen size
+function toggleBookmark(event) {
+	event.stopPropagation();
 	
-	var currentImg = $("#fullSizeImage").get(0);
+	let imgSrc = imagesToLoad[currentImageIndex].image;
+	let bookmarksArr = getBookmarks();
+	let bookmark = bookmarksArr.find(el => el == imgSrc);
 	
-	hideImageSizeRange();
+	if (bookmark != null) {
+		bookmarksArr = bookmarksArr.filter(item => item !== imgSrc);
+	} else {
+		bookmarksArr.push(imgSrc);
+	}
 	
-	currentImg.parentElement.parentElement.style.overflow = 'hidden';
-	currentImg.parentElement.style.overflow = 'hidden';
-	currentImg.parentElement.style.height = '100%';
-	currentImg.parentElement.style.width = '100%';
-	currentImg.parentElement.style.position = 'absolute';
+	store("bookmarks", JSON.stringify(bookmarksArr));
 	
-	currentImg.style.height = '100%';
-	currentImg.style.width = '100%';
-	currentImg.height = '';
-	currentImg.width = '';
-	currentImg.style.margin = '';
-	currentImg.style.position = 'absolute';
-	currentImg.style.overflow = 'hidden';
-	
-	// bug: do not unset these; for some reason they are sometimes not set again so the image can not be clicked...
-	//$(".galleria-image-nav").css("width", "100%");
-	//$(".galleria-image-nav").css("pointer-events", "");
-	//$(".galleria-image-nav-right").css("pointer-events", "");
-	//$(".galleria-image-nav-left").css("pointer-events", "");
-	
-	currentImg.id = null;
-	
-	// TODO: if the window is resized while viewing full image, the image is rescaled to fit the screen, above code to reset the style should be triggered on the rescale callback
-	//galleriaRef.resize({width:'100%', height:'100%'});
-	galleriaRef.refreshImage();
+	updateBookmarkOnImageDetailView(imgSrc);
 }
+
+function getBookmarks() {
+	let existingData = localStorage.getItem("bookmarks");
+	try { var bookmarksArr = JSON.parse(existingData); } catch(ex){}
+	
+	if (existingData == null || bookmarksArr == null) {
+		bookmarksArr = JSON.parse('[]');
+	}
+	
+	return bookmarksArr;
+}
+
