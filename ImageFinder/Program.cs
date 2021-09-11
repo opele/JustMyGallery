@@ -82,7 +82,7 @@ namespace ImageFinder {
                 Console.WriteLine("5. Set the quality of preview images (current value is " + previewImgQuality + ")");
                 Console.WriteLine("6. Set the number of sub-directories to search for image data (current value is " + maxDepth + ")");
                 Console.WriteLine("7. Set the optional directory name to search for image data ignoring all other directories placed on the same level as the executable (current value is " + rootImgDirName + ")");
-                Console.WriteLine("8. Set a directory suffix to identify which identifies the directory name as a category for all images it contains (current value is " + directoryNameCategoryIdentifierSuffix + ")");
+                Console.WriteLine("8. Set a directory suffix which identifies the directory name as a category for all images it contains (current value is " + directoryNameCategoryIdentifierSuffix + ")");
                 Console.WriteLine("9. Set if all parent directories (up to app root) should be considered for categories (current value is " + considerParentDirectoriesForCategories + ")");
                 Console.WriteLine("0. Toggle if the output file is minified (current value is " + minifyOutput + ")");
 
@@ -226,7 +226,7 @@ namespace ImageFinder {
         static void processFile(string filePath) {
 
             switch (option) {
-                case Option.ListAndPrev: { addToList(filePath); generatePreview(filePath, false); } break;
+                case Option.ListAndPrev: { generatePreview(filePath, false); addToList(filePath); } break;
                 case Option.List: { addToList(filePath); } break;
                 case Option.DelPrev: { deletePreview(filePath); } break;
                 case Option.RegenPrev: { generatePreview(filePath, true); } break;

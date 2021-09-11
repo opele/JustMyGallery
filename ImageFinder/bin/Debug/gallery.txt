@@ -4,6 +4,8 @@ Gallery Website Dev Notes
 
 TODO:
 
+- fix some images not opening in correct size / cut off
+
 - test in Edge/FF/Chrome on Mac and PC
 - check initial page load speed test
 - create github page: https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site
