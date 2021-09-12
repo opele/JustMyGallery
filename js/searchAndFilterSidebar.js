@@ -17,7 +17,7 @@ function isSidebarVisible() {
 
 $(function() {
 		
-	$('#closeSidebarBtn').keydown(function(event) {
+	$('.close-sidebar-btn').keydown(function(event) {
 			if (event.key == 'Enter') closeSidebar();
 		});
 	
