@@ -136,6 +136,14 @@ function updateModalNav() {
 	modalNavMaxEl.textContent = imagesToLoad.length;
 }
 
+/**
+* Updates the size range slider and sets the optimal initial scale.
+* Optimal means to size the image so it covers most of the screen but is not cut off.
+* Small images are scaled up whereas images exceeding the screen resolution are scaled down.
+* Always scale all sides uniformly by a single scalar so proprtions are maintained.
+*
+* However, very tall or wide images should not be sqeezed (e.g. single image webcomics).
+*/
 function applyImageSizeRange(img, size) {
 
 	let currentImg = img;
@@ -143,8 +151,6 @@ function applyImageSizeRange(img, size) {
 	if (!size) {
 		size = { w: currentImg.naturalWidth, h: currentImg.naturalHeight };
 	};
-
-	let imgHeightExceedsWidth = size.h > size.w;
 	
 	let screenWidth = document.documentElement.clientWidth;
 	let optimalWidth = optimalWidthRatio * screenWidth;
@@ -162,15 +168,19 @@ function applyImageSizeRange(img, size) {
 	let attemptScaleDownHeight = scaleDownImageHeight && imgHeightExceedsOptimal;
 	let attemptScaleHeight = attemptScaleUpHeight || attemptScaleDownHeight;
 	
-	// attempt to scale the image according to its longer side, meaning the other side falls into place since we are scaling uniformly
-	let scalingLongerSide = false;
+	// either scale up or down where scaling down has precedence
+	let attemptToScaleDown = attemptScaleDownHeight || attemptScaleDownWidth;
+	
+	// evaluate which side of the image to scale according to the side which required greater scaling (optimal) unless suppressed by config
 	let scaleHeight = false;
 	let scaleWidth = false;
-	if (imgHeightExceedsWidth) {
-		if (attemptScaleHeight) {
-			// For comparing if the image height exceeds the configured height threshold,
-			// first factor out the width, so when the image is also wide we still scale down to perfect fit.
-			// However, fallback to the original height when width scaling is turned off.
+	// true if height needs to be scaled for optimal image fit, otherwise it's the width
+	let scaleHeightForOptimalFit = false;
+	if (attemptToScaleDown) {
+		// attempt to scale the image according to the side which requires a smaller scaling factor
+		if (optimalScaleHeight < optimalScaleWidth) { // check if for the optimal scale we need to adjust the height
+			// Now compare the height scale to the configured height scale threshold.
+			// As a reference use the image how it would look without the height scale but potentially width scale.
 			let heightToCompare = size.h;
 			if (attemptScaleDownWidth) {
 				heightToCompare *= optimalScaleWidth;
@@ -179,14 +189,11 @@ function applyImageSizeRange(img, size) {
 			let heightWindowRatio = heightToCompare / screenHeight;
 			// only scale height if we don't exceed our threshold
 			scaleHeight = scaleHeightRatioThreshold > heightWindowRatio;
-			scalingLongerSide = scaleHeight;
-		}
-	} else {
-		// the image is wider than high
-		if (attemptScaleWidth) {
-			// For comparing if the image width exceeds the configured width threshold,
-			// first factor out the height, so when the image is also tall we still scale down to perfect fit.
-			// However, fallback to the original width when height scaling is turned off.
+			scaleHeightForOptimalFit = true;
+		} else {
+			// The width needs more or equal scaling than the image height.
+			// Now compare the width scale to the configured width scale threshold.
+			// As a reference use the image how it would look without the width scale but potentially height scale.
 			let widthToCompare = size.w;
 			if (attemptScaleDownHeight) {
 				widthToCompare *= optimalScaleHeight;
@@ -195,13 +202,21 @@ function applyImageSizeRange(img, size) {
 			let widthWindowRatio = widthToCompare / screenWidth;
 			// only scale width if we don't exceed our threshold
 			scaleWidth = scaleWidthRatioThreshold > widthWindowRatio;
-			scalingLongerSide = scaleWidth;
+			optimalScalingApplies = scaleWidth;
+		}
+	} else {
+		// attempt to scale the image according to the side which requires a larger scaling factor
+		if (optimalScaleHeight > optimalScaleWidth) { // check if for the optimal scale we need to adjust the height
+			scaleHeight = attemptScaleUpHeight;
+			scaleHeightForOptimalFit = true;
+		} else {
+			scaleWidth = attemptScaleUpWidth;
 		}
 	}
 	
-	if (!scalingLongerSide) {
-		// fallback scaling according to shorter side, so at least this side is fit to the screen size
-		if (imgHeightExceedsWidth) {
+	if (!(scaleHeight || scaleHeight)) { // check if optimal scaling is suppressed
+		// fallback: attempt to scale the other side
+		if (scaleHeightForOptimalFit) {
 			// attempt to scale width
 			if (attemptScaleWidth) {
 				let widthToCompare = size.w;
@@ -212,7 +227,7 @@ function applyImageSizeRange(img, size) {
 			}
 			
 		} else {
-			// the image is wider than high
+			// attempt to scale height
 			if (attemptScaleHeight) {
 				let heightToCompare = size.h;
 				// get the ratio between this image height to the screen height
