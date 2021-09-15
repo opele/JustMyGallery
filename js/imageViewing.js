@@ -34,6 +34,18 @@ function openImgDetailsView(imgIndex) {
 	
 	let imageData = currSelectedImg = imagesToLoad[imgIndex];
 	currentImageIndex = imgIndex;
+	
+	if (canNavigateToNext()) {
+		$('.next').show();
+	} else {
+		$('.next').hide();
+	}
+	
+	if (canNavigateToPrevious()) {
+		$('.previous').show();
+	} else {
+		$('.previous').hide();
+	}
 
 	// Create a new image element to avoid showing a previous image
 	modalImg[0].remove();
@@ -114,19 +126,26 @@ function applyPanning() {
 		});
 }
 
+function canNavigateToPrevious() {
+	return currentImageIndex > 0;
+}
 
 function navigateToPrevious(event) {
     if (event) event.stopPropagation();
     
-    if (currentImageIndex > 0) {
+    if (canNavigateToPrevious()) {
 		openImgDetailsView(currentImageIndex - 1);
     }
+}
+
+function canNavigateToNext() {
+	return currentImageIndex < imagesToLoad.length - 1;
 }
 
 function navigateToNext(event) {
     if (event) event.stopPropagation();
     
-    if (currentImageIndex < imagesToLoad.length - 1) {
+    if (canNavigateToNext()) {
 		openImgDetailsView(currentImageIndex + 1);
     }
 }

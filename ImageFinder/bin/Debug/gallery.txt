@@ -4,8 +4,6 @@ Gallery Website Dev Notes
 
 TODO:
 
-- hide next button if no next img available
-
 - test in Edge/FF/Chrome on Mac and PC
 - check initial page load speed test
 - create github page: https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site
