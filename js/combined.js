@@ -1402,7 +1402,7 @@ function isSidebarVisible() {
 
 $(function() {
 		
-	$('#closeSidebarBtn').keydown(function(event) {
+	$('.close-sidebar-btn').keydown(function(event) {
 			if (event.key == 'Enter') closeSidebar();
 		});
 	
@@ -1895,6 +1895,18 @@ function openImgDetailsView(imgIndex) {
 	
 	let imageData = currSelectedImg = imagesToLoad[imgIndex];
 	currentImageIndex = imgIndex;
+	
+	if (canNavigateToNext()) {
+		$('.next').show();
+	} else {
+		$('.next').hide();
+	}
+	
+	if (canNavigateToPrevious()) {
+		$('.previous').show();
+	} else {
+		$('.previous').hide();
+	}
 
 	// Create a new image element to avoid showing a previous image
 	modalImg[0].remove();
@@ -1975,19 +1987,26 @@ function applyPanning() {
 		});
 }
 
+function canNavigateToPrevious() {
+	return currentImageIndex > 0;
+}
 
 function navigateToPrevious(event) {
     if (event) event.stopPropagation();
     
-    if (currentImageIndex > 0) {
+    if (canNavigateToPrevious()) {
 		openImgDetailsView(currentImageIndex - 1);
     }
+}
+
+function canNavigateToNext() {
+	return currentImageIndex < imagesToLoad.length - 1;
 }
 
 function navigateToNext(event) {
     if (event) event.stopPropagation();
     
-    if (currentImageIndex < imagesToLoad.length - 1) {
+    if (canNavigateToNext()) {
 		openImgDetailsView(currentImageIndex + 1);
     }
 }
@@ -2012,8 +2031,6 @@ function applyImageSizeRange(img, size) {
 	if (!size) {
 		size = { w: currentImg.naturalWidth, h: currentImg.naturalHeight };
 	};
-
-	let imgHeightExceedsWidth = size.h > size.w;
 	
 	let screenWidth = document.documentElement.clientWidth;
 	let optimalWidth = optimalWidthRatio * screenWidth;
@@ -2090,7 +2107,7 @@ function applyImageSizeRange(img, size) {
 			}
 			
 		} else {
-			// attempt to scale heigh
+			// attempt to scale height
 			if (attemptScaleHeight) {
 				let heightToCompare = size.h;
 				// get the ratio between this image height to the screen height
