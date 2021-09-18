@@ -2,7 +2,7 @@
 
 **JavaScript Image Gallery**
 
-Have a look: TODO
+Have a look: https://opele.github.io/JustMyGallery/index.html
 
 Or simply download this repository and open the index.html in your browser. No server side code.
 
